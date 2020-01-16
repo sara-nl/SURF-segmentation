@@ -36,9 +36,9 @@ PATCH_SIZE  = opts.patch_size
 
 # modify below directory entries as per your local file system
 TRAIN_TUMOR_WSI_PATH = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
-TRAIN_NORMAL_WSI_PATH = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Normal'
 TRAIN_TUMOR_MASK_PATH = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
-PROCESSED_PATCHES_NORMAL_NEGATIVE_PATH ='pro_patch_normal_negative/'
+
+# modify below directory entries as per your local save directory
 PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH ='pro_patch_tumor_negative_%s/'%PATCH_SIZE
 PROCESSED_PATCHES_POSITIVE_PATH ='pro_patch_positive_%s/'%PATCH_SIZE
 
@@ -198,27 +198,6 @@ class WSI(object):
 
         return True
 
-    def read_wsi_normal(self, wsi_path):
-        """
-            # =====================================================================================
-            # read WSI image and resize
-            # Due to memory constraint, we use down sampled (4th level, 1/32 resolution) image
-            # ======================================================================================
-        """
-        try:
-            self.cur_wsi_path = wsi_path
-            self.wsi_image = OpenSlide(wsi_path)
-            self.level_used = min(self.def_level, self.wsi_image.level_count - 1)
-
-            self.rgb_image_pil = self.wsi_image.read_region((0, 0), self.level_used,
-                                                            self.wsi_image.level_dimensions[self.level_used])
-            self.rgb_image = np.array(self.rgb_image_pil)
-
-        except OpenSlideUnsupportedFormatError:
-            print('Exception: OpenSlideUnsupportedFormatError')
-            return False
-
-        return True
 
     def read_wsi_tumor(self, wsi_path, mask_path):
         """
@@ -244,38 +223,6 @@ class WSI(object):
 
         return True
 
-    def find_roi_n_extract_patches_mask(self):
-        mask = cv2.cvtColor(self.mask, cv2.COLOR_BGR2GRAY)
-        contour_mask, bounding_boxes = self.get_image_contours_mask(np.array(mask), np.array(self.mask))
-
-        # contour_mask = cv2.resize(contour_mask, (0, 0), fx=0.40, fy=0.40)
-        # cv2.imshow('contour_mask', np.array(contour_mask))
-        self.mask_pil.close()
-        self.extract_patches_mask(bounding_boxes)
-        self.wsi_image.close()
-        self.mask_image.close()
-
-    def find_roi_n_extract_patches_normal(self):
-        hsv = cv2.cvtColor(self.rgb_image, cv2.COLOR_BGR2HSV)
-        # [20, 20, 20]
-        lower_red = np.array([20, 50, 20])
-        # [255, 255, 255]
-        upper_red = np.array([200, 150, 200])
-        mask = cv2.inRange(hsv, lower_red, upper_red)
-
-        # (50, 50)
-        close_kernel = np.ones((25, 25), dtype=np.uint8)
-        image_close = Image.fromarray(cv2.morphologyEx(np.array(mask), cv2.MORPH_CLOSE, close_kernel))
-        # (30, 30)
-        open_kernel = np.ones((30, 30), dtype=np.uint8)
-        image_open = Image.fromarray(cv2.morphologyEx(np.array(image_close), cv2.MORPH_OPEN, open_kernel))
-        contour_rgb, bounding_boxes = self.get_image_contours_normal(np.array(image_open), self.rgb_image)
-
-        # contour_rgb = cv2.resize(contour_rgb, (0, 0), fx=0.40, fy=0.40)
-        # cv2.imshow('contour_rgb', np.array(contour_rgb))
-        self.rgb_image_pil.close()
-        self.extract_patches_normal(bounding_boxes)
-        self.wsi_image.close()
 
     def find_roi_n_extract_patches_tumor(self):
         hsv = cv2.cvtColor(self.rgb_image, cv2.COLOR_BGR2HSV)
@@ -300,25 +247,6 @@ class WSI(object):
         self.extract_patches_tumor(bounding_boxes)
         self.wsi_image.close()
         self.mask_image.close()
-
-
-    @staticmethod
-    def get_image_contours_mask(cont_img, mask_img):
-        contours, _ = cv2.findContours(cont_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        bounding_boxes = [cv2.boundingRect(c) for c in contours]
-        contours_mask_image_array = np.array(mask_img)
-        line_color = (255, 0, 0)  # blue color code
-        cv2.drawContours(contours_mask_image_array, contours, -1, line_color, 1)
-        return contours_mask_image_array, bounding_boxes
-
-    @staticmethod
-    def get_image_contours_normal(cont_img, rgb_image):
-        contours, _ = cv2.findContours(cont_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        bounding_boxes = [cv2.boundingRect(c) for c in contours]
-        contours_rgb_image_array = np.array(rgb_image)
-        line_color = (255, 0, 0)  # blue color code
-        cv2.drawContours(contours_rgb_image_array, contours, -1, line_color, 3)
-        return contours_rgb_image_array, bounding_boxes
 
     @staticmethod
     def get_image_contours_tumor(cont_img, rgb_image):
