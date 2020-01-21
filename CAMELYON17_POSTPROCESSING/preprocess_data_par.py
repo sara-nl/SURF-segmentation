@@ -42,9 +42,8 @@ tf_coord = tf.train.Coordinator()
 
 
 # modify below directory entries as per your local file system
-TRAIN_TUMOR_WSI_PATH = '/nfs/managed_datasets/CAMELYON17/testing/patients'
-
-PROCESSED_PATCHES_PATH ='/home/rubenh/projects/camelyon/deeplab/CAMELYON17_POSTPROCESSING/Processed/patch_size_%s/'%PATCH_SIZE
+TRAIN_TUMOR_WSI_PATH = '/lustre4/2/managed_datasets/CAMELYON17/testing/patients/patient_'
+PROCESSED_PATCHES_PATH ='/lustre4/2/managed_datasets/CAMELYON17/testing/patch_size_%s/'%PATCH_SIZE
 
 print("Processing Patch Size ", PATCH_SIZE)
 
@@ -174,7 +173,7 @@ class WSI(object):
             self.rgb_image_pil = self.wsi_image.read_region((0, 0), self.level_used, self.wsi_image.level_dimensions[self.level_used])
             self.rgb_image = np.array(self.rgb_image_pil)
 
-            save_path_wsi = '/home/rubenh/projects/camelyon/deeplab/CAMELYON17_POSTPROCESSING/Processed/patch_size_2048/'+ self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:-4]
+            save_path_wsi =  self.cur_wsi_path[:self.cur_wsi_path.find('patients')] + 'patch_size_%s/'%PATCH_SIZE + self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:-4]
 
             if not os.path.exists(save_path_wsi):
                 os.mkdir(save_path_wsi)
@@ -224,7 +223,7 @@ class WSI(object):
 
 
 def run_on_tumor_data():
-    wsi.wsi_paths = glob.glob(os.path.join(TRAIN_TUMOR_WSI_PATH, '*.tif'))
+    wsi.wsi_paths = glob.glob(TRAIN_TUMOR_WSI_PATH + '*1[2-9]*.tif')
     wsi.wsi_paths.sort()
 
     wsi.index = 0
@@ -234,11 +233,12 @@ def run_on_tumor_data():
     #         wsi.read_wsi_tumor(wsi_path)
     #         wsi.find_roi_n_extract_patches_tumor()
 
+    png_path = '/home/rubenh/examode/deeplab/CAMELYON17_POSTPROCESSING/bbpro_'
 
     for g in range(0, len(wsi.wsi_paths), num_threads):
         p = []
         for wsi_path in wsi.wsi_paths[g:g+num_threads]:
-            # if wsi_path[wsi_path.rfind('/') + 1:] not in lst_done:
+            if not os.path.exists(png_path + wsi_path[wsi_path.find('patient_'):] +'.png'):
                 if wsi.read_wsi_tumor(wsi_path):
                     print("Processing (run_on_tumor_data)", wsi_path)
                     pp = multiprocessing.Process(target=wsi.find_roi_n_extract_patches_tumor)
@@ -254,3 +254,4 @@ run_on_tumor_data()
 
 
 print("Finished %s"%PATCH_SIZE)
+
