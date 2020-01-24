@@ -1,4 +1,3 @@
-
 from os import listdir
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
 from PIL import Image, ImageStat, ImageDraw, ImageFont
@@ -374,7 +373,6 @@ class WSI(object):
         try:
             self.cur_wsi_path = wsi_path
             self.wsi_image = OpenSlide(wsi_path)
-            pdb.set_trace()
             ### CAM17 ###
             l_contours      = self.get_opencv_contours_from_xml(mask_path, wsi.downsample)
             self.mask_image = self.get_mask_from_opencv_contours(l_contours,self.wsi_image, self.level_output)
