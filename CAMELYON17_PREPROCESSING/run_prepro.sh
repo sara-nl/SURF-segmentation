@@ -1,6 +1,9 @@
 #!/bin/bash
 
 
+module load 2019
+module load Python/3.7.5-foss-2018b
+
 source ~/.virtualenvs/openslide/bin/activate
 
 
