@@ -2,7 +2,6 @@ from os import listdir
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
 from PIL import Image, ImageStat, ImageDraw, ImageFont
 from xml.etree.ElementTree import parse
-from os.path import join, isfile, exists, splitext
 import collections
 import glob
 import os
@@ -45,18 +44,17 @@ PATCH_SIZE  = opts.patch_size
 id          = opts.proc_center
 
 # modify below directory entries as per your local file system
-TRAIN_TUMOR_WSI_PATH = '/nfs/managed_datasets/CAMELYON17/training/center_%s'%id
+TRAIN_TUMOR_WSI_PATH = f'/nfs/managed_datasets/CAMELYON17/training/center_{id}'
 TRAIN_TUMOR_MASK_PATH = '/nfs/managed_datasets/CAMELYON17/training'
 
 # modify below directory entries as per your local save directory
-PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH ='pro_patch_tumor_negative_%s/'%PATCH_SIZE
-PROCESSED_PATCHES_POSITIVE_PATH ='pro_patch_positive_%s/'%PATCH_SIZE
+PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH =f'pro_patch_tumor_negative_{PATCH_SIZE}/'
+PROCESSED_PATCHES_POSITIVE_PATH =f'pro_patch_positive_{PATCH_SIZE}/'
 
 
 print("Processing Patch Size ", PATCH_SIZE," of center ", id)
-PATCH_NORMAL_PREFIX = 'normal_center_%s_'%id
-PATCH_TUMOR_PREFIX = 'tumor_center_%s_'%id
-
+PATCH_NORMAL_PREFIX = f'normal_center_{id}_'
+PATCH_TUMOR_PREFIX = f'tumor_center_{id}_'
 
 
 class WSI(object):
@@ -101,12 +99,12 @@ class WSI(object):
         d2 = ImageDraw.Draw(rgb_image_pilpro)
 
 
-        print("Processing WSI %s"%self.cur_wsi_path)
+        print(f"Processing WSI {self.cur_wsi_path}")
 
         for i, bounding_box in enumerate(bounding_boxes):
             # sometimes the bounding boxes annotate a very small area not in the ROI
             if (bounding_box[2] * bounding_box[3]) < 2500:
-                print("Skipped too small Bounding Box %s"%self.cur_wsi_path)
+                print(f"Skipped too small Bounding Box {self.cur_wsi_path}")
                 continue
             b_x_start = int(bounding_box[0]) * mag_factor
             b_y_start = int(bounding_box[1]) * mag_factor
@@ -116,16 +114,12 @@ class WSI(object):
 
             h = int(bounding_box[2]) * mag_factor
             w = int(bounding_box[3]) * mag_factor
-            print("Size of bounding box = %s" % h + " by %s" % w)
+            print(f"Size of bounding box = {h}" + f" by {w}")
 
             tumoridx = 0
             ntumoridx = 0
             patchidx = 0
 
-
-            # for x, y in zip(X, Y):
-            #     patch = self.wsi_image.read_region((x, y), 0, (PATCH_SIZE, PATCH_SIZE))
-            #     mask = self.mask_image.read_region((x, y), 0, (PATCH_SIZE, PATCH_SIZE))
             for y_left in range(b_y_start, b_y_end, PATCH_SIZE):
 
                 for x_left in range(b_x_start, b_x_end, PATCH_SIZE):
@@ -133,11 +127,9 @@ class WSI(object):
                     patch = self.wsi_image.read_region((x_left, y_left), self.level_output, (PATCH_SIZE, PATCH_SIZE))
                     mask = self.mask_image.read_region((x_left, y_left), 0, (PATCH_SIZE, PATCH_SIZE))
 
-
                     _std = ImageStat.Stat(patch).stddev
                     # thresholding stddev for patch extraction
                     patchidx += 1
-
 
                     orx = int(x_left / mag_factor)
                     ory = int(y_left / mag_factor)
@@ -148,7 +140,6 @@ class WSI(object):
                     mask_gt = np.array(mask)
                     mask_gt = cv2.cvtColor(mask_gt, cv2.COLOR_BGR2GRAY)
                     patch_array = np.array(patch)
-
 
                     ## DISCARD BACKGROUND PIXELS ##
 
@@ -164,10 +155,7 @@ class WSI(object):
                         print("Skipped too many black pixels")
                         continue
 
-
                     d2.rectangle([(orx,ory),(orx + orps,ory+orps)],outline='green',width=1)
-
-
 
                     white_pixel_cnt_gt = cv2.countNonZero(mask_gt)
                     if white_pixel_cnt_gt == 0:  # mask_gt does not contain tumor area
@@ -204,14 +192,20 @@ class WSI(object):
 
                     patch.close()
                     mask.close()
-            print("Processed patches in bounding box %s :" % i, "%s" % patchidx, " positive: %s " % tumoridx,
-                  " negative: %s" % ntumoridx)
+            print(f"Processed patches in bounding box {i} :", f"{patchidx}", f" positive: {tumoridx} ",
+                  f" negative: {ntumoridx}")
 
         if opts.save_png:
-            rgb_image_pil.save('bb_%s.png'%(self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:]))
-            rgb_image_pilpro.save('bbpro_%s.png'%(self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:]))
+            rgb_image_pil.save(f"bb_{self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:]}.png")
+            rgb_image_pilpro.save(f"bbpro_{self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:]}.png")
 
     def read_wsi_mask(self, wsi_path, mask_path):
+        """Function for reading the Whole Slide Image and Mask, including downsampled RGB
+
+        :param wsi_path: path to Whole Slide Image
+        :param mask_path: path to Mask Image
+        :return: True, upon correctly opening Whole Slide Image
+        """
         try:
             self.cur_wsi_path = wsi_path
             self.wsi_image = OpenSlide(wsi_path)
@@ -228,8 +222,6 @@ class WSI(object):
             return False
 
         return True
-
-
 
     @staticmethod
     def convert_contour_coordinate_resolution(l_contours, downsample):
@@ -339,11 +331,11 @@ class WSI(object):
         # print("mask_image dimension : ", mask_image.shape)
         print("mask_image dimension : ", mask_image.size)
         downsample = slide.level_downsamples[level]
-        print("downsample: {0}".format(downsample))
+        print(f"downsample: {downsample}")
 
         # convert coordinate to the level resolution from level=0
         for i, npary in enumerate(l_contours):
-            print("tumor number : {0}".format(i))
+            print(f"tumor number : {i}")
             # down_coordi = npary/float(downsample)
             # down_coordi = (down_coordi).astype(int)
             # print downsample
@@ -356,10 +348,7 @@ class WSI(object):
             d = ImageDraw.Draw(mask_image)
             d.polygon(contour_coordinates,fill='white')
 
-            print("put {0} tumor".format(i))
-
-
-
+            print(f"put {i} tumor")
 
         return mask_image
 
@@ -417,7 +406,6 @@ class WSI(object):
         self.mask_image.close()
 
 
-
     @staticmethod
     def get_image_contours_tumor(cont_img, rgb_image):
         contours, _ = cv2.findContours(cont_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -429,8 +417,6 @@ class WSI(object):
         # pdb.set_trace()
         # cv2.drawContours(mask_image, contours_mask, -1, line_color, 3)
         return contours_rgb_image_array, bounding_boxes
-
-
 
 
 def run_on_tumor_data():
@@ -486,4 +472,4 @@ def run_on_tumor_data():
 if __name__ == "__main__":
     wsi = WSI()
     run_on_tumor_data()
-    print("Finised %s"%PATCH_SIZE)
+    print(f"Finised {PATCH_SIZE}")
