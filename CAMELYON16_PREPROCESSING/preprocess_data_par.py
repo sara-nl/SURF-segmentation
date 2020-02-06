@@ -24,6 +24,23 @@ parser.add_argument('--save_neg', type=bool, default=False,
 parser.add_argument('--save_png', type=bool, default=False,
                     help='Whether the png images of bounding boxes and saved patches should be written to disk')
 
+parser.add_argument('--train_tumor_wsi_path', type=str,
+                                              help='Folder of where the training data is located',
+                                              default='/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor')
+
+parser.add_argument('--train_tumor_mask_path',type=str,
+                                              help='Folder of where the training data is located',
+                                              default='/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask')
+opts = parser.parse_args()
+
+parser.add_argument('--save_tumor_negative_path',type=str,
+                                                 help='Folder of where the negatives patches are saved.',
+                                                 default=f'pro_patch_tumor_negative_{opts.patch_size}/')
+
+parser.add_argument('--save_positive_path',type=str,
+                                           help='Folder of where the positive patches are saved.',
+                                           default=f'pro_patch_positive_{opts.patch_size}/')
+
 opts = parser.parse_args()
 
 tf_coord = tf.train.Coordinator()
@@ -35,12 +52,17 @@ PATCH_SIZE  = opts.patch_size
 
 
 # modify below directory entries as per your local file system
-TRAIN_TUMOR_WSI_PATH = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
-TRAIN_TUMOR_MASK_PATH = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
+TRAIN_TUMOR_WSI_PATH = opts.train_tumor_wsi_path
+TRAIN_TUMOR_MASK_PATH = opts.train_tumor_mask_path
 
 # modify below directory entries as per your local save directory
-PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH ='pro_patch_tumor_negative_%s/'%PATCH_SIZE
-PROCESSED_PATCHES_POSITIVE_PATH ='pro_patch_positive_%s/'%PATCH_SIZE
+PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH = opts.save_tumor_negative_path
+if not os.path.exists(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH):
+    os.makedirs(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH)
+
+PROCESSED_PATCHES_POSITIVE_PATH = opts.save_positive_path
+if not os.path.exists(PROCESSED_PATCHES_POSITIVE_PATH):
+    os.makedirs(PROCESSED_PATCHES_POSITIVE_PATH)
 
 print("Processing Patch Size ", PATCH_SIZE)
 PATCH_NORMAL_PREFIX = 'normal_'
@@ -105,11 +127,7 @@ class WSI(object):
             ntumoridx = 0
             patchidx = 0
 
-            # for x, y in zip(X, Y):
-            #     patch = self.wsi_image.read_region((x, y), 0, (PATCH_SIZE, PATCH_SIZE))
-            #     mask = self.mask_image.read_region((x, y), 0, (PATCH_SIZE, PATCH_SIZE))
             for y_left in range(b_y_start, b_y_end, PATCH_SIZE):
-
 
                 for x_left in range(b_x_start, b_x_end, PATCH_SIZE):
 
@@ -151,20 +169,18 @@ class WSI(object):
                         white_pixel_cnt = cv2.countNonZero(mask_patch)
 
                         if white_pixel_cnt > ((PATCH_SIZE * PATCH_SIZE) * 0.50):
-                            mask = Image.fromarray(mask)
                             if opts.save_neg:
                                 patch.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + PATCH_NORMAL_PREFIX +str(PATCH_SIZE)+'_'+
-                                           str(self.negative_patch_index), 'PNG')
-                                mask.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + 'mask_' + PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+ str(self.negative_patch_index),
-                                           'PNG')
+                                           str(self.negative_patch_index)+ '.png')
+                                mask.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + 'mask_' + PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+ str(self.negative_patch_index)+ '.png')
                             self.negative_patch_index += 1
                             ntumoridx+=1
                     else:  # mask_gt contains tumor area
                         if white_pixel_cnt_gt >= ((PATCH_SIZE * PATCH_SIZE) * 0.01):
                             patch.save(PROCESSED_PATCHES_POSITIVE_PATH + PATCH_TUMOR_PREFIX +str(PATCH_SIZE)+'_'+
-                                       str(self.positive_patch_index), 'PNG')
+                                       str(self.positive_patch_index)+ '.png')
                             mask.save(PROCESSED_PATCHES_POSITIVE_PATH + 'mask_' + PATCH_TUMOR_PREFIX +str(PATCH_SIZE)+'_'+
-                                       str(self.positive_patch_index), 'PNG')
+                                       str(self.positive_patch_index)+ '.png')
 
                             self.positive_patch_index += 1
                             tumoridx+=1
@@ -289,7 +305,6 @@ def run_on_tumor_data():
         for g in range(0, len(wsi.wsi_paths), num_threads):
             p = []
             for wsi_path, mask_path in zip(wsi.wsi_paths[g:g+num_threads], wsi.mask_paths[g:g+num_threads]):
-                print("Testing",wsi_path[wsi_path.rfind('/') + 1:] )
                 if '%s_'%PATCH_SIZE + wsi_path[wsi_path.rfind('/') + 1:] not in lst_done:
                     if wsi.read_wsi_tumor(wsi_path, mask_path):
                         print("Processing (run_on_tumor_data)", wsi_path)
@@ -306,5 +321,5 @@ def run_on_tumor_data():
 if __name__ == '__main__':
     wsi = WSI()
     run_on_tumor_data()
-    print("Finished Patch Size %s"%PATCH_SIZE)
+    print(f"Finished Patch Size {PATCH_SIZE}")
 

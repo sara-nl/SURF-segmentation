@@ -31,9 +31,26 @@ parser.add_argument('--save_neg', type=bool, default=False,
 parser.add_argument('--save_png', type=bool, default=False,
                     help='Whether the png images of bounding boxes and saved patches should be written to disk')
 
-parser.add_argument('--proc_center', nargs='+', default=1, type=int,
+parser.add_argument('--proc_center', default=1, type=int,
                     help='Center for preprocessing')
 
+opts = parser.parse_args()
+
+parser.add_argument('--train_tumor_wsi_path', type=str,
+                                              help='Folder of where the training data is located',
+                                              default=f'/nfs/managed_datasets/CAMELYON17/training/center_{opts.proc_center}')
+
+parser.add_argument('--train_tumor_mask_path',type=str,
+                                              help='Folder of where the training data is located',
+                                              default='/nfs/managed_datasets/CAMELYON17/training')
+
+parser.add_argument('--save_tumor_negative_path',type=str,
+                                                 help='Folder of where the negatives patches are saved.',
+                                                 default=f'pro_patch_tumor_negative_{opts.patch_size}/')
+
+parser.add_argument('--save_positive_path',type=str,
+                                           help='Folder of where the positive patches are saved.',
+                                           default=f'pro_patch_positive_{opts.patch_size}/')
 
 opts = parser.parse_args()
 
@@ -45,17 +62,24 @@ PATCH_SIZE  = opts.patch_size
 id          = opts.proc_center
 
 # modify below directory entries as per your local file system
-TRAIN_TUMOR_WSI_PATH = '/nfs/managed_datasets/CAMELYON17/training/center_%s'%id
-TRAIN_TUMOR_MASK_PATH = '/nfs/managed_datasets/CAMELYON17/training'
+TRAIN_TUMOR_WSI_PATH = opts.train_tumor_wsi_path
+TRAIN_TUMOR_MASK_PATH = opts.train_tumor_mask_path
+
+
 
 # modify below directory entries as per your local save directory
-PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH ='pro_patch_tumor_negative_%s/'%PATCH_SIZE
-PROCESSED_PATCHES_POSITIVE_PATH ='pro_patch_positive_%s/'%PATCH_SIZE
+PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH = opts.save_tumor_negative_path
+if not os.path.exists(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH):
+    os.makedirs(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH)
+
+PROCESSED_PATCHES_POSITIVE_PATH = opts.save_positive_path
+if not os.path.exists(PROCESSED_PATCHES_POSITIVE_PATH):
+    os.makedirs(PROCESSED_PATCHES_POSITIVE_PATH)
 
 
 print("Processing Patch Size ", PATCH_SIZE," of center ", id)
-PATCH_NORMAL_PREFIX = 'normal_center_%s_'%id
-PATCH_TUMOR_PREFIX = 'tumor_center_%s_'%id
+PATCH_NORMAL_PREFIX = f'normal_center_{id}_'
+PATCH_TUMOR_PREFIX = f'tumor_center_{id}_'
 
 
 
@@ -70,7 +94,8 @@ class WSI(object):
     index = 0
     # 1 = 40x
     downsample = 1
-    level_output = 1
+    # 0 = 40x
+    level_output = 0
     negative_patch_index = 0
     positive_patch_index = 0
     wsi_paths = []
@@ -178,20 +203,19 @@ class WSI(object):
                         white_pixel_cnt = cv2.countNonZero(mask_patch)
 
                         if white_pixel_cnt > ((PATCH_SIZE * PATCH_SIZE) * 0.50):
-                            mask = Image.fromarray(mask)
                             if opts.save_neg:
                                 patch.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + PATCH_NORMAL_PREFIX +str(PATCH_SIZE)+'_'+
-                                           str(self.negative_patch_index), 'PNG')
-                                mask.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + 'mask_' + PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+ str(self.negative_patch_index),
-                                           'PNG')
+                                           str(self.negative_patch_index)+ '.png')
+                                mask.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + 'mask_' + PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+ str(self.negative_patch_index)+ '.png')
                             self.negative_patch_index += 1
                             ntumoridx+=1
+
                     else:  # mask_gt contains tumor area
                         if white_pixel_cnt_gt >= ((PATCH_SIZE * PATCH_SIZE) * 0.01):
                             patch.save(PROCESSED_PATCHES_POSITIVE_PATH + PATCH_TUMOR_PREFIX +str(PATCH_SIZE)+'_'+
-                                       str(self.positive_patch_index), 'PNG')
+                                       str(self.positive_patch_index) + '.png')
                             mask.save(PROCESSED_PATCHES_POSITIVE_PATH + 'mask_' + PATCH_TUMOR_PREFIX +str(PATCH_SIZE)+'_'+
-                                       str(self.positive_patch_index), 'PNG')
+                                       str(self.positive_patch_index)+ '.png')
 
                             self.positive_patch_index += 1
                             tumoridx+=1
@@ -257,7 +281,7 @@ class WSI(object):
             make the list of contour from xml(annotation file)
             input:
             fn_xml = file name of xml file
-            downsample = disired resolution
+            downsample = desired resolution
             var:
             li_li_point = list of tumors
             li_point = the coordinates([x,y]) of a tumor
@@ -266,7 +290,6 @@ class WSI(object):
 
         li_li_point = []
         tree = parse(fn_xml)
-
         for parent in tree.getiterator():
             for i_1, child1 in enumerate(parent):
                 for i_2, child2 in enumerate(child1):
@@ -336,14 +359,14 @@ class WSI(object):
         # mask_image = np.zeros((slid_lev_w, slid_lev_h),dtype = np.int8)
         mask_image = Image.new('1', (slid_lev_w, slid_lev_h))
 
-        # print("mask_image dimension : ", mask_image.shape)
-        print("mask_image dimension : ", mask_image.size)
+        print(f"mask_image dimension of {wsi.cur_wsi_path}: {mask_image.size}")
         downsample = slide.level_downsamples[level]
-        print("downsample: {0}".format(downsample))
+        print(f"downsample: {downsample}")
 
         # convert coordinate to the level resolution from level=0
+        print(f"tumor regions : {len(l_contours)}")
         for i, npary in enumerate(l_contours):
-            print("tumor number : {0}".format(i))
+
             # down_coordi = npary/float(downsample)
             # down_coordi = (down_coordi).astype(int)
             # print downsample
@@ -355,11 +378,6 @@ class WSI(object):
             # mask_image[d_x, d_y] = 255.0
             d = ImageDraw.Draw(mask_image)
             d.polygon(contour_coordinates,fill='white')
-
-            print("put {0} tumor".format(i))
-
-
-
 
         return mask_image
 
@@ -407,7 +425,7 @@ class WSI(object):
         contour_rgb, bounding_boxes = self.get_image_contours_tumor(np.array(image_open), self.rgb_image)
 
 
-        # pdb.set_trace()
+        
         # Image.fromarray(np.array(contour_rgb)).show()
         # contour_rgb = cv2.resize(contour_rgb, (0, 0), fx=0.40, fy=0.40)
         # cv2.imshow('contour_rgb', np.array(contour_rgb))
@@ -426,7 +444,7 @@ class WSI(object):
 
         line_color = (255, 0, 0)  # blue color code
         cv2.drawContours(contours_rgb_image_array, contours, -1, (255,150,150), 1)
-        # pdb.set_trace()
+        
         # cv2.drawContours(mask_image, contours_mask, -1, line_color, 3)
         return contours_rgb_image_array, bounding_boxes
 
@@ -452,9 +470,7 @@ def run_on_tumor_data():
 
     # get only wsi_paths that match the tumor xml's
     wsi.wsi_paths = [el for el in wsi.wsi_paths if el.replace(TRAIN_TUMOR_WSI_PATH[TRAIN_TUMOR_WSI_PATH.rfind('/'):],'').replace('.tif','.xml') in wsi.mask_paths]
-
     assert len(wsi.wsi_paths) == len(wsi.mask_paths), "Number of images is not equal to number of annotations"
-
     lst_done = [x[5:-4] for x in glob.glob(os.path.join('./', 'bb_*.png'))]
 
 
@@ -486,4 +502,4 @@ def run_on_tumor_data():
 if __name__ == "__main__":
     wsi = WSI()
     run_on_tumor_data()
-    print("Finised %s"%PATCH_SIZE)
+    print(f"Finised {PATCH_SIZE}")

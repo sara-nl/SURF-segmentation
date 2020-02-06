@@ -12,11 +12,11 @@ export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
 source ~/.virtualenvs/openslide/bin/activate
 
 
-python /home/rubenh/projects/camelyon/deeplab/CAMELYON17_PREPROCESSING/preprocess_data_par.py \
+python -u preprocess_data_par.py \
 --patch_size 1024 \
---num_threads 4 \
+--num_threads 1 \
 --save_png True \
---proc_center 1
+--proc_center 4
 
 
 
