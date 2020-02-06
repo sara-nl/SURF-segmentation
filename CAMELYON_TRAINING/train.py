@@ -78,6 +78,8 @@ def validate(opts, model, step, val_dataset, file_writer, metrics):
         compute_miou.reset_states()
         compute_auc.reset_states()
 
+
+
     return
 
 
