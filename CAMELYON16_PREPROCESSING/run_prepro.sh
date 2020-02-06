@@ -16,7 +16,8 @@ source ~/.virtualenvs/openslide/bin/activate
 python -u preprocess_data_par.py \
 --patch_size 1024 \
 --num_threads 4 \
---save_png True
+--save_png True \
+--data_folder cart # lisa / cart (for managed datasets folder)
 
 
 

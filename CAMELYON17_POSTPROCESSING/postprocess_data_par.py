@@ -29,21 +29,27 @@ parser.add_argument('--num_threads', type=int, default=4,
 parser.add_argument('--save_png', type=bool, default=False,
                     help='Whether the png images of bounding boxes and saved patches should be written to disk')
 
+parser.add_argument('--data_folder', type=str, default='cart',
+                    help='What data folder pre-pend to use, lisa / cart')
+
 
 opts = parser.parse_args()
 
 
 num_threads = opts.num_threads
 PATCH_SIZE  = opts.patch_size
+if opts.data_folder == 'lisa':
+    dir = '/nfs'
+else:
+    dir = '/lustre4/2'
 
 tf_coord = tf.train.Coordinator()
 
 
 
-
 # modify below directory entries as per your local file system
-TRAIN_TUMOR_WSI_PATH = '/nfs/managed_datasets/CAMELYON17/testing/patients/patient_'
-PROCESSED_PATCHES_PATH = f"/nfs/managed_datasets/CAMELYON17/testing/patch_size_{PATCH_SIZE}/"
+TRAIN_TUMOR_WSI_PATH = f"{dir}/managed_datasets/CAMELYON17/testing/patients/patient_"
+PROCESSED_PATCHES_PATH = f"{dir}/managed_datasets/CAMELYON17/testing/patch_size_{PATCH_SIZE}/"
 
 print("Processing Patch Size ", PATCH_SIZE)
 

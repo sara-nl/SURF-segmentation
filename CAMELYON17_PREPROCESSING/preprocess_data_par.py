@@ -33,15 +33,23 @@ parser.add_argument('--save_png', type=bool, default=False,
 parser.add_argument('--proc_center', default=1, type=int,
                     help='Center for preprocessing')
 
+parser.add_argument('--data_folder', type=str, default='cart',
+                    help='What data folder pre-pend to use (lisa / cart)')
+
 opts = parser.parse_args()
+
+if opts.data_folder == 'lisa':
+    dir = '/nfs'
+else:
+    dir = '/lustre4/2'
 
 parser.add_argument('--train_tumor_wsi_path', type=str,
                                               help='Folder of where the training data is located',
-                                              default=f'/nfs/managed_datasets/CAMELYON17/training/center_{opts.proc_center}')
+                                              default=f'{dir}/managed_datasets/CAMELYON17/training/center_{opts.proc_center}')
 
 parser.add_argument('--train_tumor_mask_path',type=str,
                                               help='Folder of where the training data is located',
-                                              default='/nfs/managed_datasets/CAMELYON17/training')
+                                              default=f'{dir}/managed_datasets/CAMELYON17/training')
 
 parser.add_argument('--save_tumor_negative_path',type=str,
                                                  help='Folder of where the negatives patches are saved.',

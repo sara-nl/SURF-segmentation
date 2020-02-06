@@ -24,14 +24,23 @@ parser.add_argument('--save_neg', type=bool, default=False,
 parser.add_argument('--save_png', type=bool, default=False,
                     help='Whether the png images of bounding boxes and saved patches should be written to disk')
 
+parser.add_argument('--data_folder', type=str, default='cart',
+                    help='What data folder pre-pend to use, lisa / cart')
+
+opts = parser.parse_args()
+
+if opts.data_folder == 'lisa':
+    dir = '/nfs'
+else:
+    dir = '/lustre4/2'
+
 parser.add_argument('--train_tumor_wsi_path', type=str,
                                               help='Folder of where the training data is located',
-                                              default='/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor')
+                                              default=f'{dir}/managed_datasets/CAMELYON16/TrainingData/Train_Tumor')
 
 parser.add_argument('--train_tumor_mask_path',type=str,
                                               help='Folder of where the training data is located',
-                                              default='/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask')
-opts = parser.parse_args()
+                                              default=f'{dir}/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask')
 
 parser.add_argument('--save_tumor_negative_path',type=str,
                                                  help='Folder of where the negatives patches are saved.',

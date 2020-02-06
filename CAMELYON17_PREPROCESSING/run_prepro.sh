@@ -16,7 +16,8 @@ python -u preprocess_data_par.py \
 --patch_size 1024 \
 --num_threads 1 \
 --save_png True \
---proc_center 4
+--proc_center 4 \
+--data_folder cart # lisa / cart (for managed datasets folder)
 
 
 
