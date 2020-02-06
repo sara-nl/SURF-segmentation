@@ -28,11 +28,10 @@ export HOROVOD_GPU_ALLREDUCE=NCCL
 #export HOROVOD_GPU_ALLGATHER=MPI
 #export HOROVOD_GPU_BROADCAST=MPI
 
-conda deactivate
 
 # Creating virtualenv
 VIRTENV=EXA_GPU_TF2_HOROVOD_GPU
-VIRTENV_ROOT=~/.virtualenvs
+VIRTENV_ROOT=~/virtualenvs
 
 if [ ! -z $1 ] && [ $1 = 'create' ]; then
 echo "Creating virtual environment $VIRTENV_ROOT/$VIRTENV"
@@ -55,13 +54,13 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 
 # Tensorflow
 echo "Installing Tensorflow"
-pip3 install tensorflow-gpu --no-cache-dir
+pip install tensorflow-gpu --user
 
 # Horovod
 echo "Installing Horovod"
 
 export HOROVOD_WITH_TENSORFLOW=1
-pip3 install horovod --no-cache-dir
+pip install horovod --user
 
 echo "Performing Training..."
 # python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
