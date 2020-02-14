@@ -8,9 +8,6 @@ def get_options():
     parser = argparse.ArgumentParser(description='TensorFlow DeeplabV3+ model',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    # == System options ==
-    parser.add_argument('--system', type=str, default='lisa', help='Which system is used cartesius / lisa / endeavour')
-
     # == Memory time consumption ==
     parser.add_argument('--img_size', type=int, default=1024, help='Image size to use')
     parser.add_argument('--batch_size', type=int, default=2, help='Batch size to use')

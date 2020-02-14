@@ -65,7 +65,7 @@ pip install horovod
 echo "Performing Training..."
 # python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
 # mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 256 --train_centers 1 2 3 --val_centers 4 --horovod --batch_size 2
-mpirun -map-by ppr:4:node -np 8 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 1024 --dataset 17 --horovod --batch_size 2
+mpiexec -map-by ppr:4:node -np 8 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 1024 --dataset 17 --horovod --batch_size 2
 
 
 
