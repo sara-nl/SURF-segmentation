@@ -54,13 +54,13 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 
 # Tensorflow
 echo "Installing Tensorflow"
-pip install tensorflow-gpu --user
+pip install tensorflow-gpu
 
 # Horovod
 echo "Installing Horovod"
 
 export HOROVOD_WITH_TENSORFLOW=1
-pip install horovod --user
+pip install horovod
 
 echo "Performing Training..."
 # python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
