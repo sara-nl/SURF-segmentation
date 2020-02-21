@@ -1,13 +1,12 @@
 import numpy as np
-import math
 from glob import glob
-import pdb
 from sklearn.utils import shuffle
 from PIL import Image
 import tensorflow as tf
 from joblib import Parallel, delayed
 import multiprocessing
-
+import horovod.tensorflow as hvd
+import pdb
 
 def get_image_lists(opts):
     """ Get the image lists"""
@@ -26,7 +25,7 @@ def get_image_lists(opts):
 
 def load_camelyon_16(opts):
     """  Load the camelyon16 dataset """
-
+    pdb.set_trace()
     image_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' not in x]
     mask_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' in x]
 
@@ -38,7 +37,7 @@ def load_camelyon_16(opts):
 
     sample_weight_list = [1.0] * len(image_list)
 
-    val_split = int(len(image_list) * 0.85)
+    val_split = int(len(image_list) * (1-opts.val_split))
     val_image_list = image_list[val_split:]
     val_mask_list = mask_list[val_split:]
     sample_weight_list = sample_weight_list[:val_split]
@@ -78,7 +77,7 @@ def load_camelyon17(opts):
 
     # If validating on everything
     if opts.val_centers == [1, 2, 3, 4]:
-        val_split = int(len(image_list) * 0.85)
+        val_split = int(len(image_list) * (1-opts.val_split))
         val_image_list = image_list[val_split:]
         val_mask_list = mask_list[val_split:]
         sample_weight_list = sample_weight_list[:val_split]
@@ -112,7 +111,7 @@ def load_camelyon17(opts):
         val_image_list = [val_image_list[i] for i in valid_idx]
         val_mask_list = [val_mask_list[i] for i in valid_idx]
 
-        val_split = int(len(image_list) * 0.15)
+        val_split = int(len(image_list) * opts.val_split)
         val_image_list = val_image_list[:val_split]
         val_mask_list = val_mask_list[:val_split]
 
@@ -224,6 +223,9 @@ def get_train_and_val_dataset(opts, image_list=None, mask_list=None,
         image_list, mask_list, val_image_list, val_mask_list, sample_weight_list = get_image_lists(opts)
 
     train_dataset = tf.data.Dataset.from_tensor_slices((image_list,mask_list))
+    if opts.horovod:
+        # let every worker read unique part of dataset
+        train_dataset = train_dataset.shard(hvd.size(), hvd.rank())
 
     train_dataset = train_dataset.shuffle(buffer_size=6000)
     train_dataset = train_dataset.apply(
@@ -237,6 +239,10 @@ def get_train_and_val_dataset(opts, image_list=None, mask_list=None,
     train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
     val_dataset = tf.data.Dataset.from_tensor_slices((val_image_list, val_mask_list))
+    if opts.horovod:
+        # let every worker read unique part of dataset
+        val_dataset = val_dataset.shard(hvd.size(), hvd.rank())
+
     val_dataset = val_dataset.shuffle(buffer_size=100)
     val_dataset = val_dataset.apply(
         tf.data.experimental.map_and_batch(

@@ -1,24 +1,7 @@
 from __future__ import absolute_import, division, print_function
-import argparse
-import os
-from itertools import compress
-import numpy as np
-import timeit
 import tensorflow as tf
 import horovod.tensorflow as hvd
-from sklearn.utils import shuffle
-from tensorflow.python.client import device_lib
-import sys
-from tensorflow.keras import applications
-from glob import glob
-from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint
-import pdb
-from PIL import Image
-from datetime import datetime
-from tensorflow.keras import backend as K
-from tensorflow.keras.models import Model
 from pprint import pprint
-from tensorflow.python.keras.utils.data_utils import get_file
 
 from options import get_options
 from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step

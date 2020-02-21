@@ -45,6 +45,7 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 #echo "Installing Tensorflow"
 #pip install tensorflow
 
+
 # Horovod
 #echo "Installing Horovod"
 
@@ -52,6 +53,7 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 #pip install horovod
 pip install scikit-learn --user
 pip install Pillow --user
+
 
 echo "Performing Training..."
 # python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
@@ -67,4 +69,3 @@ mpirun -map-by ppr:1:node -np 1 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl
 --log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/train_data/ \
 --log_every 2 \
 --num_steps 20
-

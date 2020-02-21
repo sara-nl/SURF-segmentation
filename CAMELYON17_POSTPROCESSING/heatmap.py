@@ -105,15 +105,54 @@ class WSI(object):
                         center, radius = cv2.minEnclosingCircle(c)
                         diameter_tumors.append(2*radius)
 
-                max_diameter_tumor = max(diameter_tumors)
+                    max_diameter_tumor = max(diameter_tumors)
+                else:
+                    max_diameter_tumor = 0
 
                 diagnose_list.append((f'patient_{patient}_node_{node}',max_diameter_tumor))
 
 
-"""
-TODO: from diagnose list
-construct csv
-"""
+    def make_csv(self,diagnose_list):
+        metastases = []
+        for patient in diagnose_list:
+            if patient[1] > 2:
+                metastases.append((patient,'macro'))
+            elif patient[1] > 0.2 and patient[1] < 2:
+                metastases.append((patient, 'micro'))
+            elif patient[1] < 0.2:
+                metastases.append((patient, 'itc'))
+            elif patient[1] == 0:
+                metastases.append((patient, 'negative'))
+
+        pNstages = []
+        for cases in metastases:
+            patient = cases[0][cases.find('patient'):11]
+            case = [x for x in cases if cases[0][:11] == patient]
+            cnt_neg = [x[1] for x in case].count('negative')
+            cnt_mac = [x[1] for x in case].count('macro')
+            cnt_mic = [x[1] for x in case].count('micro')
+            cnt_itc = [x[1] for x in case].count('itc')
+            if cnt_neg == 5:
+                pNstages.append((patient+'.zip','pN0'))
+            if cnt_itc == 5:
+                pNstages.append((patient + '.zip', 'pN0(i+)'))
+            if cnt_mic > 0 and cnt_mac ==0:
+                pNstages.append((patient + '.zip', 'pN1mi'))
+            if (cnt_mic > 0 and cnt_mac > 0) and (cnt_mic + cnt_mac <= 3):
+                pNstages.append((patient + '.zip', 'pN1'))
+            if (cnt_mic > 0 and cnt_mac > 0) and (cnt_mic + cnt_mac > 3):
+                pNstages.append((patient + '.zip', 'pN2'))
+            pNstages.append(case)
+            metastases = [x for x in metastases if cases[0][:11] != patient]
+
+        import csv
+        with open('evaluation.csv', 'w', newline='') as myfile:
+            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+            wr.writerow(pNstages)
+
+        return 1
+
+
 
 
 
