@@ -15,7 +15,7 @@ def get_options():
     # GPU and multi worker options
     parser.add_argument('--no_cuda', action='store_true', help='Use CUDA or not')
     parser.add_argument('--horovod', action='store_true', help='Distributed training via horovod', default=True)
-    parser.add_argument('--fp16_allreduce', action='store_true', help='Reducde to FP16 precision')
+    parser.add_argument('--fp16_allreduce', action='store_true', help='Reduce to FP16 precision')
 
     # Dataset and path options
     parser.add_argument('--dataset', type=str, default="17",
@@ -33,6 +33,7 @@ def get_options():
     parser.add_argument('--random_crop', action='store_true', help='Randomly crop images for data augmentation')
     parser.add_argument('--normalize_imgs', action='store_true', help='Normalize images')
 
+    parser.add_argument('--log_dir', type=str, help='Folder of where the logs are saved', default=None)
     parser.add_argument('--log_every', type=int, default=128, help='Log every X steps during training')
     parser.add_argument('--validate_every', type=int, default=2048, help='Run the validation dataset every X steps')
     parser.add_argument('--debug', action='store_true', help='If running in debug mode')

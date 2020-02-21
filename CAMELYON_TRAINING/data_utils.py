@@ -61,7 +61,6 @@ def load_camelyon_16(opts):
 
 def load_camelyon17(opts):
     """ Load the camelyon17 dataset """
-
     image_list = [x for c in opts.train_centers for x in
                   sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
                   'mask' not in x]

@@ -2,7 +2,7 @@ import tensorflow as tf
 import horovod.tensorflow as hvd
 import sys
 import os
-
+import pdb
 sys.path.insert(0, os.path.join(os.getcwd(), 'keras-deeplab-v3-plus-master'))
 from model import Deeplabv3
 
@@ -13,7 +13,6 @@ def init(opts):
     print("Now hvd.init")
     if opts.horovod:
         hvd.init()
-
         # Horovod: pin GPU to be used to process local rank (one GPU per process)
         if opts.cuda:
             gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -46,7 +45,7 @@ def get_model_and_optimizer(opts):
     print("Compiling model...")
 
     model.build(input_shape=(opts.img_size, opts.img_size, 3))
-
+    pdb.set_trace()
     # Setting L2 regularization
     # for layer in model.layers:
     #     if layer.name.find('bn') > -1:
@@ -67,10 +66,10 @@ def setup_logger(opts):
     """ Setup the tensorboard writer """
     # Sets up a timestamped log directory.
     if opts.dataset == "17":
-        logdir = "logs/train_data/" + str(opts.img_size) + '-tr' + ''.join(map(str, opts.train_centers)) + \
+        logdir = opts.log_dir + str(opts.img_size) + '-tr' + ''.join(map(str, opts.train_centers)) + \
                  '-val' + ''.join(map(str, opts.val_centers))
     else:
-        logdir = "logs/train_data/" + str(opts.img_size) + '-' + 'CAMELYON16'
+        logdir = opts.log_dir + str(opts.img_size) + '-' + 'CAMELYON16'
 
     if opts.horovod:
         # Creates a file writer for the log directory.
@@ -127,7 +126,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
     return
 
 
-def log_validation_step(file_writer, image, mask, step, pred, val_loss, val_acc, val_miou, val_auc):
+def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, val_acc, val_miou, val_auc):
     """ Log to file writer after a validation step """
     if hvd.local_rank() == 0 and hvd.rank() == 0:
 
@@ -144,5 +143,7 @@ def log_validation_step(file_writer, image, mask, step, pred, val_loss, val_acc,
 
         tf.print('Validation at step', step, ': validation loss', val_loss, ': validation accuracy', val_acc,
                  ': validation miou', val_miou, ': validation auc', val_auc)
+
+
 
     return

@@ -1,22 +1,11 @@
 #!/bin/bash
-#SBATCH -N 2
-#SBATCH -t 8:00:00
-#SBATCH -p gpu_titanrtx
+#SBATCH -N 1
+#SBATCH -t 1:00:00
+#SBATCH -p gpu_short
 clear
-module purge
-module load 2019
-module load Python/3.6.6-foss-2018b
-module load CUDA/10.0.130
-module load cuDNN/7.6.3-CUDA-10.0.130
-module load NCCL/2.4.7-CUDA-10.0.130
-#module load mpi/openmpi/3.1.2-cuda10
-module unload GCC
-module unload GCCcore
-module unload binutils
-module unload zlib
-module load GCC/8.2.0-2.31.1
-module unload compilerwrappers
-
+module use ~/environment-modules-lisa
+module load 2020
+module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243
 module list
 
 # Setting ENV variables
@@ -30,22 +19,22 @@ export HOROVOD_GPU_ALLREDUCE=NCCL
 
 
 # Creating virtualenv
-VIRTENV=EXA_GPU_TF2_HOROVOD_GPU
-VIRTENV_ROOT=~/virtualenvs
+#VIRTENV=EXA_GPU_TF2_HOROVOD_GPU
+#VIRTENV_ROOT=~/virtualenvs
 
-if [ ! -z $1 ] && [ $1 = 'create' ]; then
-echo "Creating virtual environment $VIRTENV_ROOT/$VIRTENV"
-rm -r $VIRTENV_ROOT/$VIRTENV
-virtualenv $VIRTENV_ROOT/$VIRTENV
-fi
+#if [ ! -z $1 ] && [ $1 = 'create' ]; then
+#echo "Creating virtual environment $VIRTENV_ROOT/$VIRTENV"
+#rm -r $VIRTENV_ROOT/$VIRTENV
+#virtualenv $VIRTENV_ROOT/$VIRTENV
+#fi
 
 # Sourcing virtualenv
-echo "Sourcing virtual environment $VIRTENV_ROOT/$VIRTENV/bin/activate"
-source $VIRTENV_ROOT/$VIRTENV/bin/activate
-
-if [ ! -z $1 ] && [ $1 = 'create' ]; then
-pip3 install -r requirements.txt
-fi
+#echo "Sourcing virtual environment $VIRTENV_ROOT/$VIRTENV/bin/activate"
+#source $VIRTENV_ROOT/$VIRTENV/bin/activate
+#
+#if [ ! -z $1 ] && [ $1 = 'create' ]; then
+#pip3 install -r requirements.txt
+#fi
 
 # Export MPICC
 export MPICC=mpicc
@@ -53,19 +42,29 @@ export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 
 # Tensorflow
-echo "Installing Tensorflow"
-pip install tensorflow-gpu --user
+#echo "Installing Tensorflow"
+#pip install tensorflow
 
 # Horovod
-echo "Installing Horovod"
+#echo "Installing Horovod"
 
-export HOROVOD_WITH_TENSORFLOW=1
-pip install horovod --user
+#export HOROVOD_WITH_TENSORFLOW=1
+#pip install horovod
+pip install scikit-learn --user
+pip install Pillow --user
 
 echo "Performing Training..."
 # python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
 # mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 256 --train_centers 1 2 3 --val_centers 4 --horovod --batch_size 2
-mpirun -map-by ppr:4:node -np 8 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 1024 --dataset 17 --horovod --batch_size 2
-
-
+mpirun -map-by ppr:1:node -np 1 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python -u train.py \
+--img_size 1024 \
+--dataset 17 \
+--horovod \
+--batch_size 1 \
+--fp16_allreduce \
+--train_centers 2 3 4 \
+--val_centers 1 \
+--log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/train_data/ \
+--log_every 2 \
+--num_steps 20
 

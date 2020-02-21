@@ -72,7 +72,7 @@ def validate(opts, model, step, val_dataset, file_writer, metrics):
         if len(summary_predictions.shape) == 3 and summary_predictions.shape[-1] != 1:
             summary_predictions = summary_predictions[:, :, :, None]
 
-        log_validation_step(file_writer, image, mask, step, summary_predictions, val_loss, val_acc, val_miou, val_auc)
+        log_validation_step(opts,file_writer, image, mask, step, summary_predictions, val_loss, val_acc, val_miou, val_auc)
 
         compute_accuracy.reset_states()
         compute_miou.reset_states()
@@ -100,7 +100,6 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
         for x, y in train_ds:
 
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
-
             if step % opts.log_every == 0 and step > 0:
                 log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
 
@@ -121,16 +120,16 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
                 return tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred) < 0.95
 
             train_ds = train_ds.filter(filter_hard_mining)
+            model.save('saved_model.h5')
 
     validate(opts, model, step, val_dataset, file_writer, metrics)
-    model.save('model.h5')
+
+
 
 
 if __name__ == '__main__':
-
     opts = get_options()
     pprint(vars(opts))
-
     # Run horovod init
     init(opts)
     file_writer = setup_logger(opts)
