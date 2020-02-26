@@ -45,7 +45,6 @@ def get_model_and_optimizer(opts):
     print("Compiling model...")
 
     model.build(input_shape=(opts.img_size, opts.img_size, 3))
-    pdb.set_trace()
     # Setting L2 regularization
     # for layer in model.layers:
     #     if layer.name.find('bn') > -1:
@@ -104,6 +103,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
             image = tf.cast(255 * x, tf.uint8)
             mask = tf.cast(255 * y, tf.uint8)
             summary_predictions = tf.cast(tf.expand_dims(pred * 255, axis=-1), tf.uint8)
+
 
             tf.summary.image('Train_image', image, step=tf.cast(step, tf.int64), max_outputs=2)
             tf.summary.image('Train_mask', mask, step=tf.cast(step, tf.int64), max_outputs=2)
