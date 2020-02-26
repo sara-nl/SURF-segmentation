@@ -227,6 +227,7 @@ def get_train_and_val_dataset(opts, image_list=None, mask_list=None,
         # let every worker read unique part of dataset
         train_dataset = train_dataset.shard(hvd.size(), hvd.rank())
 
+    pdb.set_trace()
     train_dataset = train_dataset.shuffle(buffer_size=6000)
     train_dataset = train_dataset.apply(
         tf.data.experimental.map_and_batch(
