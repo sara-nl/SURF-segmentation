@@ -25,9 +25,9 @@ def get_options():
     parser.add_argument('--dataset', type=str, default="17",
                         help='Which dataset to use. "16" for CAMELYON16 or "17" for CAMELYON17')
     parser.add_argument('--train_centers', nargs='+', default=[-1], type=int,
-                        help='Centers for training. Use -1 for all')
+                        help='Centers for training. Use -1 for all, otherwise 2 3 4 eg.')
     parser.add_argument('--val_centers', nargs='+', default=[-1], type=int,
-                        help='Centers for validation. Use -1 for all')
+                        help='Centers for validation. Use -1 for all, otherwise 2 3 4 eg.')
     parser.add_argument('--hard_mining', action='store_true', help='Use hard mining or not')
     parser.add_argument('--train_path', type=str, help='Folder of where the training data is located', default=None)
     parser.add_argument('--valid_path', type=str, help='Folder where the validation data is located', default=None)

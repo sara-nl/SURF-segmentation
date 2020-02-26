@@ -61,10 +61,10 @@ def load_camelyon_16(opts):
 def load_camelyon17(opts):
     """ Load the camelyon17 dataset """
     image_list = [x for c in opts.train_centers for x in
-                  sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                  sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                   'mask' not in x]
     mask_list = [x for c in opts.train_centers for x in
-                 sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                 sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                  'mask' in x]
 
     image_list, mask_list = shuffle(image_list, mask_list)
