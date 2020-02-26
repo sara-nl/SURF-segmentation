@@ -31,7 +31,7 @@ def init(opts):
 def get_model_and_optimizer(opts):
     """ Load the model and optimizer """
 
-    model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception')
+    model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception',opts=opts)
 
     if opts.horovod:
         # Horovod: (optional) compression algorithm.

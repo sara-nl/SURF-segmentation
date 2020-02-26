@@ -31,6 +31,7 @@ def get_options():
     parser.add_argument('--hard_mining', action='store_true', help='Use hard mining or not')
     parser.add_argument('--train_path', type=str, help='Folder of where the training data is located', default=None)
     parser.add_argument('--valid_path', type=str, help='Folder where the validation data is located', default=None)
+    parser.add_argument('--weights_path', type=str, help='Folder where the pre - trained weights is located', default=None)
 
     # == Data augmentation options ==
     parser.add_argument('--flip', action='store_true', help='Flip images for data augmentation')
