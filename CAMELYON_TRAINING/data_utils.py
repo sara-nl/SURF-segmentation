@@ -76,7 +76,7 @@ def load_camelyon17(opts):
     sample_weight_list = [1.0] * len(image_list)
 
     # If validating on everything, 00 custom
-    if opts.val_centers == [0, 1, 2, 3, 4]:
+    if opts.val_centers == [1, 2, 3, 4]:
         val_split = int(len(image_list) * (1-opts.val_split))
         val_image_list = image_list[val_split:]
         val_mask_list = mask_list[val_split:]
