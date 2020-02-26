@@ -123,6 +123,8 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
 
         file_writer.flush()
 
+        model.save('model.h5')
+
     return
 
 
@@ -143,7 +145,5 @@ def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, va
 
         tf.print('Validation at step', step, ': validation loss', val_loss, ': validation accuracy', val_acc,
                  ': validation miou', val_miou, ': validation auc', val_auc)
-
-
 
     return

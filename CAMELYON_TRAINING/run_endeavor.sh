@@ -38,5 +38,5 @@ TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit" mpiexec -map-by ppr:1
 --train_path '/panfs/users/Xrhekst/files/examode/CAMELYON17/center_XX' \
 --valid_path '/panfs/users/Xrhekst/files/examode/CAMELYON17/center_XX' \
 --weights_path '/panfs/users/Xrhekst/files/examode/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5' \
---log_every 2 \
---validate_every 2
+--log_every 4 \
+--validate_every 8
