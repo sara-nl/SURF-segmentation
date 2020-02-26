@@ -6,7 +6,7 @@
 #BSUB -o deeplab_%J.out
 #BSUB -e deeplab_%J.err
 ##BSUB -n 48
-#BSUB -R "2*{select[clx2s8260L] span[ptile=2]}"
+#BSUB -R "4*{select[clx2s8260L] span[ptile=4]}"
 #BSUB -W 48:00
 #BSUB -P O:Description
 
@@ -26,7 +26,7 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 export LD_LIBRARY_PATH=/opt/intel/python/3.7_2020/lib:$LD_LIBRARY_PATH #/opt/crtdc/mvapich2/2.2-intel/lib:$LD_LIBRARY_PATH
 export PATH=/opt/intel/python/3.7_2020/bin:$PATH
 
-TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit" mpiexec -map-by ppr:1:node -np 1 --bind-to socket python -u train.py \
+TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit" mpiexec -map-by ppr:1:node -np 4 --bind-to socket python -u train.py \
 --no_cuda \
 --horovod \
 --img_size 2048 \
@@ -37,4 +37,6 @@ TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit" mpiexec -map-by ppr:1
 --val_split 0.15 \
 --train_path '/panfs/users/Xrhekst/files/examode/CAMELYON17/center_XX' \
 --valid_path '/panfs/users/Xrhekst/files/examode/CAMELYON17/center_XX' \
---weights_path '/panfs/users/Xrhekst/files/examode/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'
+--weights_path '/panfs/users/Xrhekst/files/examode/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5' \
+--log_every 2 \
+--validate_every 2

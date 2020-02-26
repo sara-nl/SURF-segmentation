@@ -9,7 +9,6 @@ from data_utils import get_image_lists, get_train_and_val_dataset
 
 
 def train_one_step(model, opt, x, y, step, loss_func, compression):
-    pdb.set_trace()
     with tf.GradientTape() as tape:
         logits = model(x)
         loss = loss_func(y, logits)
