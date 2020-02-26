@@ -26,7 +26,7 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 export LD_LIBRARY_PATH=/opt/intel/python/3.7_2020/lib:$LD_LIBRARY_PATH #/opt/crtdc/mvapich2/2.2-intel/lib:$LD_LIBRARY_PATH
 export PATH=/opt/intel/python/3.7_2020/bin:$PATH
 
-TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit" mpiexec -map-by ppr:2:node -np 4 --bind-to socket python -u train.py \
+TF_XLA_FLAGS="--tf_xla_auto_jit=2 --tf_xla_cpu_global_jit" mpiexec -map-by ppr:1:node -np 1 --bind-to socket python -u train.py \
 --no_cuda \
 --horovod \
 --img_size 2048 \

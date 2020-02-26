@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 import horovod.tensorflow as hvd
 from pprint import pprint
-
+import pdb
 from options import get_options
 from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step
 from data_utils import get_image_lists, get_train_and_val_dataset
