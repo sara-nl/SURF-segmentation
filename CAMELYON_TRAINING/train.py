@@ -9,6 +9,7 @@ from data_utils import get_image_lists, get_train_and_val_dataset
 
 
 def train_one_step(model, opt, x, y, step, loss_func, compression):
+    pdb.set_trace()
     with tf.GradientTape() as tape:
         logits = model(x)
         loss = loss_func(y, logits)
@@ -81,7 +82,6 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
     while step < opts.num_steps:
 
         for x, y in train_ds:
-            pdb.set_trace()
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
             if step % opts.log_every == 0 and step > 0:
                 log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
@@ -103,11 +103,9 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
                 return tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred) < 0.95
 
             train_ds = train_ds.filter(filter_hard_mining)
-            model.save('saved_model.h5')
 
     validate(opts, model, step, val_dataset, file_writer, metrics)
-
-
+    model.save('saved_model.h5')
 
 
 if __name__ == '__main__':
