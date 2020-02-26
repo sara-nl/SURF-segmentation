@@ -20,7 +20,7 @@ def train_one_step(model, opt, x, y, step, loss_func, compression):
 
     opt.apply_gradients(zip(grads, model.trainable_variables))
 
-    if step == 0:
+    if step == -1:
         hvd.broadcast_variables(model.variables, root_rank=0)
         hvd.broadcast_variables(opt.variables(), root_rank=0)
 
