@@ -81,7 +81,7 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
     while step < opts.num_steps:
 
         for x, y in train_ds:
-
+            pdb.set_trace()
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
             if step % opts.log_every == 0 and step > 0:
                 log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
