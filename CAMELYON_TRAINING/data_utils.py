@@ -25,7 +25,6 @@ def get_image_lists(opts):
 
 def load_camelyon_16(opts):
     """  Load the camelyon16 dataset """
-    pdb.set_trace()
     image_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' not in x]
     mask_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' in x]
 
@@ -228,7 +227,6 @@ def get_train_and_val_dataset(opts, image_list=None, mask_list=None,
         # let every worker read unique part of dataset
         train_dataset = train_dataset.shard(hvd.size(), hvd.rank())
 
-    pdb.set_trace()
     train_dataset = train_dataset.shuffle(buffer_size=6000)
     train_dataset = train_dataset.apply(
         tf.data.experimental.map_and_batch(

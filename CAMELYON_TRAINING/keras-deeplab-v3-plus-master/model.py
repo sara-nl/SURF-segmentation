@@ -464,7 +464,6 @@ def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3)
 
     if weights == 'pascal_voc':
         if backbone == 'xception':
-            pdb.set_trace()
             if opts.weights_path:
                 weights_path = opts.weights_path
             else:
