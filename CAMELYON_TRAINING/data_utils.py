@@ -60,6 +60,7 @@ def load_camelyon_16(opts):
 
 def load_camelyon17(opts):
     """ Load the camelyon17 dataset """
+    pdb.set_trace()
     image_list = [x for c in opts.train_centers for x in
                   sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                   'mask' not in x]
@@ -75,8 +76,8 @@ def load_camelyon17(opts):
 
     sample_weight_list = [1.0] * len(image_list)
 
-    # If validating on everything
-    if opts.val_centers == [1, 2, 3, 4]:
+    # If validating on everything, 00 custom
+    if opts.val_centers == [1, 2, 3, 4, 00]:
         val_split = int(len(image_list) * (1-opts.val_split))
         val_image_list = image_list[val_split:]
         val_mask_list = mask_list[val_split:]
@@ -227,7 +228,6 @@ def get_train_and_val_dataset(opts, image_list=None, mask_list=None,
         # let every worker read unique part of dataset
         train_dataset = train_dataset.shard(hvd.size(), hvd.rank())
 
-    pdb.set_trace()
     train_dataset = train_dataset.shuffle(buffer_size=6000)
     train_dataset = train_dataset.apply(
         tf.data.experimental.map_and_batch(
