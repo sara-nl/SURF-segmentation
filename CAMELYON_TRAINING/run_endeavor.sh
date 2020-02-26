@@ -35,7 +35,7 @@ XLA_FLAGS=--xla_hlo_profile TF_XLA_FLAGS=--tf_xla_cpu_global_jit mpiexec -map-by
 --img_size 2048 \
 --log_dir "/panfs/users/Xrhekst/cartesius/deeplab/CAMELYON_TRAINING/logs" \
 --fp16_allreduce \
---train_centers 00 \
---val_centers 00 \
+--train_centers 0 \
+--val_centers 0 \
 --train_path '/panfs/users/Xrhekst/files/examode/CAMELYON17/center_XX' \
 --valid_path '/panfs/users/Xrhekst/files/examode/CAMELYON17/center_XX'
