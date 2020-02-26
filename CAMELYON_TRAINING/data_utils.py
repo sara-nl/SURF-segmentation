@@ -96,10 +96,10 @@ def load_camelyon17(opts):
 
     else:
         val_image_list = [x for c in opts.val_centers for x in
-                          sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                          sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                           'mask' not in x]
         val_mask_list = [x for c in opts.val_centers for x in
-                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                          'mask' in x]
 
         # idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
