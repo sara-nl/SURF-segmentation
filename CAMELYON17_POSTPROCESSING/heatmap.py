@@ -19,6 +19,7 @@ import argparse
 
 
 TEST_PATCHES_PATH = '/nfs/managed_datasets/CAMELYON17/testing/patch_size_2048/'
+MODEL_PATH = '/home/rubenh/examode/model.h5'
 PATCH_SIZE = 2048
 BATCH_SIZE = 2
 
@@ -28,10 +29,10 @@ class WSI(object):
     def __init__(self):
         self.def_level = 7
         self.mag_factor = pow(2, self.def_level)
-        self.PATCH_SIZE = PATCH_SIZE
-        self.BATCH_SIZE = BATCH_SIZE
+        self.PATCH_SIZE = 2048
+        self.BATCH_SIZE = 2
         # self.pred_string_end = '/*.png'
-        self.eval_patient = (100,199)
+        self.eval_patient = (100,101)
         self.eval_node = (0, 4)
 
     def read_wsi_tumor(self, wsi_path):
@@ -62,8 +63,9 @@ class WSI(object):
 
         print("Start Loading model...")
         t1 = time.time()
-        model = tf.keras.models.load_model('/home/rubenh/examode/deeplab/CAMELYON_TRAINING/saved_model.h5')
+        model = tf.keras.models.load_model(MODEL_PATH)
         print(f"Loaded model in {time.time() - t1} seconds")
+        pdb.set_trace()
 
         diagnose_list = []
         for patient in range(self.eval_patient[0], self.eval_patient[1]):
@@ -90,14 +92,11 @@ class WSI(object):
                 pred_dataset = pred_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
                 for x,y in pred_dataset:
-                    x = tf.image.resize(x, [1024, 1024])
                     pred = model.predict(x)
                     pred =  tf.argmax(pred,axis=-1)
-                    self.PATCH_SIZE = 1024
                     pred_resized = tf.image.resize(pred[...,tf.newaxis],[int(self.PATCH_SIZE / self.def_level), int(self.PATCH_SIZE / self.def_level)])
                     heatmap[y[0][0]:y[0][0] + pred_resized.shape[1], y[1][0]:y[1][0] + pred_resized.shape[2]] = pred_resized[0, :, :, 0]*255
                     heatmap[y[0][1]:y[0][1] + pred_resized.shape[1], y[1][1]:y[1][1] + pred_resized.shape[2]] = pred_resized[0, :, :, 0]*255
-
 
                 heatmap = heatmap.astype('uint8')
                 contours, _ = cv2.findContours(heatmap, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -112,7 +111,6 @@ class WSI(object):
                     max_diameter_tumor = 0
 
                 diagnose_list.append((f'patient_{patient}_node_{node}',max_diameter_tumor))
-                pdb.set_trace()
 
     def make_csv(self,diagnose_list):
         metastases = []
@@ -153,9 +151,6 @@ class WSI(object):
             wr.writerow(pNstages)
 
         return 1
-
-
-
 
 
 if __name__ == "__main__":

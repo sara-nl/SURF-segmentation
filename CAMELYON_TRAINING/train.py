@@ -6,7 +6,7 @@ import pdb
 from options import get_options
 from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step
 from data_utils import get_image_lists, get_train_and_val_dataset
-
+import time
 
 def train_one_step(model, opt, x, y, step, loss_func, compression):
     with tf.GradientTape() as tape:
@@ -81,9 +81,11 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
     while step < opts.num_steps:
 
         for x, y in train_ds:
+            t1 = time.time()
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
+            if opts.horovod:
+                print(f"Worker {hvd.local_rank()} train step in {time.time() - t1} seconds")
 
-            break
             if step % opts.log_every == 0 and step > 0:
                 log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
 
