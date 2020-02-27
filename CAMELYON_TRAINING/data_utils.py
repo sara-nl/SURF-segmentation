@@ -25,7 +25,6 @@ def get_image_lists(opts):
 
 def load_camelyon_16(opts):
     """  Load the camelyon16 dataset """
-    pdb.set_trace()
     image_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' not in x]
     mask_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' in x]
 
@@ -61,10 +60,10 @@ def load_camelyon_16(opts):
 def load_camelyon17(opts):
     """ Load the camelyon17 dataset """
     image_list = [x for c in opts.train_centers for x in
-                  sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                  sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                   'mask' not in x]
     mask_list = [x for c in opts.train_centers for x in
-                 sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                 sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                  'mask' in x]
 
     image_list, mask_list = shuffle(image_list, mask_list)
@@ -75,7 +74,7 @@ def load_camelyon17(opts):
 
     sample_weight_list = [1.0] * len(image_list)
 
-    # If validating on everything
+    # If validating on everything, 00 custom
     if opts.val_centers == [1, 2, 3, 4]:
         val_split = int(len(image_list) * (1-opts.val_split))
         val_image_list = image_list[val_split:]
@@ -96,10 +95,10 @@ def load_camelyon17(opts):
 
     else:
         val_image_list = [x for c in opts.val_centers for x in
-                          sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                          sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                           'mask' not in x]
         val_mask_list = [x for c in opts.val_centers for x in
-                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
                          'mask' in x]
 
         # idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
@@ -206,6 +205,7 @@ def load_data(opts, image_path, mask_path, img_height, img_width, augment=False,
             shape=[1, ], minval=0, maxval=2, dtype=tf.int32)[0]
     else:
         flip = 0
+
     image = get_image(image_path, img_height=img_height, img_width=img_width, flip=flip, augment=augment)
     mask = get_image(mask_path, img_height=img_height, img_width=img_width, mask=True, flip=flip)
 

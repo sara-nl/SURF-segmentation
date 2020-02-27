@@ -216,7 +216,7 @@ def _inverted_res_block(inputs, expansion, stride, alpha, filters, block_id, ski
 
 
 def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3), classes=21, backbone='mobilenetv2',
-              OS=16, alpha=1., activation=None):
+              OS=16, alpha=1., activation=None,opts=None):
     """ Instantiates the Deeplabv3+ architecture
 
     Optionally loads weights pre-trained
@@ -464,9 +464,12 @@ def Deeplabv3(weights='pascal_voc', input_tensor=None, input_shape=(512, 512, 3)
 
     if weights == 'pascal_voc':
         if backbone == 'xception':
-            weights_path = get_file('deeplabv3_xception_tf_dim_ordering_tf_kernels.h5',
-                                    WEIGHTS_PATH_X,
-                                    cache_subdir='models')
+            if opts.weights_path:
+                weights_path = opts.weights_path
+            else:
+                weights_path = get_file('deeplabv3_xception_tf_dim_ordering_tf_kernels.h5',
+                                        WEIGHTS_PATH_X,
+                                        cache_subdir='models')
         else:
             weights_path = get_file('deeplabv3_mobilenetv2_tf_dim_ordering_tf_kernels.h5',
                                     WEIGHTS_PATH_MOBILE,

@@ -31,7 +31,7 @@ def init(opts):
 def get_model_and_optimizer(opts):
     """ Load the model and optimizer """
 
-    model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception')
+    model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception',opts=opts)
 
     if opts.horovod:
         # Horovod: (optional) compression algorithm.
@@ -104,6 +104,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
             mask = tf.cast(255 * y, tf.uint8)
             summary_predictions = tf.cast(tf.expand_dims(pred * 255, axis=-1), tf.uint8)
 
+
             tf.summary.image('Train_image', image, step=tf.cast(step, tf.int64), max_outputs=2)
             tf.summary.image('Train_mask', mask, step=tf.cast(step, tf.int64), max_outputs=2)
             tf.summary.image('Train_prediction', summary_predictions, step=tf.cast(step, tf.int64),
@@ -121,6 +122,8 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
                 tf.summary.histogram('%s' % var[0].name, var[0], step=tf.cast(step, tf.int64))
 
         file_writer.flush()
+
+        model.save('model.h5')
 
     return
 
@@ -142,7 +145,5 @@ def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, va
 
         tf.print('Validation at step', step, ': validation loss', val_loss, ': validation accuracy', val_acc,
                  ': validation miou', val_miou, ': validation auc', val_auc)
-
-
 
     return

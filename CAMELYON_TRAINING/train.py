@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 import horovod.tensorflow as hvd
 from pprint import pprint
-
+import pdb
 from options import get_options
 from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step
 from data_utils import get_image_lists, get_train_and_val_dataset
@@ -19,7 +19,7 @@ def train_one_step(model, opt, x, y, step, loss_func, compression):
 
     opt.apply_gradients(zip(grads, model.trainable_variables))
 
-    if step == 0:
+    if step == -1:
         hvd.broadcast_variables(model.variables, root_rank=0)
         hvd.broadcast_variables(opt.variables(), root_rank=0)
 
@@ -81,7 +81,6 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
     while step < opts.num_steps:
 
         for x, y in train_ds:
-
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
 
             break
@@ -108,10 +107,8 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
 
 
     validate(opts, model, step, val_dataset, file_writer, metrics)
-    model.save('saved_model.h5')
-
-
-
+    if hvd.local_rank() == 0 and hvd.rank() == 0:
+        model.save('saved_model.h5')
 
 if __name__ == '__main__':
     opts = get_options()
