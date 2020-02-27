@@ -45,7 +45,6 @@ def get_model_and_optimizer(opts):
     print("Compiling model...")
 
     model.build(input_shape=(opts.img_size, opts.img_size, 3))
-    pdb.set_trace()
     # Setting L2 regularization
     # for layer in model.layers:
     #     if layer.name.find('bn') > -1:

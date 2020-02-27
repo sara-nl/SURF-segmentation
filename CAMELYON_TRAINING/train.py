@@ -83,6 +83,8 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
         for x, y in train_ds:
 
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
+
+            break
             if step % opts.log_every == 0 and step > 0:
                 log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
 
@@ -103,9 +105,10 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
                 return tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred) < 0.95
 
             train_ds = train_ds.filter(filter_hard_mining)
-            model.save('saved_model.h5')
+
 
     validate(opts, model, step, val_dataset, file_writer, metrics)
+    model.save('saved_model.h5')
 
 
 

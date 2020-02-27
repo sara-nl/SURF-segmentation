@@ -4,9 +4,7 @@ import numpy as np
 import pdb
 import glob
 import sys
-
-sys.path.insert(1,'/home/rubenh/examode/deeplab/CAMELYON_TRAINING')
-import data_utils
+import time
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
 from PIL import Image, ImageStat, ImageDraw, ImageFont
 from xml.etree.ElementTree import parse
@@ -15,14 +13,14 @@ import collections
 import os
 import cv2
 import math
-import pdb
+import data_utils
 import multiprocessing
 import argparse
 
 
-TEST_PATCHES_PATH = '/lustre4/2/managed_datasets/CAMELYON17/testing/patch_size_2048/'
+TEST_PATCHES_PATH = '/nfs/managed_datasets/CAMELYON17/testing/patch_size_2048/'
 PATCH_SIZE = 2048
-BATCH_SIZE = 32
+BATCH_SIZE = 2
 
 
 class WSI(object):
@@ -62,24 +60,25 @@ class WSI(object):
     def run_on_test_data(self):
         self.wsi_paths = sorted(glob.glob(TEST_PATCHES_PATH + '*', recursive=True))
 
-        """
-        TODO:
-        
-        model = tf.keras.models.load_model('path_to_saved_model')
-        
-        """
+        print("Start Loading model...")
+        t1 = time.time()
+        model = tf.keras.models.load_model('/home/rubenh/examode/deeplab/CAMELYON_TRAINING/saved_model.h5')
+        print(f"Loaded model in {time.time() - t1} seconds")
+
         diagnose_list = []
         for patient in range(self.eval_patient[0], self.eval_patient[1]):
             for node in range(self.eval_node[0],self.eval_node[1]):
                 wsi_paths           = [path for path in self.wsi_paths if path.find(f'patient_{patient}_node_{node}') > -1]
-                coord_list          = [tuple(map(tuple,np.load(x.replace(f'{self.PATCH_SIZE}_',f'{self.PATCH_SIZE}_xy_').replace('.png','.npy'))))[0] for x in wsi_paths]
+                coord_file_list     = glob.glob(str(wsi_paths[0]) + '/*.npy')
+                patch_file_list     = glob.glob(str(wsi_paths[0]) + '/*.png')
+                coord_list          = [tuple(map(tuple,np.load(x)))[0] for x in coord_file_list]
                 coord_list_resized  = [(int(x[0] / self.mag_factor), int(x[1] / self.mag_factor)) for x in coord_list]
                 # Construct heatmap array
                 max_coord           = max(max(coord_list_resized)[0],max(coord_list_resized)[1])
                 heatmap_size        = (max_coord + math.ceil(self.PATCH_SIZE/self.def_level),max_coord + math.ceil(self.PATCH_SIZE/self.def_level))
                 heatmap             = np.zeros(heatmap_size)
 
-                pred_dataset = tf.data.Dataset.from_tensor_slices((wsi_paths,coord_list_resized))
+                pred_dataset = tf.data.Dataset.from_tensor_slices((patch_file_list,coord_list_resized))
 
                 pred_dataset = pred_dataset.apply(
                     tf.data.experimental.map_and_batch(
@@ -91,13 +90,16 @@ class WSI(object):
                 pred_dataset = pred_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
                 for x,y in pred_dataset:
+                    x = tf.image.resize(x, [1024, 1024])
                     pred = model.predict(x)
-                    pred_resized = tf.image.resize(pred,(self.PATCH_SIZE / self.def_level, self.PATCH_SIZE / self.def_level), method=ResizeMethod.BILINEAR)
+                    pred =  tf.argmax(pred,axis=-1)
+                    self.PATCH_SIZE = 1024
+                    pred_resized = tf.image.resize(pred[...,tf.newaxis],[int(self.PATCH_SIZE / self.def_level), int(self.PATCH_SIZE / self.def_level)])
+                    heatmap[y[0][0]:y[0][0] + pred_resized.shape[1], y[1][0]:y[1][0] + pred_resized.shape[2]] = pred_resized[0, :, :, 0]*255
+                    heatmap[y[0][1]:y[0][1] + pred_resized.shape[1], y[1][1]:y[1][1] + pred_resized.shape[2]] = pred_resized[0, :, :, 0]*255
 
-                    heatmap[y[0]:pred_resized.shape[0],y[1]:pred_resized.shape[1]] = pred_resized
 
-
-
+                heatmap = heatmap.astype('uint8')
                 contours, _ = cv2.findContours(heatmap, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 diameter_tumors = []
                 if contours:
@@ -110,7 +112,7 @@ class WSI(object):
                     max_diameter_tumor = 0
 
                 diagnose_list.append((f'patient_{patient}_node_{node}',max_diameter_tumor))
-
+                pdb.set_trace()
 
     def make_csv(self,diagnose_list):
         metastases = []
