@@ -221,7 +221,6 @@ class WSI(object):
         bounding_boxes = [cv2.boundingRect(c) for c in contours]
         contours_rgb_image_array = np.array(rgb_image)
 
-        line_color = (255, 0, 0)  # blue color code
         cv2.drawContours(contours_rgb_image_array, contours, -1, (255,150,150), 1)
         # pdb.set_trace()
         # cv2.drawContours(mask_image, contours_mask, -1, line_color, 3)

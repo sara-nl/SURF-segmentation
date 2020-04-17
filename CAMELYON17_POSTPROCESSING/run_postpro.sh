@@ -18,7 +18,7 @@ python postprocess_data_par.py \
 --patch_size 2048 \
 --num_threads 4 \
 --save_png True \
---data_folder cart # lisa / cart (for managed datasets folder)
+--data_folder lisa # lisa / cart (for managed datasets folder)
 
 
 
