@@ -3,12 +3,22 @@
 Internal repository regarding WP3 of Examode project concerning the color information in Whole Slide Images
 
 - This repository is enabling color transformation on the basis of :
-- - https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization
+    - < a href=https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization>Deep Convolutional Gaussian Mixture Model for Stain-Color Normalization in Histopathological H&E Images</a>
+
+However it adds the following features:
+
+- All is implemented in TF2.2.0
+- Batch Size higher then 1 is possible in a multi-GPU setting
+- Color Information measures can be evaluated using: 
+    - Normalized Median Intensity (NMI) measure
+    - Standard deviation of NMI
+    - Coefficient of variation of NMI
+    ref: < a href=https://pubmed.ncbi.nlm.nih.gov/26353368/>Stain Specific Standardization of Whole-Slide Histopathological Images</a>
 
 
 
 # Setup
-These steps ran on LISA / Cartesius with this module environment, where we first clone and enable 2020: 
+These steps ran on LISA this module environment, where we first clone and enable the 2020 software stack: 
 
 ```
 cd ~
@@ -38,143 +48,13 @@ Currently Loaded Modulefiles:
 Modules loaded:
 ```
 module load 2020
-module load CMake/3.15.3-GCCcore-8.3.0
-module load Python/3.7.4-GCCcore-8.3.0 (this module also loads the compilers)
+module load Python/3.7.4-GCCcore-8.3.0
+module load cuDNN/7.6.5.32-CUDA-10.1.243
 
 ```
-
-## Dependencies
-For this installation we will first make sure to have a folder ```/home/examode/``` and in here we make a folder called ```lib_deps``` where we install all the dependencies needed by the code.
+Install requirements:
 ```
-mkdir -p $HOME/examode/lib_deps
-cd $HOME/examode
-```
-Then add the relevant values to the environment variables:
-```
-export PATH=/home/$USER/examode/lib_deps/bin:$PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib:$LD_LIBRARY_PATH
-export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
-```
-
-### LibTIFF
-1. Download a release from the official repository and untar
-```
-wget http://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
-tar -xvf tiff-4.0.10.tar.gz
-```
-2. Build and configure the LibTIFF code from the inflated folder
-```
-cd $HOME/examode/tiff-4.0.10
-CC=gcc CXX=g++ ./configure --prefix=/home/$USER/examode/lib_deps
-make -j 8
-```
-3. Install LibTIFF
-```
-make install
-cd ..
-```
-
-### OpenJPEG
-The official install instructions are available [here](https://github.com/uclouvain/openjpeg/blob/master/INSTALL.md).
-1. Download and untar a release from the official repository
-```
-wget https://github.com/uclouvain/openjpeg/archive/v2.3.1.tar.gz
-tar -xvf v2.3.1.tar.gz
-```
-2. Build the OpenJPEG repository code
-```
-cd $HOME/examode/openjpeg-2.3.1
-mkdir -p build 
-CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_PREFIX=/home/$USER/examode/lib_deps \
--DBUILD_THIRDPARTY:bool=on
-make -j 8
-
-```
-3. Install OpenJPEG (we already added the paths to the environment variables)
-```
-make install
-cd ..
-```
-
-### OpenSlide
-1. Download and untar a release from the official repository
-```
-wget https://github.com/openslide/openslide/releases/download/v3.4.1/openslide-3.4.1.tar.gz
-tar -xvf openslide-3.4.1.tar.gz
-```
-2. Build and configure the OpenSlide code
-```
-cd $HOME/examode/openslide-3.4.1
-CC=gcc CXX=g++ PKG_CONFIG_PATH=/home/$USER/examode/lib_deps/lib/pkgconfig ./configure --prefix=/home/$USER/examode/lib_deps
-make -j 8
-```
-3. Install OpenSlide (we already added the paths to the environment variables)
-```
-make install
-cd ..
+pip install -r requirements.txt
 ```
 
 
-### Setting up the Python depencies (specific to LISA GPU)
-First we will load the modules needed:
-```
-module purge
-module load 2020
-module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243 
-
-```
-Then export the paths to the local installations:
-```
-export PATH=/home/$USER/examode/lib_deps/bin:$PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib:$LD_LIBRARY_PATH
-export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
-```
-This will give us access to all the dependencies. Now on a GPU node (for example login-gpu1):
-```
-VIRTENV=openslide
-VIRTENV_ROOT=~/.virtualenvs
-virtualenv $VIRTENV_ROOT/$VIRTENV --system-site-packages
-source $VIRTENV_ROOT/$VIRTENV/bin/activate
-```
-Now export environment variables for installing Horovod w/ MPI for multiworker training:
-```
-export HOROVOD_CUDA_HOME=$CUDA_HOME
-export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
-export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
-export HOROVOD_NCCL_HOME=$EBROOTNCCL
-export HOROVOD_GPU_ALLREDUCE=NCCL
-export MPICC=mpicc
-export MPICXX=mpicpc
-export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
-
-```
-Install python packages:
-
-```
-pip3 install horovod --no-cache-dir --user
-
-```
-# Preprocessing on LISA
-
-- To start pre-processing on e.g. CAMELYON17:
-```
-cd ~/examode/deeplab/CAMELYON17_PREPROCESSING
-# See flags in run_prepro.sh file for options
-sh run_prepro.sh
-
-```
-# Running on LISA
-To start a training run on LISA with the CAMELYON16 dataset, image size 1024 and batch size 2:
-```
-python train.py --dataset 16 --img_size 1024 --batch_size 2
-```
-OR (for multi-worker)
-```
-mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --dataset 16 --img_size 1024 --batch_size 2
-```
-See the * *run_deeplab_exa.sh* * file for details
-
-A training run on positive patches of 1024 x 1024 will converge in 2 hours on 4 TITANRTX nodes (Batch Size 2, ppr:4:node) to mIoU ~ 0.90
