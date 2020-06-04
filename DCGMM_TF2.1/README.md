@@ -1,10 +1,11 @@
-# EXAMODE
-Internal CS repository for the Camelyon Challenge, conducting experiments within Examode
+# WP3 - EXAMODE COLOR INFORMATION
 
-https://camelyon16.grand-challenge.org/
+Internal repository regarding WP3 of Examode project concerning the color information in Whole Slide Images
+
+- This repository is enabling color transformation on the basis of :
+- - https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization
 
 
-https://camelyon17.grand-challenge.org/
 
 # Setup
 These steps ran on LISA / Cartesius with this module environment, where we first clone and enable 2020: 
