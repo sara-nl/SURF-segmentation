@@ -17,10 +17,9 @@ However it adds the following features:
 
 
 <p align="center">
-<img  width="250" height="250" src=_images/clusters.png> <img  width="250" height="250" src=_images/template.png>  
-*The tissue class membership, computed by the DCGMM (right); Clusters include nuclei (red),  surrounding tissues (green) and the background(blue).*  
+<img  width="250" height="250" src=_images/template.png> ==> <img  width="250" height="250" src=_images/clusters.png>
 </p>  
-
+- The tissue class membership, computed by the DCGMM (right)
 
 # Setup
 These steps ran on LISA this module environment, where we first clone and enable the 2020 software stack: 
