@@ -118,3 +118,4 @@ python3 main.py \
 --save_path saved_images                                                                  # specify save path to save transformed images
 ```
 
+- This will deploy the trained checkpoint and normalize the target images on the basis of the image(s) in the template directory
