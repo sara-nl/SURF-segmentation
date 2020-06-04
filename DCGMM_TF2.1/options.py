@@ -8,7 +8,7 @@ from time import gmtime, strftime
 def get_options():
     """ Argument parsing options"""
 
-    parser = argparse.ArgumentParser(description='TF2.1 DCGMM model',
+    parser = argparse.ArgumentParser(description='TF2 DCGMM model',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--eval_mode', action='store_true',
@@ -16,9 +16,8 @@ def get_options():
 
     parser.add_argument('--img_size', type=int, default=256, help='Image size to use')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size to use')
-    parser.add_argument('--epochs', type=int, default=50,
-                        help='Number of steps for training. A single step is defined as one image. So a batch of 2 consists of 2 steps')
-    parser.add_argument('--num_clusters', type=int, default=4, help='Number of clusters to use in DCGMM modelling')
+    parser.add_argument('--epochs', type=int, default=50,    help='Number of epochs for training.')
+    parser.add_argument('--num_clusters', type=int, default=4, help='Number of tissue classes to use in DCGMM modelling')
 
     # Dataset and path options
     parser.add_argument('--dataset', type=str, default="16",
@@ -31,10 +30,10 @@ def get_options():
     parser.add_argument('--valid_path', type=str, help='Folder where the validation data is located', default=None)
     parser.add_argument('--logdir', type=str, help='Folder where to log tensorboard and model checkpoints',
                         default='logs')
-    parser.add_argument('--template_path', type=str, help='Folder where template is given', default='template')
+    parser.add_argument('--template_path', type=str, help='Folder where template images are stored for deployment.', default='template')
     parser.add_argument('--images_path', type=str, help='Path where images to normalize are located', default='images')
     parser.add_argument('--load_path', type=str, help='Path where to load model from',
-                        default='logs/CAMELYON16_256/2020-03-05 10:21:31/checkpoint_15000')
+                        default='logs/train_data')
     parser.add_argument('--save_path', type=str, default='norm_images', help='Where to save normalized images')
 
     # Data augmentation options
@@ -42,9 +41,8 @@ def get_options():
     parser.add_argument('--normalize_imgs', action='store_true', help='Normalize images between -1 and 1', default=True)
 
     parser.add_argument('--log_every', type=int, default=100, help='Log every X steps during training')
-    parser.add_argument('--validate_every', type=int, default=2048, help='Run the validation dataset every X steps')
     parser.add_argument('--save_every', type=int, default=5000, help='Save a checkpoint every X steps')
-    parser.add_argument('--debug', action='store_true', help='If running in debug mode')
+    parser.add_argument('--debug', action='store_true', help='If running in debug mode (only 10 images)')
     parser.add_argument('--val_split', type=float, default=0.15)
 
     opts = parser.parse_args()
