@@ -1,179 +1,127 @@
-# EXAMODE
-Internal CS repository for the Camelyon Challenge, conducting experiments within Examode
+# WP3 - EXAMODE COLOR INFORMATION
 
-https://camelyon16.grand-challenge.org/
+Internal repository regarding WP3 of Examode project concerning the color information in Whole Slide Images
+
+- This repository is enabling color transformation on the basis of :
+    - <a href="https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization">Deep Convolutional Gaussian Mixture Model for Stain-Color Normalization in Histopathological H&E Images</a>
+
+However it adds the following features:
+
+- All is implemented in TF2.2.0
+- Batch Size higher then 1 is possible in a multi-GPU setting
+- Color Information measures can be evaluated using: 
+    - Normalized Median Intensity (NMI) measure
+    - Standard deviation of NMI
+    - Coefficient of variation of NMI
+    ref: <a href="https://pubmed.ncbi.nlm.nih.gov/26353368/">Stain Specific Standardization of Whole-Slide Histopathological Images</a>
 
 
-https://camelyon17.grand-challenge.org/
+<p align="center">
+<img  width="250" height="250" src=https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization/blob/master/Images/Example_GMM_Image.png> <img  width="250" height="250" src=https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization/blob/master/Images/Example_GMM_Classes.png> <img  width="250" height="250" src=https://github.com/FarhadZanjani/Histopathology-Stain-Color-Normalization/blob/master/Images/Example_DCGMM_Classes.png>
+  
+*The tissue class membership, computed by the standard GMM algorithm (middle) and the DCGMM (right); Clusters include nuclei (red),  surrounding tissues (green) and the background(blue).*  
+</p>  
+
 
 # Setup
-These steps ran on LISA / Cartesius with this module environment, where we first clone and enable 2020: 
+These steps ran on LISA this module environment, where we first clone and enable the 2020 software stack: 
 
 ```
 cd ~
 git clone https://git.ia.surfsara.nl/environment-modules/environment-modules-lisa.git
-module use ~/environment-modules-lisa
 ```
 
-```
-Currently Loaded Modulefiles:
- 1) 2020                             17) bzip2/1.0.8-GCCcore-8.3.0                               
- 2) GCCcore/8.3.0                    18) ncurses/6.1-GCCcore-8.3.0                               
- 3) zlib/1.2.11-GCCcore-8.3.0        19) libreadline/8.0-GCCcore-8.3.0                           
- 4) binutils/2.32-GCCcore-8.3.0      20) Tcl/8.6.9-GCCcore-8.3.0                                 
- 5) GCC/8.3.0                        21) SQLite/3.29.0-GCCcore-8.3.0                             
- 6) numactl/2.0.12-GCCcore-8.3.0     22) GMP/6.1.2-GCCcore-8.3.0                                 
- 7) XZ/5.2.4-GCCcore-8.3.0           23) libffi/3.2.1-GCCcore-8.3.0                              
- 8) libxml2/2.9.9-GCCcore-8.3.0      24) Python/3.7.4-GCCcore-8.3.0                              
- 9) libpciaccess/0.14-GCCcore-8.3.0  25) SciPy-bundle/2019.10-foss-2019b-Python-3.7.4            
-10) hwloc/1.11.12-GCCcore-8.3.0      26) Szip/2.1.1-GCCcore-8.3.0                                
-11) OpenMPI/3.1.4-GCC-8.3.0          27) HDF5/1.10.5-gompi-2019b                                 
-12) OpenBLAS/0.3.7-GCC-8.3.0         28) h5py/2.10.0-foss-2019b-Python-3.7.4                     
-13) gompi/2019b                      29) CUDA/10.1.243                                           
-14) FFTW/3.3.8-gompi-2019b           30) cuDNN/7.6.5.32-CUDA-10.1.243                            
-15) ScaLAPACK/2.0.2-gompi-2019b      31) NCCL/2.5.6-CUDA-10.1.243                                
-16) foss/2019b                       32) TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243     
-```
-Modules loaded:
-```
-module load 2020
-module load CMake/3.15.3-GCCcore-8.3.0
-module load Python/3.7.4-GCCcore-8.3.0 (this module also loads the compilers)
-
-```
-
-## Dependencies
-For this installation we will first make sure to have a folder ```/home/examode/``` and in here we make a folder called ```lib_deps``` where we install all the dependencies needed by the code.
-```
-mkdir -p $HOME/examode/lib_deps
-cd $HOME/examode
-```
-Then add the relevant values to the environment variables:
-```
-export PATH=/home/$USER/examode/lib_deps/bin:$PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib:$LD_LIBRARY_PATH
-export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
-```
-
-### LibTIFF
-1. Download a release from the official repository and untar
-```
-wget http://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
-tar -xvf tiff-4.0.10.tar.gz
-```
-2. Build and configure the LibTIFF code from the inflated folder
-```
-cd $HOME/examode/tiff-4.0.10
-CC=gcc CXX=g++ ./configure --prefix=/home/$USER/examode/lib_deps
-make -j 8
-```
-3. Install LibTIFF
-```
-make install
-cd ..
-```
-
-### OpenJPEG
-The official install instructions are available [here](https://github.com/uclouvain/openjpeg/blob/master/INSTALL.md).
-1. Download and untar a release from the official repository
-```
-wget https://github.com/uclouvain/openjpeg/archive/v2.3.1.tar.gz
-tar -xvf v2.3.1.tar.gz
-```
-2. Build the OpenJPEG repository code
-```
-cd $HOME/examode/openjpeg-2.3.1
-mkdir -p build 
-CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Release \
--DCMAKE_INSTALL_PREFIX=/home/$USER/examode/lib_deps \
--DBUILD_THIRDPARTY:bool=on
-make -j 8
-
-```
-3. Install OpenJPEG (we already added the paths to the environment variables)
-```
-make install
-cd ..
-```
-
-### OpenSlide
-1. Download and untar a release from the official repository
-```
-wget https://github.com/openslide/openslide/releases/download/v3.4.1/openslide-3.4.1.tar.gz
-tar -xvf openslide-3.4.1.tar.gz
-```
-2. Build and configure the OpenSlide code
-```
-cd $HOME/examode/openslide-3.4.1
-CC=gcc CXX=g++ PKG_CONFIG_PATH=/home/$USER/examode/lib_deps/lib/pkgconfig ./configure --prefix=/home/$USER/examode/lib_deps
-make -j 8
-```
-3. Install OpenSlide (we already added the paths to the environment variables)
-```
-make install
-cd ..
-```
-
-
-### Setting up the Python depencies (specific to LISA GPU)
-First we will load the modules needed:
+Load Modules:
 ```
 module purge
+module use ~/environment-modules-lisa
 module load 2020
-module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243 
+module load Python/3.7.4-GCCcore-8.3.0
+module load cuDNN/7.6.5.32-CUDA-10.1.243
 
 ```
-Then export the paths to the local installations:
+Install requirements:
 ```
-export PATH=/home/$USER/examode/lib_deps/bin:$PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib:$LD_LIBRARY_PATH
-export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
+pip install -r requirements.txt
 ```
-This will give us access to all the dependencies. Now on a GPU node (for example login-gpu1):
-```
-VIRTENV=openslide
-VIRTENV_ROOT=~/.virtualenvs
-virtualenv $VIRTENV_ROOT/$VIRTENV --system-site-packages
-source $VIRTENV_ROOT/$VIRTENV/bin/activate
-```
-Now export environment variables for installing Horovod w/ MPI for multiworker training:
-```
-export HOROVOD_CUDA_HOME=$CUDA_HOME
-export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
-export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
-export HOROVOD_NCCL_HOME=$EBROOTNCCL
-export HOROVOD_GPU_ALLREDUCE=NCCL
-export MPICC=mpicc
-export MPICXX=mpicpc
-export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
+
+Options:
+
 
 ```
-Install python packages:
+python main.py --help
+>>>>>
+TF2 DCGMM model
 
+optional arguments:
+  -h, --help            show this help message and exit
+  --eval_mode           Run in evaluation mode. If false, training mode is
+                        activated (default: False)
+  --img_size IMG_SIZE   Image size to use (default: 256)
+  --batch_size BATCH_SIZE
+                        Batch size to use (default: 1)
+  --epochs EPOCHS       Number of epochs for training. (default: 50)
+  --num_clusters NUM_CLUSTERS
+                        Number of tissue classes to use in DCGMM modelling
+                        (default: 4)
+  --dataset DATASET     Which dataset to use. "16" for CAMELYON16 or "17" for
+                        CAMELYON17 (default: 16)
+  --train_centers TRAIN_CENTERS [TRAIN_CENTERS ...]
+                        Centers for training. Use -1 for all (default: [-1])
+  --val_centers VAL_CENTERS [VAL_CENTERS ...]
+                        Centers for validation. Use -1 for all (default: [-1])
+  --train_path TRAIN_PATH
+                        Folder of where the training data is located (default:
+                        None)
+  --valid_path VALID_PATH
+                        Folder where the validation data is located (default:
+                        None)
+  --logdir LOGDIR       Folder where to log tensorboard and model checkpoints
+                        (default: logs)
+  --template_path TEMPLATE_PATH
+                        Folder where template images are stored for
+                        deployment. (default: template)
+  --images_path IMAGES_PATH
+                        Path where images to normalize are located (default:
+                        images)
+  --load_path LOAD_PATH
+                        Path where to load model from (default:
+                        logs/train_data)
+  --save_path SAVE_PATH
+                        Where to save normalized images (default: norm_images)
+  --legacy_conversion   Legacy HSD conversion (default: True)
+  --normalize_imgs      Normalize images between -1 and 1 (default: True)
+  --log_every LOG_EVERY
+                        Log every X steps during training (default: 100)
+  --save_every SAVE_EVERY
+                        Save a checkpoint every X steps (default: 5000)
+  --debug               If running in debug mode (only 10 images) (default:
+                        False)
+  --val_split VAL_SPLIT
 ```
-pip3 install horovod --no-cache-dir --user
+### Training
+```
+python3 main.py \
+--img_size 256 \
+--batch_size 16 \
+--epochs 5 \
+--num_clusters 4 \
+--train_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
+--legacy_conversion
+```
 
-```
-# Preprocessing on LISA
+- This will train the DCGMM for 5 epochs, and save summaries and checkpoints in `/logs`
 
-- To start pre-processing on e.g. CAMELYON17:
+### Evaluation
 ```
-cd ~/examode/deeplab/CAMELYON17_PREPROCESSING
-# See flags in run_prepro.sh file for options
-sh run_prepro.sh
+python3 main.py \
+--img_size 256 \
+--template_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \ # specify template directory
+--images_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \   # specify target images directory
+--load_path ~/examode/deeplab/DCGMM_TF2.1/logs/train_data/256-tr1-val1/checkpoint_4336 \  # specify checkpoint directory
+--legacy_conversion \
+--eval_mode \
+--save_path saved_images                                                                  # specify save path to save transformed images
+```
 
-```
-# Running on LISA
-To start a training run on LISA with the CAMELYON16 dataset, image size 1024 and batch size 2:
-```
-python train.py --dataset 16 --img_size 1024 --batch_size 2
-```
-OR (for multi-worker)
-```
-mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --dataset 16 --img_size 1024 --batch_size 2
-```
-See the * *run_deeplab_exa.sh* * file for details
-
-A training run on positive patches of 1024 x 1024 will converge in 2 hours on 4 TITANRTX nodes (Batch Size 2, ppr:4:node) to mIoU ~ 0.90
+- This will deploy the trained checkpoint and normalize the target images on the basis of the image(s) in the template directory
