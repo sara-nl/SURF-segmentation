@@ -17,7 +17,7 @@ However it adds the following features:
 
 
 <p align="center">
-<img  width="250" height="250" src=https://git.ia.surfsara.nl/rubenh/examode/-/blob/master/deeplab/DCGMM_TF2.1/_images/clusters.png> <img  width="250" height="250" src=https://git.ia.surfsara.nl/rubenh/examode/-/blob/master/deeplab/DCGMM_TF2.1/_images/template.png>  
+<img  width="250" height="250" src=_images/clusters.png> <img  width="250" height="250" src=_images/template.png>  
 *The tissue class membership, computed by the DCGMM (right); Clusters include nuclei (red),  surrounding tissues (green) and the background(blue).*  
 </p>  
 
