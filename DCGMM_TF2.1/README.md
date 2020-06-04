@@ -23,11 +23,12 @@ These steps ran on LISA this module environment, where we first clone and enable
 ```
 cd ~
 git clone https://git.ia.surfsara.nl/environment-modules/environment-modules-lisa.git
-module use ~/environment-modules-lisa
 ```
 
 Load Modules:
 ```
+module purge
+module use ~/environment-modules-lisa
 module load 2020
 module load Python/3.7.4-GCCcore-8.3.0
 module load cuDNN/7.6.5.32-CUDA-10.1.243
@@ -38,7 +39,61 @@ Install requirements:
 pip install -r requirements.txt
 ```
 
-## Training
+Options:
+
+
+```
+python main.py --help
+>>>>>
+TF2 DCGMM model
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --eval_mode           Run in evaluation mode. If false, training mode is
+                        activated (default: False)
+  --img_size IMG_SIZE   Image size to use (default: 256)
+  --batch_size BATCH_SIZE
+                        Batch size to use (default: 1)
+  --epochs EPOCHS       Number of epochs for training. (default: 50)
+  --num_clusters NUM_CLUSTERS
+                        Number of tissue classes to use in DCGMM modelling
+                        (default: 4)
+  --dataset DATASET     Which dataset to use. "16" for CAMELYON16 or "17" for
+                        CAMELYON17 (default: 16)
+  --train_centers TRAIN_CENTERS [TRAIN_CENTERS ...]
+                        Centers for training. Use -1 for all (default: [-1])
+  --val_centers VAL_CENTERS [VAL_CENTERS ...]
+                        Centers for validation. Use -1 for all (default: [-1])
+  --train_path TRAIN_PATH
+                        Folder of where the training data is located (default:
+                        None)
+  --valid_path VALID_PATH
+                        Folder where the validation data is located (default:
+                        None)
+  --logdir LOGDIR       Folder where to log tensorboard and model checkpoints
+                        (default: logs)
+  --template_path TEMPLATE_PATH
+                        Folder where template images are stored for
+                        deployment. (default: template)
+  --images_path IMAGES_PATH
+                        Path where images to normalize are located (default:
+                        images)
+  --load_path LOAD_PATH
+                        Path where to load model from (default:
+                        logs/train_data)
+  --save_path SAVE_PATH
+                        Where to save normalized images (default: norm_images)
+  --legacy_conversion   Legacy HSD conversion (default: True)
+  --normalize_imgs      Normalize images between -1 and 1 (default: True)
+  --log_every LOG_EVERY
+                        Log every X steps during training (default: 100)
+  --save_every SAVE_EVERY
+                        Save a checkpoint every X steps (default: 5000)
+  --debug               If running in debug mode (only 10 images) (default:
+                        False)
+  --val_split VAL_SPLIT
+```
+### Training
 ```
 python3 main.py \
 --img_size 256 \
@@ -51,7 +106,7 @@ python3 main.py \
 
 - This will train the DCGMM for 5 epochs, and save summaries and checkpoints in `/logs`
 
-## Evaluation
+### Evaluation
 ```
 python3 main.py \
 --img_size 256 \
