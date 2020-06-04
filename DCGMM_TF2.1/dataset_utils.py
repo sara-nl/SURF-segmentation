@@ -3,11 +3,11 @@ import pdb
 from glob import glob
 import os
 from sklearn.utils import shuffle
-import hasel
+# import hasel
 import numpy as np
 import imageio
 import matplotlib.pyplot as plt
-
+from PIL import Image
 from utils import RGB2HSD_legacy
 
 
@@ -34,29 +34,28 @@ def load_data(image_path, opts):
 def get_image(image_path, opts):
     img_rgb = imageio.imread(image_path, pilmode='RGB')
 
-    img_hsd_legacy = RGB2HSD_legacy(img_rgb[None, :] / 255.)[0]
-
+    img_hsd_legacy = RGB2HSD_legacy(img_rgb[np.newaxis, :] / 255.)[0]
     # Normalize this image between 0 and 1
-    img_hsd_legacy = (img_hsd_legacy - np.min(img_hsd_legacy)) / np.ptp(img_hsd_legacy)
+    # img_hsd_legacy = (img_hsd_legacy - np.min(img_hsd_legacy)) / np.ptp(img_hsd_legacy)
 
-    img_hsd = hasel.rgb2hsl(img_rgb)
+    # img_hsd = hasel.rgb2hsl(img_rgb)
 
-    if opts.debug:
+    # if opts.debug:
 
-        combined = np.hstack([img_hsd, img_hsd_legacy])
+    #     combined = np.hstack([img_hsd, img_hsd_legacy])
 
-        plt.imshow(combined)
-        plt.title('Left: hasel conversion. Right: legacy conversion')
-        filename = image_path.split('/')[-1].split('_')[-1] + '.png'
-        plt.savefig(os.path.join('images', filename))
-        plt.close()
+    #     plt.imshow(combined)
+    #     plt.title('Left: hasel conversion. Right: legacy conversion')
+    #     filename = image_path.split('/')[-1].split('_')[-1] + '.png'
+    #     plt.savefig(os.path.join('images', filename))
+    #     plt.close()
 
-        combined_D = combined[:, :, -1]
-        plt.imshow(combined_D, cmap='gray')
-        plt.title('Left: hasel conversion. Right: legacy conversion')
-        filename = image_path.split('/')[-1].split('_')[-1] + '_D.png'
-        plt.savefig(os.path.join('images', filename))
-        plt.close()
+    #     combined_D = combined[:, :, -1]
+    #     plt.imshow(combined_D, cmap='gray')
+    #     plt.title('Left: hasel conversion. Right: legacy conversion')
+    #     filename = image_path.split('/')[-1].split('_')[-1] + '_D.png'
+    #     plt.savefig(os.path.join('images', filename))
+    #     plt.close()
 
     if opts.legacy_conversion:
         img_hsd = img_hsd_legacy
@@ -91,7 +90,7 @@ def load_camelyon_16(opts):
     image_list = shuffle(image_list)
 
     if opts.debug:
-        image_list = image_list[0:100]
+        image_list = image_list[0:10]
 
     val_split = int(len(image_list) * 0.85)
     val_image_list = image_list[val_split:]
@@ -99,34 +98,42 @@ def load_camelyon_16(opts):
 
     return image_list, val_image_list
 
-
 def load_camelyon_17(opts):
     """ Load the camelyon17 dataset """
+    image_list = [x for c in opts.train_centers for x in sorted(glob(str(opts.train_path).replace('center_XX', f'center_{c}') + '/*', recursive=True)) if 'mask' not in x]
+    
+    mask_list = [x for c in opts.train_centers for x in sorted(glob(str(opts.train_path).replace('center_XX', f'center_{c}') + '/*', recursive=True)) if'mask' in x]
+    
+    sample_weight_list = [1.0] * len(image_list)
 
-    image_list = [x for c in opts.train_centers for x in
-                  sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
-                  'mask' not in x]
-
-    image_list = shuffle(image_list)
-
-    if opts.debug:
-        image_list = image_list[0:100]
-
-    # If validating on everything
+    # If validating on everything, 00 custom
     if opts.val_centers == [1, 2, 3, 4]:
-        val_split = int(len(image_list) * 0.85)
+        val_split = int(len(image_list) * (1-opts.val_split))
         val_image_list = image_list[val_split:]
+        val_mask_list = mask_list[val_split:]
+        sample_weight_list = sample_weight_list[:val_split]
         image_list = image_list[:val_split]
+        mask_list = mask_list[:val_split]
+
+        idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
+        num_pixels = opts.img_size ** 2
+        valid_idx = [((num_pixels - np.count_nonzero(x)) / num_pixels) >= 0.2 for x in idx]
+        valid_idx = [i for i, x in enumerate(valid_idx) if x]
+
+        val_image_list = [val_image_list[i] for i in valid_idx]
+        val_mask_list = [val_mask_list[i] for i in valid_idx]
+
+        val_image_list, val_mask_list = shuffle(val_image_list, val_mask_list)
 
     else:
         val_image_list = [x for c in opts.val_centers for x in
                           sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
                           'mask' not in x]
-
-        val_split = int(len(image_list) * 0.15)
-        val_image_list = val_image_list[:val_split]
-        image_list = image_list[:val_split]
-
+        val_mask_list = [x for c in opts.val_centers for x in
+                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                         'mask' in x]
+        
+    # return image_list, mask_list, val_image_list, val_mask_list, sample_weight_list
     return image_list, val_image_list
 
 
@@ -148,6 +155,9 @@ class CustomDCGMMDataset:
         elif is_eval:
             self.image_list = [x for x in sorted(glob(opts.images_path + '/*', recursive=True)) if 'mask' not in x]
 
+        if self.opts.debug and self.image_list:
+            self.image_list = self.image_list[:10]
+        
         self.batch_offset = 0
         self.epochs_completed = 0
         self.current_epoch = 0
@@ -158,10 +168,10 @@ class CustomDCGMMDataset:
     def get_next_batch(self):
 
         start = self.batch_offset
-
         # Epoch completed, reshuffle data
         if self.batch_offset >= len(self.image_list) - self.opts.batch_size:
             self.image_list = shuffle(self.image_list)
+            start             = 0
             self.batch_offset = 0
 
         images = [load_data(path, self.opts) for path in self.image_list[start:start + self.opts.batch_size]]
@@ -174,6 +184,7 @@ class CustomDCGMMDataset:
     def get_next_image(self):
         """ Similar to get_next_batch, only prevents looping over a dataset """
         img_rgb, img_hsd = load_data(self.image_list.pop(0), self.opts)
+        pdb.set_trace()
         return np.array(img_rgb)[None, :], np.array(img_hsd)[None, :]
 
 

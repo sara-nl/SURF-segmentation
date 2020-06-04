@@ -16,7 +16,7 @@ def get_options():
 
     parser.add_argument('--img_size', type=int, default=256, help='Image size to use')
     parser.add_argument('--batch_size', type=int, default=1, help='Batch size to use')
-    parser.add_argument('--num_steps', type=int, default=500000,
+    parser.add_argument('--epochs', type=int, default=50,
                         help='Number of steps for training. A single step is defined as one image. So a batch of 2 consists of 2 steps')
     parser.add_argument('--num_clusters', type=int, default=4, help='Number of clusters to use in DCGMM modelling')
 
@@ -27,10 +27,10 @@ def get_options():
                         help='Centers for training. Use -1 for all')
     parser.add_argument('--val_centers', nargs='+', default=[-1], type=int,
                         help='Centers for validation. Use -1 for all')
-    parser.add_argument('--train_path', type=str, help='Folder of where the training data is located', default=None)
+    parser.add_argument('--train_path'  , type=str, help='Folder of where the training data is located', default=None)
     parser.add_argument('--valid_path', type=str, help='Folder where the validation data is located', default=None)
     parser.add_argument('--logdir', type=str, help='Folder where to log tensorboard and model checkpoints',
-                        default=None)
+                        default='logs')
     parser.add_argument('--template_path', type=str, help='Folder where template is given', default='template')
     parser.add_argument('--images_path', type=str, help='Path where images to normalize are located', default='images')
     parser.add_argument('--load_path', type=str, help='Path where to load model from',
@@ -45,6 +45,7 @@ def get_options():
     parser.add_argument('--validate_every', type=int, default=2048, help='Run the validation dataset every X steps')
     parser.add_argument('--save_every', type=int, default=5000, help='Save a checkpoint every X steps')
     parser.add_argument('--debug', action='store_true', help='If running in debug mode')
+    parser.add_argument('--val_split', type=float, default=0.15)
 
     opts = parser.parse_args()
 

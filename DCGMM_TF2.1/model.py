@@ -6,7 +6,7 @@ from tensorflow.keras.layers import Conv2D
 from tensorflow.keras.layers import Input
 from tensorflow.keras.layers import MaxPool2D
 import tensorflow_probability as tfp
-
+import pdb
 
 def CNN(opts, input_tensor=None):
     """ Initializes the CNN backbone of the DCGMM model.
@@ -70,25 +70,27 @@ def CNN(opts, input_tensor=None):
     return model
 
 
-def GMM_M_Step(X_hsd, gamma, num_clusters, name='GMM_Statistics', **kwargs):
-    h, s, D = tf.split(X_hsd, [1, 1, 1], axis=3)
+def GMM_M_Step(X_hsd, gamma, opts, name='GMM_Statistics', **kwargs):
+    
 
-    WXd = tf.multiply(gamma, tf.tile(D, [1, 1, 1, num_clusters]))
-    WXa = tf.multiply(gamma, tf.tile(h, [1, 1, 1, num_clusters]))
-    WXb = tf.multiply(gamma, tf.tile(s, [1, 1, 1, num_clusters]))
+    D, s, h = tf.split(X_hsd, [1, 1, 1], axis=3)
+
+    WXd = tf.multiply(gamma, tf.tile(D, [1, 1, 1, opts.num_clusters]))
+    WXa = tf.multiply(gamma, tf.tile(h, [1, 1, 1, opts.num_clusters]))
+    WXb = tf.multiply(gamma, tf.tile(s, [1, 1, 1, opts.num_clusters]))
     S = tf.reduce_sum(tf.reduce_sum(gamma, axis=1), axis=1)
     S = tf.add(S, tf.keras.backend.epsilon())
-    S = tf.reshape(S, [1, num_clusters])
+    S = tf.reshape(S, [opts.batch_size, opts.num_clusters])
 
     M_d = tf.divide(tf.reduce_sum(tf.reduce_sum(WXd, axis=1), axis=1), S)
     M_a = tf.divide(tf.reduce_sum(tf.reduce_sum(WXa, axis=1), axis=1), S)
     M_b = tf.divide(tf.reduce_sum(tf.reduce_sum(WXb, axis=1), axis=1), S)
 
-    mu = tf.split(tf.concat([M_d, M_a, M_b], axis=0), num_clusters, 1)
+    mu = tf.split(tf.concat([M_d, M_a, M_b], axis=0), opts.num_clusters, 1)
 
-    Norm_d = tf.math.squared_difference(D, tf.reshape(M_d, [1, num_clusters]))
-    Norm_h = tf.math.squared_difference(h, tf.reshape(M_a, [1, num_clusters]))
-    Norm_s = tf.math.squared_difference(s, tf.reshape(M_b, [1, num_clusters]))
+    Norm_d = tf.math.squared_difference(D, tf.reshape(M_d, [opts.batch_size,1,1, opts.num_clusters]))
+    Norm_h = tf.math.squared_difference(h, tf.reshape(M_a, [opts.batch_size,1,1, opts.num_clusters]))
+    Norm_s = tf.math.squared_difference(s, tf.reshape(M_b, [opts.batch_size,1,1, opts.num_clusters]))
 
     WSd = tf.multiply(gamma, Norm_d)
     WSh = tf.multiply(gamma, Norm_h)
@@ -98,21 +100,20 @@ def GMM_M_Step(X_hsd, gamma, num_clusters, name='GMM_Statistics', **kwargs):
     S_h = tf.sqrt(tf.divide(tf.reduce_sum(tf.reduce_sum(WSh, axis=1), axis=1), S))
     S_s = tf.sqrt(tf.divide(tf.reduce_sum(tf.reduce_sum(WSs, axis=1), axis=1), S))
 
-    std = tf.split(tf.concat([S_d, S_h, S_s], axis=0), num_clusters, 1)
+    std = tf.split(tf.concat([S_d, S_h, S_s], axis=0), opts.num_clusters, 1)
 
-    dist = [tfp.distributions.MultivariateNormalDiag(tf.reshape(mu[k], [1, 3]),
-                                                     tf.reshape(std[k], [1, 3])) for k in range(num_clusters)]
+    dist = [tfp.distributions.MultivariateNormalDiag(tf.reshape(mu[k], [opts.batch_size,1,1, 3]),
+                                                     tf.reshape(std[k], [opts.batch_size,1,1, 3])) for k in range(opts.num_clusters)]
 
-    pi = tf.split(gamma, num_clusters, axis=-1)
+    pi = tf.split(gamma, opts.num_clusters, axis=-1)
 
-    prob0 = [tf.multiply(tf.squeeze(dist[k].prob(X_hsd)), tf.squeeze(pi[k])) for k in range(num_clusters)]
+    prob0 = [tf.multiply(tf.squeeze(dist[k].prob(X_hsd)), tf.squeeze(pi[k])) for k in range(opts.num_clusters)]
 
     prob = tf.convert_to_tensor(prob0, dtype=tf.float32)
     prob = tf.minimum(tf.add(tf.reduce_sum(prob, axis=0), tf.keras.backend.epsilon()),
                       tf.constant(1.0, tf.float32))
     log_prob = tf.negative(tf.math.log(prob))
     ll = tf.reduce_mean(log_prob)
-
     return ll, mu, std
 
 

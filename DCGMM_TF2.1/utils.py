@@ -1,16 +1,15 @@
 import numpy as np
 import tensorflow as tf
-import hasel
+# import hasel
 import matplotlib.pyplot as plt
 import shutil
 import os
-
+import pdb
 from model import CNN, GMM_M_Step
 
-
 def RGB2HSD_legacy(X):
-    # pdb.set_trace()
-    eps = np.finfo(float).eps
+    # eps = np.finfo(float).eps
+    eps=1e-7
     X[np.where(X == 0.0)] = eps
 
     OD = -np.log(X / 1.0)
@@ -24,7 +23,7 @@ def RGB2HSD_legacy(X):
     cx = np.expand_dims(cx, 3)
     cy = np.expand_dims(cy, 3)
 
-    X_HSD = np.concatenate((cx, cy, D), 3)
+    X_HSD = np.concatenate((D,cx, cy), 3)
     return X_HSD
 
 
@@ -43,11 +42,11 @@ def HSD2RGB_Numpy_legacy(X_HSD):
     X_HSD_0 = X_HSD[..., 0]
     X_HSD_1 = X_HSD[..., 1]
     X_HSD_2 = X_HSD[..., 2]
-    D_R = np.expand_dims(np.multiply(X_HSD_1 + 1, X_HSD_0), 2)
-    D_G = np.expand_dims(np.multiply(0.5 * X_HSD_0, 2 - X_HSD_1 + np.sqrt(3.0) * X_HSD_2), 2)
-    D_B = np.expand_dims(np.multiply(0.5 * X_HSD_0, 2 - X_HSD_1 - np.sqrt(3.0) * X_HSD_2), 2)
+    D_R = np.expand_dims(np.multiply(X_HSD_1 + 1, X_HSD_0), -1)
+    D_G = np.expand_dims(np.multiply(0.5 * X_HSD_0, 2 - X_HSD_1 + np.sqrt(3.0) * X_HSD_2), -1)
+    D_B = np.expand_dims(np.multiply(0.5 * X_HSD_0, 2 - X_HSD_1 - np.sqrt(3.0) * X_HSD_2), -1)
 
-    X_OD = np.concatenate((D_R, D_G, D_B), axis=2)
+    X_OD = np.concatenate((D_R, D_G, D_B), axis=-1)
     X_RGB = 1.0 * np.exp(-X_OD)
     return X_RGB
 
@@ -55,20 +54,26 @@ def HSD2RGB_Numpy_legacy(X_HSD):
 def image_dist_transform(opts, img_hsd, mu, std, gamma, mu_tmpl, std_tmpl):
     """ Given a mu and std of an image and template, apply the color normalization """
 
-    img_norm = np.empty((opts.img_size, opts.img_size, 3, opts.num_clusters))
     
+    img_norm = np.empty((opts.batch_size,opts.img_size, opts.img_size, 3, opts.num_clusters))
+    
+    mu  = np.reshape(mu, [mu.shape[0] ,opts.batch_size,1,1,3])
+    std = np.reshape(std,[std.shape[0],opts.batch_size,1,1,3])
+    mu_tmpl  = np.reshape(mu_tmpl, [mu_tmpl.shape[0] ,opts.batch_size,1,1,3])
+    std_tmpl = np.reshape(std_tmpl,[std_tmpl.shape[0],opts.batch_size,1,1,3])
     for c in range(0, opts.num_clusters):
         img_normalized = np.divide(np.subtract(np.squeeze(img_hsd), mu[c, ...]), std[c, ...])
         img_univar = np.add(np.multiply(img_normalized, std_tmpl[c, ...]), mu_tmpl[c, ...])
         # img_univar = np.add(np.zeros_like(img_norm), mu[c,...])
-        img_norm[..., c] = np.multiply(img_univar, np.tile(np.expand_dims(np.squeeze(gamma[..., c]), axis=2), (1, 1, 3)))
+        img_norm[..., c] = np.multiply(img_univar, np.tile(np.expand_dims(np.squeeze(gamma[..., c]), axis=-1), (1, 1, 3)))
 
-    img_norm = np.sum(img_norm, axis=3)
-
+    
+    img_norm = np.sum(img_norm, axis=-1)
     # Apply the triangular restriction to cxcy plane in HSD color coordinates
-    img_norm = np.split(img_norm, 3, axis=2)
+    img_norm = np.split(img_norm, 3, axis=-1)
+    
     img_norm[1] = np.maximum(np.minimum(img_norm[1], 2.0), -1.0)
-    img_norm = np.squeeze(np.swapaxes(np.asarray(img_norm), 0, 3))
+    img_norm = np.squeeze(np.swapaxes(np.asarray(img_norm), 0, -1))
 
     ## Transfer from HSD to RGB color coordinates
     if opts.legacy_conversion:
@@ -78,7 +83,8 @@ def image_dist_transform(opts, img_hsd, mu, std, gamma, mu_tmpl, std_tmpl):
         img_norm *= 255
         img_norm = img_norm.astype(np.uint8)
     else:
-        img_norm = hasel.hsl2rgb(img_norm)
+        # img_norm = hasel.hsl2rgb(img_norm)
+        print("Not doing Hsl transform")
 
     return img_norm
 

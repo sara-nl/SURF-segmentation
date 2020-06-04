@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from pprint import pprint
-
+import pdb
 from model import DCGMM
 from options import get_options
 from dataset_utils import get_train_and_val_dataset, get_template_and_image_dataset
