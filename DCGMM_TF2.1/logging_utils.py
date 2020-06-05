@@ -4,6 +4,7 @@ import datetime
 from time import gmtime, strftime
 import os
 import shutil
+import pdb
 
 def setup_logger(opts):
     """ Setup the tensorboard writer """
@@ -17,11 +18,13 @@ def setup_logger(opts):
     if opts.debug:
         logdir += '-_debug'
 
-    if opts.log_dir:
-        logdir = opts.log_dir
+    if opts.logdir:
+        logdir = opts.logdir[1:]
+    
 
     shutil.rmtree(logdir, ignore_errors=True)
     os.makedirs(logdir, exist_ok=True)
+    
     file_writer = tf.summary.create_file_writer(logdir)
 
     return file_writer, logdir
