@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH -N 1
-#SBATCH -t 8:00:00
-#SBATCH -p gpu_titanrtx
+##SBATCH -N 1
+##SBATCH -t 8:00:00
+##SBATCH -p gpu_titanrtx
 
 module purge
 module use ~/environment-modules-lisa
@@ -49,10 +49,46 @@ python3 main.py \
 """
 python3 main.py \
 --img_size 256 \
---template_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
---images_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
---load_path ~/examode/deeplab/DCGMM_TF2.1/logs/train_data/256-tr1-val1/checkpoint_4336 \
---legacy_conversion \
---eval_mode \
---save_path saved_images
+--batch_size 32 \
+--epochs 10 \
+--num_clusters 4 \
+--dataset 17 \
+--train_centers 1 \
+--val_centers 1 \
+--logdir /logs1 \
+--legacy_conversion
+
+python3 main.py \
+--img_size 256 \
+--batch_size 32 \
+--epochs 10 \
+--num_clusters 4 \
+--dataset 17 \
+--train_centers 2 \
+--val_centers 1 \
+--logdir /logs2 \
+--legacy_conversion
+
+python3 main.py \
+--img_size 256 \
+--batch_size 32 \
+--epochs 10 \
+--num_clusters 4 \
+--dataset 17 \
+--train_centers 3 \
+--val_centers 1 \
+--logdir /logs3 \
+--legacy_conversion
+
+python3 main.py \
+--img_size 256 \
+--batch_size 32 \
+--epochs 10 \
+--num_clusters 4 \
+--dataset 17 \
+--train_centers 4 \
+--val_centers 1 \
+--logdir /logs4 \
+--legacy_conversion
+
 

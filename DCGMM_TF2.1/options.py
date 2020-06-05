@@ -38,7 +38,7 @@ def get_options():
 
     # Data augmentation options
     parser.add_argument('--legacy_conversion', action='store_true', help='Legacy HSD conversion', default=True)
-    parser.add_argument('--normalize_imgs', action='store_true', help='Normalize images between -1 and 1', default=True)
+    parser.add_argument('--normalize_imgs', action='store_true', help='Normalize images between -1 and 1', default=False)
 
     parser.add_argument('--log_every', type=int, default=100, help='Log every X steps during training')
     parser.add_argument('--save_every', type=int, default=5000, help='Save a checkpoint every X steps')

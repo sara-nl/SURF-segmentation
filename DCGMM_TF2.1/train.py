@@ -5,6 +5,7 @@ from utils import RGB2HSD_legacy
 import imageio
 from logging_utils import log_training_step, save_model
 import numpy as np
+import time 
 
 def train_one_step(opts, e_step, m_step, optimizer, img_rgb, img_hsd, step):
     """ Perform one training step. """
@@ -38,9 +39,12 @@ def train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, file_writ
     while step < (opts.epochs * len(train_ds)) :
         
         img_rgb, img_hsd = train_ds.get_next_batch()
-
+        print(e_step.summary())
+        t1 = time.time()
         ll, gamma, mu, std = train_one_step(opts, e_step, m_step, optimizer, img_rgb, img_hsd, step)
-        print(f'Step: {step} | epoch: {step // len(train_ds)} | loss: {ll}')
+        img_sec = time.time() - t1
+        log_epoch = step // len(train_ds)
+        print(f'Step: {step - log_epoch * len(train_ds)} / {len(train_ds)}  | epoch: {log_epoch} | loss: {ll} @ {opts.batch_size // img_sec} images / sec')
         step += opts.batch_size
 
         if step % opts.log_every == 0:
