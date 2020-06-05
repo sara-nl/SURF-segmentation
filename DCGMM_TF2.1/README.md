@@ -13,13 +13,14 @@ However it adds the following features:
     - Normalized Median Intensity (NMI) measure
     - Standard deviation of NMI
     - Coefficient of variation of NMI
+    
     ref: <a href="https://pubmed.ncbi.nlm.nih.gov/26353368/">Stain Specific Standardization of Whole-Slide Histopathological Images</a>
 
 
 <p align="center">
 <img  width="250" height="250" src=_images/template.png> ==> <img  width="250" height="250" src=_images/clusters.png>
 </p>  
-- The tissue class membership, computed by the DCGMM (right)
+> The tissue class membership, computed by the DCGMM (right)
 
 # Setup
 These steps ran on LISA this module environment, where we first clone and enable the 2020 software stack: 
@@ -108,7 +109,7 @@ python3 main.py \
 --legacy_conversion
 ```
 
-- This will train the DCGMM for 5 epochs, and save summaries and checkpoints in `/logs`
+- This will train the DCGMM for 5 epochs, and save summaries and checkpoints in `/logs` (default)
 
 ### Evaluation
 ```
@@ -122,4 +123,5 @@ python3 main.py \
 --save_path saved_images                                                                  # specify save path to save transformed images
 ```
 
-- This will deploy the trained checkpoint and normalize the target images on the basis of the image(s) in the template directory
+### TODO
+- [ ] Implement multi node framework (Horovod)
