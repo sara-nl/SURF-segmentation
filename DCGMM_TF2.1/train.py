@@ -32,7 +32,7 @@ def train_one_step(opts, e_step, m_step, optimizer, img_rgb, img_hsd, step):
     return ll, gamma, mu, std
 
 
-def train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, file_writer):
+def train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, file_writer, logdir):
     train_ds = train_dataset
     step = 0
     print(e_step.summary())
@@ -51,8 +51,8 @@ def train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, file_writ
             log_training_step(opts, step, ll, img_rgb, img_hsd, gamma, file_writer)
 
         if step % opts.save_every == 0:
-            save_model(opts, step, e_step)
+            save_model(opts, step, e_step,logdir)
 
 
-    e_step.save(os.path.join(opts.logdir, f'checkpoint_{step}'))
+    e_step.save(os.path.join(logdir, f'checkpoint_{step}'))
 

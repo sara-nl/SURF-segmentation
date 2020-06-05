@@ -3,7 +3,7 @@ import tensorflow as tf
 import datetime
 from time import gmtime, strftime
 import os
-
+import shutil
 
 def setup_logger(opts):
     """ Setup the tensorboard writer """
@@ -17,11 +17,14 @@ def setup_logger(opts):
     if opts.debug:
         logdir += '-_debug'
 
-    opts.logdir = logdir
+    if opts.log_dir:
+        logdir = opts.log_dir
 
+    shutil.rmtree(logdir, ignore_errors=True)
+    os.makedirs(logdir, exist_ok=True)
     file_writer = tf.summary.create_file_writer(logdir)
 
-    return file_writer
+    return file_writer, logdir
 
 
 def log_training_step(opts, step, ll, img_rgb, img_hsd, gamma, file_writer):
@@ -56,6 +59,6 @@ def log_training_step(opts, step, ll, img_rgb, img_hsd, gamma, file_writer):
     file_writer.flush()
 
 
-def save_model(opts, step, e_step):
-    saving_path = os.path.join(opts.logdir, f'checkpoint_{step}')
+def save_model(opts, step, e_step, logdir):
+    saving_path = os.path.join(logdir, f'checkpoint_{step}')
     e_step.save(saving_path)

@@ -17,10 +17,10 @@ if __name__ == '__main__':
 
     # Start running training
     if not opts.eval_mode:
-        tb_logger = setup_logger(opts)
+        tb_logger, logdir = setup_logger(opts)
         e_step, m_step, optimizer = get_model_and_optimizer(opts)
         train_dataset, val_dataset = get_train_and_val_dataset(opts)
-        train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, tb_logger)
+        train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, tb_logger,logdir)
 
     # Start running inference
     else:
