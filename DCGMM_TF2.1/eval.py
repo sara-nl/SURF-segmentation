@@ -65,7 +65,6 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
         mu, std, pi = deploy(opts, e_step, m_step, img_rgb, img_hsd)
 
         img_norm = image_dist_transform(opts, img_hsd, mu, std, pi, mu_tmpl, std_tmpl)
-        pdb.set_trace()
         if opts.save_path:
             for i in range(len(img_norm)):
                 matplotlib.image.imsave(os.path.join(opts.save_path, f'{i}.png'), img_norm[i,...])

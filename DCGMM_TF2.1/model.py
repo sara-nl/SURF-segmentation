@@ -82,10 +82,12 @@ def GMM_M_Step(X_hsd, gamma, opts, name='GMM_Statistics', **kwargs):
     S = tf.add(S, tf.keras.backend.epsilon())
     S = tf.reshape(S, [opts.batch_size, opts.num_clusters])
 
+    # M_d.shape = (-1,4)
     M_d = tf.divide(tf.reduce_sum(tf.reduce_sum(WXd, axis=1), axis=1), S)
     M_a = tf.divide(tf.reduce_sum(tf.reduce_sum(WXa, axis=1), axis=1), S)
     M_b = tf.divide(tf.reduce_sum(tf.reduce_sum(WXb, axis=1), axis=1), S)
 
+    # mu[0].shape = (-1*3,1)
     mu = tf.split(tf.concat([M_d, M_a, M_b], axis=0), opts.num_clusters, 1)
 
     Norm_d = tf.math.squared_difference(D, tf.reshape(M_d, [opts.batch_size,1,1, opts.num_clusters]))

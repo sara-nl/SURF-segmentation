@@ -40,7 +40,7 @@ python3 main.py \
 --img_size 256 \
 --template_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
 --images_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
---load_path ~/examode/deeplab/DCGMM_TF2.1/logs/train_data/256-tr1-val1/checkpoint_4336 \
+--load_path ~/examode/deeplab/DCGMM_TF2.1/logs1/checkpoint_8672 \
 --legacy_conversion \
 --eval_mode \
 --save_path saved_images
@@ -49,13 +49,13 @@ python3 main.py \
 """
 python3 main.py \
 --img_size 256 \
---batch_size 32 \
+--batch_size 4 \
 --epochs 10 \
 --num_clusters 4 \
 --dataset 17 \
 --train_centers 1 \
 --val_centers 1 \
---logdir /logs1 \
+--logdir /delete \
 --legacy_conversion
 
 python3 main.py \

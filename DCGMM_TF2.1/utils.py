@@ -54,7 +54,8 @@ def HSD2RGB_Numpy_legacy(X_HSD):
 def image_dist_transform(opts, img_hsd, mu, std, gamma, mu_tmpl, std_tmpl):
     """ Given a mu and std of an image and template, apply the color normalization """
 
-    
+    # alle mu std, (4,1,3)
+
     img_norm = np.empty((opts.batch_size,opts.img_size, opts.img_size, 3, opts.num_clusters))
     
     mu  = np.reshape(mu, [mu.shape[0] ,opts.batch_size,1,1,3])
