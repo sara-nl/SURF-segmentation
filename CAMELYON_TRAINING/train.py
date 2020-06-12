@@ -7,6 +7,7 @@ from options import get_options
 from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step
 from data_utils import get_image_lists, get_train_and_val_dataset
 import time
+from tqdm import tqdm
 
 def train_one_step(model, opt, x, y, step, loss_func, compression):
     with tf.GradientTape() as tape:
@@ -31,11 +32,11 @@ def train_one_step(model, opt, x, y, step, loss_func, compression):
 def validate(opts, model, step, val_dataset, file_writer, metrics):
     """ Perform validation on the entire val_dataset """
     if hvd.local_rank() == 0 and hvd.rank() == 0:
-
+        print(f"Starting Validation...")
         compute_loss, compute_accuracy, compute_miou, compute_auc = metrics
         val_loss, val_accuracy, val_miou, val_auc = [], [], [], []
 
-        for image, label in val_dataset:
+        for image, label in tqdm(val_dataset):
             val_pred_logits = model(image)
             val_pred = tf.math.argmax(val_pred_logits, axis=-1)
             val_loss.append(compute_loss(label, val_pred_logits))
@@ -61,8 +62,6 @@ def validate(opts, model, step, val_dataset, file_writer, metrics):
         compute_miou.reset_states()
         compute_auc.reset_states()
 
-
-
     return
 
 
@@ -80,11 +79,8 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
 
     while step < opts.num_steps:
 
-        for x, y in train_ds:
-            t1 = time.time()
+        for x, y in tqdm(train_ds):
             loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
-            if opts.horovod:
-                print(f"Worker {hvd.local_rank()} train step in {time.time() - t1} seconds")
 
             if step % opts.log_every == 0 and step > 0:
                 log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
@@ -96,16 +92,20 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
 
             if step > opts.num_steps:
                 break
+            
 
         if opts.hard_mining:
+            
             # Bit ugly to define the function here, but it works
             def filter_hard_mining(image, mask):
                 pred_logits = model(image)
                 pred = tf.math.argmax(pred_logits, axis=-1)
+                miou = tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred)
                 # Only select training samples with miou less then 0.95
-                return tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred) < 0.95
-
+                return  miou < 0.95
+            _len = tf.data.experimental.cardinality(train_ds)
             train_ds = train_ds.filter(filter_hard_mining)
+            print(f"Hard mining removed {_len - tf.data.experimental.cardinality(train_ds)} images")
 
 
     validate(opts, model, step, val_dataset, file_writer, metrics)

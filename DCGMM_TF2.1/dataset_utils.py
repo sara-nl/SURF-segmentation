@@ -170,6 +170,7 @@ class CustomDCGMMDataset:
         start = self.batch_offset
         # Epoch completed, reshuffle data
         if self.batch_offset >= len(self.image_list) - self.opts.batch_size:
+            print("Epoch completed")
             self.image_list = shuffle(self.image_list)
             start             = 0
             self.batch_offset = 0

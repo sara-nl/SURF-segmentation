@@ -15,8 +15,8 @@ def get_options():
                         help='Run in evaluation mode. If false, training mode is activated')
 
     parser.add_argument('--img_size', type=int, default=256, help='Image size to use')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size to use')
-    parser.add_argument('--epochs', type=int, default=50,    help='Number of epochs for training.')
+    parser.add_argument('--batch_size', type=int, default=4, help='Batch size to use')
+    parser.add_argument('--epochs', type=int, default=1,    help='Number of epochs for training.')
     parser.add_argument('--num_clusters', type=int, default=4, help='Number of tissue classes to use in DCGMM modelling')
 
     # Dataset and path options
@@ -34,14 +34,14 @@ def get_options():
     parser.add_argument('--images_path', type=str, help='Path where images to normalize are located', default='images')
     parser.add_argument('--load_path', type=str, help='Path where to load model from',
                         default='logs/train_data')
-    parser.add_argument('--save_path', type=str, default='norm_images', help='Where to save normalized images')
+    parser.add_argument('--save_path', type=str, default='0', help='Where to save normalized images')
 
     # Data augmentation options
     parser.add_argument('--legacy_conversion', action='store_true', help='Legacy HSD conversion', default=True)
     parser.add_argument('--normalize_imgs', action='store_true', help='Normalize images between -1 and 1', default=False)
 
     parser.add_argument('--log_every', type=int, default=100, help='Log every X steps during training')
-    parser.add_argument('--save_every', type=int, default=5000, help='Save a checkpoint every X steps')
+    parser.add_argument('--save_every', type=int, default=1000, help='Save a checkpoint every X steps')
     parser.add_argument('--debug', action='store_true', help='If running in debug mode (only 10 images)')
     parser.add_argument('--val_split', type=float, default=0.15)
 

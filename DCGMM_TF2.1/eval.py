@@ -4,7 +4,8 @@ import matplotlib
 import os
 import pdb
 from utils import image_dist_transform
-
+from tqdm import tqdm
+import sys
 
 def deploy(opts, e_step, m_step, img_rgb, img_hsd):
     """ Perform a step needed for inference """
@@ -35,17 +36,19 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
     std_tmpl = 0
     N = 0
     
-    print("Processing Templates...")
-    while template_dataset.batch_offset < len(template_dataset):
-
+    print(f"Processing {len(template_dataset)} Templates...")
+    for _ in tqdm(range(len(template_dataset)//opts.batch_size + 1)):
+    # while template_dataset.batch_offset < len(template_dataset) - 1:
+        
         img_rgb, img_hsd = template_dataset.get_next_batch()
         mu, std, gamma = deploy(opts, e_step, m_step, img_rgb, img_hsd)
 
         N += 1
         mu_tmpl = (N - 1) / N * mu_tmpl + 1 / N * mu
         std_tmpl = (N - 1) / N * std_tmpl + 1 / N * std
-        break
-
+        
+                
+        
 
     metrics = dict()
     for tc in range(0,opts.num_clusters):
@@ -57,15 +60,14 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
         metrics[f'cv_{tc}']=[]
         
         
-    print("Processing Target Images...")
-    i = 0
-    while image_dataset.batch_offset < len(image_dataset):
-        # img_rgb, img_hsd = image_dataset.get_next_image()
+    print(f"Processing {len(image_dataset)} Target Images...")
+    for _ in tqdm(range(len(image_dataset)//opts.batch_size + 1)):
+    # while image_dataset.batch_offset < len(image_dataset) -1 :
         img_rgb, img_hsd = image_dataset.get_next_batch()
         mu, std, pi = deploy(opts, e_step, m_step, img_rgb, img_hsd)
 
         img_norm = image_dist_transform(opts, img_hsd, mu, std, pi, mu_tmpl, std_tmpl)
-        if opts.save_path:
+        if not int(opts.save_path):
             for i in range(len(img_norm)):
                 matplotlib.image.imsave(os.path.join(opts.save_path, f'{i}.png'), img_norm[i,...])
 
@@ -86,8 +88,8 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
             metrics[f'median_{tc}'].extend(medians)
             metrics[f'perc_95_{tc}'].extend(percs)
             metrics[f'nmi_{tc}'].extend(nmis)
-  
-        i += 1
+        
+        
 
     av_sd = []
     av_cv = []
@@ -103,7 +105,7 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
     print(f"Average sd = {np.array(av_sd).mean()}")
     print(f"Average cv = {np.array(av_cv).mean()}")
     import csv
-    file = open(f"metrics-{opts.images_path.split('/')[-2]}-{opts.images_path.split('/')[-2]}.csv","w")
+    file = open(f"metrics-{opts.template_path.split('/')[-2]}-{opts.images_path.split('/')[-2]}.csv","w")
     writer = csv.writer(file)
     for key, value in metrics.items():
         writer.writerow([key, value])

@@ -1,5 +1,6 @@
 import numpy as np
 from glob import glob
+import os
 from sklearn.utils import shuffle
 from PIL import Image
 import tensorflow as tf
@@ -25,8 +26,8 @@ def get_image_lists(opts):
 
 def load_camelyon_16(opts):
     """  Load the camelyon16 dataset """
-    image_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' not in x]
-    mask_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' in x]
+    image_list = [x for x in sorted(glob(os.path.join(opts.train_path,'*'), recursive=True)) if 'mask' not in x]
+    mask_list = [x for x in sorted(glob(os.path.join(opts.train_path,'*'), recursive=True)) if 'mask' in x]
 
     image_list, mask_list = shuffle(image_list, mask_list)
 
@@ -59,11 +60,12 @@ def load_camelyon_16(opts):
 
 def load_camelyon17(opts):
     """ Load the camelyon17 dataset """
+
     image_list = [x for c in opts.train_centers for x in
-                  sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
+                  sorted(glob(os.path.join(opts.train_path.replace('center_XX', f'center_{c}'),'*'), recursive=True)) if
                   'mask' not in x]
     mask_list = [x for c in opts.train_centers for x in
-                 sorted(glob(opts.train_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
+                 sorted(glob(os.path.join(opts.train_path.replace('center_XX', f'center_{c}'),'*') , recursive=True)) if
                  'mask' in x]
 
     image_list, mask_list = shuffle(image_list, mask_list)
@@ -95,10 +97,10 @@ def load_camelyon17(opts):
 
     else:
         val_image_list = [x for c in opts.val_centers for x in
-                          sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
+                          sorted(glob(os.path.join(opts.valid_path.replace('center_XX', f'center_{c}'),'*') , recursive=True)) if
                           'mask' not in x]
         val_mask_list = [x for c in opts.val_centers for x in
-                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + f'/patches_positive_{opts.img_size}/*', recursive=True)) if
+                         sorted(glob(os.path.join(opts.valid_path.replace('center_XX', f'center_{c}'),'*') , recursive=True)) if
                          'mask' in x]
 
         # idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
@@ -115,7 +117,6 @@ def load_camelyon17(opts):
         val_mask_list = val_mask_list[:val_split]
 
         val_image_list, val_mask_list = shuffle(val_image_list, val_mask_list)
-
     return image_list, mask_list, val_image_list, val_mask_list, sample_weight_list
 
 
@@ -170,8 +171,7 @@ def get_image(image_path, coords=None, img_height=None, img_width=None, mask=Fal
             (tf.greater(flip, 0), lambda: tf.image.flip_left_right(img))
         ], default=lambda: img)
         img = tf.clip_by_value(img, 0, 1)
-        # img = tf.one_hot(tf.squeeze(img), depth=num_classes)
-        # img = tf.math.subtract(tf.math.multiply(2, img), 1)
+
     if coords == None:
         return img
     else:

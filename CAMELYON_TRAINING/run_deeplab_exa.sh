@@ -53,6 +53,7 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 #pip install horovod
 pip install scikit-learn --user
 pip install Pillow --user
+pip install tqdm --user
 
 
 echo "Performing Training..."
