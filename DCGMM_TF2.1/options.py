@@ -41,9 +41,9 @@ def get_options():
     parser.add_argument('--normalize_imgs', action='store_true', help='Normalize images between -1 and 1', default=False)
 
     parser.add_argument('--log_every', type=int, default=100, help='Log every X steps during training')
-    parser.add_argument('--save_every', type=int, default=1000, help='Save a checkpoint every X steps')
+    parser.add_argument('--save_every', type=int, default=100, help='Save a checkpoint every X steps, also saves after training')
     parser.add_argument('--debug', action='store_true', help='If running in debug mode (only 10 images)')
-    parser.add_argument('--val_split', type=float, default=0.15)
+    parser.add_argument('--val_split', type=float, default=0)
 
     opts = parser.parse_args()
 

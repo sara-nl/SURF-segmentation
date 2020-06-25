@@ -6,9 +6,10 @@ import numpy as np
 import cv2
 import pdb
 import multiprocessing
+import sys
 import tensorflow as tf
 import argparse
-
+from pprint import pprint
 
 parser = argparse.ArgumentParser(description='Preprocessing CAMELYON16',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -24,34 +25,28 @@ parser.add_argument('--save_neg', type=bool, default=False,
 parser.add_argument('--save_png', type=bool, default=False,
                     help='Whether the png images of bounding boxes and saved patches should be written to disk')
 
-parser.add_argument('--data_folder', type=str, default='cart',
-                    help='What data folder pre-pend to use, lisa / cart')
-
-opts = parser.parse_args()
-
-if opts.data_folder == 'lisa':
-    dir = '/nfs'
-else:
-    dir = '/lustre4/2'
 
 parser.add_argument('--train_tumor_wsi_path', type=str,
                                               help='Folder of where the training data is located',
-                                              default=f'{dir}/managed_datasets/CAMELYON16/TrainingData/Train_Tumor')
+                                              default=f'/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor')
 
 parser.add_argument('--train_tumor_mask_path',type=str,
                                               help='Folder of where the training data is located',
-                                              default=f'{dir}/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask')
+                                              default=f'/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask')
 
 parser.add_argument('--save_tumor_negative_path',type=str,
                                                  help='Folder of where the negatives patches are saved.',
-                                                 default=f'pro_patch_tumor_negative_{opts.patch_size}/')
+                                                 default=f'pro_patch_tumor_negative_256/')
 
 parser.add_argument('--save_positive_path',type=str,
                                            help='Folder of where the positive patches are saved.',
-                                           default=f'pro_patch_positive_{opts.patch_size}/')
+                                           default=f'pro_patch_positive_256/')
+parser.add_argument('--format'             ,type=str,
+                                           help='Format of the whole slide images.',
+                                           default=f'tif')
 
 opts = parser.parse_args()
-
+pprint(vars(opts))
 tf_coord = tf.train.Coordinator()
 
 
@@ -93,7 +88,6 @@ class WSI(object):
     mask_paths = []
     def_level = 7
     key = 0
-
 
 
     def extract_patches_tumor(self, bounding_boxes):
@@ -142,7 +136,9 @@ class WSI(object):
 
 
                     patch = self.wsi_image.read_region((x_left, y_left), 0, (PATCH_SIZE, PATCH_SIZE))
-                    mask = self.mask_image.read_region((x_left, y_left), 0, (PATCH_SIZE, PATCH_SIZE))
+                    patch_array = np.array(patch)
+                    if self.mask_image:
+                        mask = self.mask_image.read_region((x_left, y_left), 0, (PATCH_SIZE, PATCH_SIZE))
                     _std = ImageStat.Stat(patch).stddev
                     # thresholding stddev for patch extraction
                     patchidx += 1
@@ -153,50 +149,50 @@ class WSI(object):
 
                     d1.rectangle([(orx, ory), (orx + orps, ory + orps)], outline='green', width=1)
 
-                    mask_gt = np.array(mask)
-                    mask_gt = cv2.cvtColor(mask_gt, cv2.COLOR_BGR2GRAY)
-                    patch_array = np.array(patch)
+                    if self.mask_image:
+                        mask_gt = np.array(mask)
+                        mask_gt = cv2.cvtColor(mask_gt, cv2.COLOR_BGR2GRAY)
+                    else:
+                        mask_gt = np.zeros((PATCH_SIZE, PATCH_SIZE))
 
                     # discard based on stddev
                     if (sum(_std[:3]) / len(_std[:3])) < 15:
                         continue
-
+                    
                     # discard based on black pixels
                     gs = cv2.cvtColor(patch_array, cv2.COLOR_BGR2GRAY)
                     black_pixel_cnt_gt = gs.shape[0] * gs.shape[1] - cv2.countNonZero(gs)
                     if black_pixel_cnt_gt > 10:
                         continue
 
+
                     d2.rectangle([(orx, ory), (orx + orps, ory + orps)], outline='green', width=1)
 
                     white_pixel_cnt_gt = cv2.countNonZero(mask_gt)
                     if white_pixel_cnt_gt == 0:  # mask_gt does not contain tumor area
-                        patch_hsv = cv2.cvtColor(patch_array, cv2.COLOR_BGR2HSV)
-                        lower_red = np.array([0, 0, 0])
-                        upper_red = np.array([200, 200, 220])
-                        mask_patch = cv2.inRange(patch_hsv, lower_red, upper_red)
-                        white_pixel_cnt = cv2.countNonZero(mask_patch)
 
-                        if white_pixel_cnt > ((PATCH_SIZE * PATCH_SIZE) * 0.50):
-                            if opts.save_neg:
-                                patch.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + PATCH_NORMAL_PREFIX +str(PATCH_SIZE)+'_'+
-                                           str(self.negative_patch_index)+ '.png')
-                                mask.save(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH + 'mask_' + PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+ str(self.negative_patch_index)+ '.png')
-                            self.negative_patch_index += 1
-                            ntumoridx+=1
+                        if opts.save_neg:
+                            patch.save(os.path.join(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH,PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+str(self.negative_patch_index)+'.png'))
+                            
+                            if self.mask_image:
+                                mask.save(os.path.join(PROCESSED_PATCHES_TUMOR_NEGATIVE_PATH,'mask_'+PATCH_NORMAL_PREFIX+str(PATCH_SIZE)+'_'+str(self.negative_patch_index)+'.png'))
+                        self.negative_patch_index += 1
+                        if self.negative_patch_index == 200: sys.exit(0)
+                        ntumoridx+=1
                     else:  # mask_gt contains tumor area
                         if white_pixel_cnt_gt >= ((PATCH_SIZE * PATCH_SIZE) * 0.01):
-                            patch.save(PROCESSED_PATCHES_POSITIVE_PATH + PATCH_TUMOR_PREFIX +str(PATCH_SIZE)+'_'+
-                                       str(self.positive_patch_index)+ '.png')
-                            mask.save(PROCESSED_PATCHES_POSITIVE_PATH + 'mask_' + PATCH_TUMOR_PREFIX +str(PATCH_SIZE)+'_'+
-                                       str(self.positive_patch_index)+ '.png')
+                            patch.save(os.path.join(PROCESSED_PATCHES_POSITIVE_PATH,PATCH_TUMOR_PREFIX+str(PATCH_SIZE)+'_'+
+                                       str(self.positive_patch_index)+'.png'))
+                            mask.save(os.path.join(PROCESSED_PATCHES_POSITIVE_PATH,'mask_'+PATCH_TUMOR_PREFIX+str(PATCH_SIZE)+'_'+
+                                       str(self.positive_patch_index)+'.png'))
 
                             self.positive_patch_index += 1
                             tumoridx+=1
 
 
                     patch.close()
-                    mask.close()
+                    if self.mask_image:
+                        mask.close()
 
             print("Processed patches in bounding box %s :" % i, "%s" % patchidx, " positive: %s " % tumoridx,
                   " negative: %s" % ntumoridx)
@@ -205,38 +201,23 @@ class WSI(object):
             rgb_image_pil.save('bb_%s_%s.png'%(PATCH_SIZE, self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:]))
             rgb_image_pilpro.save('bbpro_%s_%s.png'%(PATCH_SIZE, self.cur_wsi_path[self.cur_wsi_path.rfind('/')+1:]))
 
-    def read_wsi_mask(self, wsi_path, mask_path):
-        try:
-            self.cur_wsi_path = wsi_path
-            self.wsi_image = OpenSlide(wsi_path)
-            self.mask_image = OpenSlide(mask_path)
-
-            self.level_used = min(self.def_level, self.wsi_image.level_count - 1, self.mask_image.level_count - 1)
-
-            self.mask_pil = self.mask_image.read_region((0, 0), self.level_used,
-                                                            self.mask_image.level_dimensions[self.level_used])
-            self.mask = np.array(self.mask_pil)
-
-        except OpenSlideUnsupportedFormatError:
-            print('Exception: OpenSlideUnsupportedFormatError')
-            return False
-
-        return True
-
 
     def read_wsi_tumor(self, wsi_path, mask_path):
         """
             # =====================================================================================
-     i       # read WSI image and resize
+            # read WSI image and resize
             # Due to memory constraint, we use down sampled (4th level, 1/32 resolution) image
             # ======================================================================================
         """
         try:
             self.cur_wsi_path = wsi_path
             self.wsi_image = OpenSlide(wsi_path)
-            self.mask_image = OpenSlide(mask_path)
-
-            self.level_used = min(self.def_level, self.wsi_image.level_count - 1, self.mask_image.level_count - 1)
+            if mask_path:
+                self.mask_image = OpenSlide(mask_path)
+                self.level_used = min(self.def_level, self.wsi_image.level_count - 1, self.mask_image.level_count - 1)
+            else:
+                self.mask_image = 0
+                self.level_used = min(self.def_level, self.wsi_image.level_count - 1)
 
             self.rgb_image_pil = self.wsi_image.read_region((0, 0), self.level_used,
                                                             self.wsi_image.level_dimensions[self.level_used])
@@ -263,7 +244,6 @@ class WSI(object):
         open_kernel = np.ones((30, 30), dtype=np.uint8)
         image_open = Image.fromarray(cv2.morphologyEx(np.array(image_close), cv2.MORPH_OPEN, open_kernel))
         contour_rgb, bounding_boxes = self.get_image_contours_tumor(np.array(image_open), self.rgb_image)
-
         # Image.fromarray(np.array(contour_rgb)).show()
         # pdb.set_trace()
         # contour_rgb = cv2.resize(contour_rgb, (0, 0), fx=0.40, fy=0.40)
@@ -271,7 +251,8 @@ class WSI(object):
         self.rgb_image_pil.close()
         self.extract_patches_tumor(bounding_boxes)
         self.wsi_image.close()
-        self.mask_image.close()
+        if self.mask_image:
+            self.mask_image.close()
 
     @staticmethod
     def get_image_contours_tumor(cont_img, rgb_image):
@@ -287,28 +268,30 @@ class WSI(object):
 
 
 def run_on_tumor_data():
-    wsi.wsi_paths = glob.glob(os.path.join(TRAIN_TUMOR_WSI_PATH, '*.tif'))
+    wsi.wsi_paths = glob.glob(os.path.join(TRAIN_TUMOR_WSI_PATH, f'*.{opts.format}'))
     wsi.wsi_paths.sort()
-    wsi.mask_paths = glob.glob(os.path.join(TRAIN_TUMOR_MASK_PATH, '*.tif'))
+    wsi.mask_paths = glob.glob(os.path.join(TRAIN_TUMOR_MASK_PATH, f'*.{opts.format}'))
     wsi.mask_paths.sort()
     
 
     wsi.index = 0
 
-
-    # Parallel(n_jobs=8)(delayed(wsi.find_roi_n_extract_patches_tumor)() for wsi_path, mask_path in zip(wsi.wsi_paths, wsi.mask_paths) if wsi.read_wsi_tumor(wsi_path, mask_path))
-    assert len(wsi.wsi_paths) == len(wsi.mask_paths), "Not all images have masks"
+    if len(wsi.mask_paths) > 0:
+        # Parallel(n_jobs=8)(delayed(wsi.find_roi_n_extract_patches_tumor)() for wsi_path, mask_path in zip(wsi.wsi_paths, wsi.mask_paths) if wsi.read_wsi_tumor(wsi_path, mask_path))
+        assert len(wsi.wsi_paths) == len(wsi.mask_paths), "Not all images have masks"
+    else:
+        wsi.mask_paths = [0]*len(wsi.wsi_paths)
 
     lst_done = [x[5:-4] for x in glob.glob(os.path.join('./', 'bb_*.png'))]
 
 
     if num_threads == 1:
-
         # Non - parallel
         for wsi_path, mask_path in zip(wsi.wsi_paths, wsi.mask_paths):
             if '%s_' % PATCH_SIZE + wsi_path[wsi_path.rfind('/') + 1:] not in lst_done:
                 if wsi.read_wsi_tumor(wsi_path, mask_path):
                     wsi.find_roi_n_extract_patches_tumor()
+
 
     elif num_threads > 1:
         for g in range(0, len(wsi.wsi_paths), num_threads):

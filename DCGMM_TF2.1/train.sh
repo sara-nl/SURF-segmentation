@@ -1,7 +1,7 @@
 #!/bin/bash
-##SBATCH -N 1
-##SBATCH -t 8:00:00
-##SBATCH -p gpu_titanrtx
+#SBATCH -N 1
+#SBATCH -t 8:00:00
+#SBATCH -p gpu_titanrtx
 
 module purge
 module use ~/environment-modules-lisa
@@ -22,7 +22,7 @@ export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
 source $VIRTENV_ROOT/$VIRTENV/bin/activate
 
 """
-To train for example:
+TRAINING:
 
 python3 main.py \
 --img_size 256 \
@@ -34,7 +34,19 @@ python3 main.py \
 --val_centers 1 \
 --legacy_conversion
 
-For evaluation:
+
+python3 main.py \
+--img_size 256 \
+--batch_size 16 \
+--epochs 5 \
+--num_clusters 2 \
+--train_path /home/rubenh/examode/deeplab/CAMELYON16_PREPROCESSING/Radboudumc \
+--valid_path /home/rubenh/examode/deeplab/CAMELYON16_PREPROCESSING/Radboudumc \
+--legacy_conversion \
+--logdir /Radboudumc-2-clusters
+
+
+EVALUATION:
 
 python3 main.py \
 --img_size 256 \
@@ -58,11 +70,13 @@ python3 main.py \
 
 python3 main.py \
 --img_size 256 \
---batch_size 16 \
---epochs 1 \
---num_clusters 4 \
---dataset 17 \
---train_centers 4 \
---val_centers 1 \
---logdir logs4 \
---legacy_conversion
+--template_path /home/rubenh/examode/deeplab/CAMELYON16_PREPROCESSING/Radboudumc \
+--images_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
+--load_path /home/rubenh/examode/deeplab/DCGMM_TF2.1/Radboudumc/checkpoint_2000 \
+--legacy_conversion \
+--eval_mode \
+--save_path saved_images_CAM17_1
+
+
+
+

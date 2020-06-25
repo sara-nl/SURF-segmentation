@@ -14,8 +14,9 @@ def get_image_lists(opts):
 
     if opts.dataset == "17":
         image_list, mask_list, val_image_list, val_mask_list, sample_weight_list = load_camelyon17(opts)
-    elif opts.dataset == "16":
+    else:
         image_list, mask_list, val_image_list, val_mask_list, sample_weight_list = load_camelyon_16(opts)
+    
 
     print('Found', len(image_list), 'training images')
     print('Found', len(mask_list), 'training masks')
@@ -23,6 +24,7 @@ def get_image_lists(opts):
     print('Found', len(val_mask_list), 'validation masks')
     return image_list, mask_list, val_image_list, val_mask_list, sample_weight_list
 
+    
 
 def load_camelyon_16(opts):
     """  Load the camelyon16 dataset """

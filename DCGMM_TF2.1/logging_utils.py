@@ -42,7 +42,6 @@ def log_training_step(opts, step, ll, img_rgb, img_hsd, gamma, file_writer):
         img_rgb = tf.cast(img_rgb * 255, tf.uint8)
         img_hsd = tf.cast(img_hsd * 255, tf.uint8)
         d_channel = tf.cast(d_channel * 255, tf.uint8)
-
         tf.summary.image("1. Training input_image", img_rgb, step, max_outputs=10)
         tf.summary.image("2. Training hsd_image", img_hsd, step, max_outputs=10)
 

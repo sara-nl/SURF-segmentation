@@ -61,15 +61,15 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
         
         
     print(f"Processing {len(image_dataset)} Target Images...")
+    idx = 0
     for _ in tqdm(range(len(image_dataset)//opts.batch_size + 1)):
-    # while image_dataset.batch_offset < len(image_dataset) -1 :
         img_rgb, img_hsd = image_dataset.get_next_batch()
         mu, std, pi = deploy(opts, e_step, m_step, img_rgb, img_hsd)
 
         img_norm = image_dist_transform(opts, img_hsd, mu, std, pi, mu_tmpl, std_tmpl)
-        if not int(opts.save_path):
-            for i in range(len(img_norm)):
-                matplotlib.image.imsave(os.path.join(opts.save_path, f'{i}.png'), img_norm[i,...])
+        # if not int(opts.save_path):
+        for i in range(len(img_norm)):
+            matplotlib.image.imsave(os.path.join(opts.save_path, f'batch-{idx}_{i}.png'), img_norm[i,...])
 
         
         ClsLbl = np.argmax(np.asarray(pi),axis=-1)
@@ -89,6 +89,8 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
             metrics[f'perc_95_{tc}'].extend(percs)
             metrics[f'nmi_{tc}'].extend(nmis)
         
+        idx += 1
+        
         
 
     av_sd = []
@@ -105,7 +107,7 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
     print(f"Average sd = {np.array(av_sd).mean()}")
     print(f"Average cv = {np.array(av_cv).mean()}")
     import csv
-    file = open(f"metrics-{opts.template_path.split('/')[-2]}-{opts.images_path.split('/')[-2]}.csv","w")
+    file = open(f"metrics-{opts.template_path.split('/')[-2:]}-{opts.images_path.split('/')[-2:]}.csv","w")
     writer = csv.writer(file)
     for key, value in metrics.items():
         writer.writerow([key, value])

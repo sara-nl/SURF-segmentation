@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function
 import tensorflow as tf
 import horovod.tensorflow as hvd
+# import byteps.tensorflow as hvd
 from pprint import pprint
 import pdb
 from options import get_options

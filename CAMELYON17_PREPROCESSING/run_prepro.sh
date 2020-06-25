@@ -1,15 +1,18 @@
 #!/bin/bash
 
 
-module load 2019
-module load Python/3.6.6-foss-2018b
+
+module purge
+module use ~/environment-modules-lisa
+module load 2020
+module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243
 
 export PATH=/home/$USER/examode/lib_deps/bin:$PATH
 export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib64:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib:$LD_LIBRARY_PATH
 export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
 
-source ~/.virtualenvs/openslide/bin/activate
+source ~/virtualenvs/openslide/bin/activate
 
 
 python -u preprocess_data_par.py \
@@ -17,10 +20,13 @@ python -u preprocess_data_par.py \
 --num_threads 1 \
 --save_png True \
 --proc_center 4 \
---data_folder cart # lisa / cart (for managed datasets folder)
+--train_tumor_wsi_path /nfs/examode/Colon/Radboudumc \
+--data_folder cart 
 
 
 
 
 
 
+
+# lisa / cart (for managed datasets folder) 

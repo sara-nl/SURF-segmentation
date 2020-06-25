@@ -9,16 +9,16 @@ import imageio
 import matplotlib.pyplot as plt
 from PIL import Image
 from utils import RGB2HSD_legacy
-
+import pprint
 
 def get_image_lists(opts):
     """ Get the image lists"""
 
     if opts.dataset == "17":
         image_list, val_image_list = load_camelyon_17(opts)
-    elif opts.dataset == "16":
-        image_list, val_image_list = load_camelyon_16(opts)
-
+    else:
+        image_list, val_image_list = load_paths(opts)
+    
     print('Found', len(image_list), 'training images')
     print('Found', len(val_image_list), 'validation images')
     return image_list, val_image_list
@@ -82,27 +82,30 @@ def get_template_and_image_dataset(opts):
     return template_dataset, image_dataset
 
 
-def load_camelyon_16(opts):
+def load_paths(opts):
     """  Load the camelyon16 dataset """
 
-    image_list = [x for x in sorted(glob(opts.train_path + '/*', recursive=True)) if 'mask' not in x]
-
+    image_list = [x for x in sorted(glob(os.path.join(opts.train_path,'*'), recursive=True)) if 'mask' not in x]
+    print(f"path {os.path.join(opts.train_path,'*')}")
     image_list = shuffle(image_list)
 
     if opts.debug:
-        image_list = image_list[0:10]
-
-    val_split = int(len(image_list) * 0.85)
-    val_image_list = image_list[val_split:]
-    image_list = image_list[:val_split]
+        image_list = image_list[0:100]
+    
+    if opts.val_split:
+        val_split = int(len(image_list) * (1 - opts.val_split))
+        val_image_list = image_list[val_split:]
+        image_list = image_list[:val_split]
+    else:
+        val_image_list = [x for x in sorted(glob(os.path.join(opts.valid_path,'*'), recursive=True)) if 'mask' not in x]
 
     return image_list, val_image_list
 
 def load_camelyon_17(opts):
     """ Load the camelyon17 dataset """
-    image_list = [x for c in opts.train_centers for x in sorted(glob(str(opts.train_path).replace('center_XX', f'center_{c}') + '/*', recursive=True)) if 'mask' not in x]
+    image_list = [x for c in opts.train_centers for x in sorted(glob(os.path.join(str(opts.train_path).replace('center_XX', f'center_{c}'),'*'), recursive=True)) if 'mask' not in x]
     
-    mask_list = [x for c in opts.train_centers for x in sorted(glob(str(opts.train_path).replace('center_XX', f'center_{c}') + '/*', recursive=True)) if'mask' in x]
+    mask_list = [x for c in opts.train_centers for x in sorted(glob(os.path.join(str(opts.train_path).replace('center_XX', f'center_{c}'),'*'), recursive=True)) if'mask' in x]
     
     sample_weight_list = [1.0] * len(image_list)
 
@@ -127,10 +130,10 @@ def load_camelyon_17(opts):
 
     else:
         val_image_list = [x for c in opts.val_centers for x in
-                          sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                          sorted(glob(os.path.join(opts.valid_path.replace('center_XX', f'center_{c}'),'*'), recursive=True)) if
                           'mask' not in x]
         val_mask_list = [x for c in opts.val_centers for x in
-                         sorted(glob(opts.valid_path.replace('center_XX', f'center_{c}') + '/*', recursive=True)) if
+                         sorted(glob(os.path.join(opts.valid_path.replace('center_XX', f'center_{c}'),'*'), recursive=True)) if
                          'mask' in x]
         
     # return image_list, mask_list, val_image_list, val_mask_list, sample_weight_list
@@ -151,9 +154,9 @@ class CustomDCGMMDataset:
             _, val_image_list = get_image_lists(opts)
             self.image_list = val_image_list
         elif is_template:
-            self.image_list = [x for x in sorted(glob(opts.template_path + '/*', recursive=True)) if 'mask' not in x]
+            self.image_list = [x for x in sorted(glob(os.path.join(opts.template_path,'*'), recursive=True)) if 'mask' not in x]
         elif is_eval:
-            self.image_list = [x for x in sorted(glob(opts.images_path + '/*', recursive=True)) if 'mask' not in x]
+            self.image_list = [x for x in sorted(glob(os.path.join(opts.images_path,'*'), recursive=True)) if 'mask' not in x]
 
         if self.opts.debug and self.image_list:
             self.image_list = self.image_list[:10]
@@ -185,7 +188,6 @@ class CustomDCGMMDataset:
     def get_next_image(self):
         """ Similar to get_next_batch, only prevents looping over a dataset """
         img_rgb, img_hsd = load_data(self.image_list.pop(0), self.opts)
-        pdb.set_trace()
         return np.array(img_rgb)[None, :], np.array(img_hsd)[None, :]
 
 
