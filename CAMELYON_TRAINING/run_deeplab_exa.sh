@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 1:00:00
-#SBATCH -p gpu_short
-clear
+#SBATCH -t 2:00:00
+#SBATCH -p gpu_titanrtx
+module purge
 module use ~/environment-modules-lisa
 module load 2020
 module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243
@@ -56,7 +56,17 @@ pip install Pillow --user
 pip install tqdm --user
 pip install byteps --user
 
+mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
+--img_size 256 \
+--horovod \
+--batch_size 4 \
+--fp16_allreduce \
+--train_path /home/rubenh/examode/cam17_normalized_dcgmm \
+--log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/DCGMM/ \
+--log_every 2 \
+--num_steps 5000
 
+exit
 echo "Performing Training..."
 # python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
 # mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 256 --train_centers 1 2 3 --val_centers 4 --horovod --batch_size 2

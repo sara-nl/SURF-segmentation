@@ -38,7 +38,7 @@ def train(opts, e_step, m_step, optimizer, train_dataset, val_dataset, file_writ
     print(e_step.summary())
     while step < (opts.epochs * len(train_ds)) :
         t1 = time.time()
-        img_rgb, img_hsd = train_ds.get_next_batch()
+        img_rgb, img_hsd, paths = train_ds.get_next_batch()
         
         ll, gamma, mu, std = train_one_step(opts, e_step, m_step, optimizer, img_rgb, img_hsd, step)
         img_sec = time.time() - t1

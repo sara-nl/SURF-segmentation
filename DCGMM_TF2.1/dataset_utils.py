@@ -183,7 +183,7 @@ class CustomDCGMMDataset:
 
         self.batch_offset += self.opts.batch_size
 
-        return np.array(rgb_imgs), np.array(hsd_imgs)
+        return np.array(rgb_imgs), np.array(hsd_imgs), self.image_list[start:start + self.opts.batch_size]
 
     def get_next_image(self):
         """ Similar to get_next_batch, only prevents looping over a dataset """

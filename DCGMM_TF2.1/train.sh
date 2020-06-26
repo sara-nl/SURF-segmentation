@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 8:00:00
+#SBATCH -t 4:00:00
 #SBATCH -p gpu_titanrtx
 
 module purge
@@ -75,7 +75,8 @@ python3 main.py \
 --load_path /home/rubenh/examode/deeplab/DCGMM_TF2.1/Radboudumc/checkpoint_2000 \
 --legacy_conversion \
 --eval_mode \
---save_path saved_images_CAM17_1
+--num_clusters 3 \
+--save_path RadCAM17_1
 
 
 

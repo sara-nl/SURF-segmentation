@@ -29,8 +29,9 @@ def get_image_lists(opts):
 def load_camelyon_16(opts):
     """  Load the camelyon16 dataset """
     image_list = [x for x in sorted(glob(os.path.join(opts.train_path,'*'), recursive=True)) if 'mask' not in x]
-    mask_list = [x for x in sorted(glob(os.path.join(opts.train_path,'*'), recursive=True)) if 'mask' in x]
-
+    # mask_list = [x for x in sorted(glob(os.path.join(opts.train_path,'*'), recursive=True)) if 'mask' in x]
+    mask_list = [x.replace('tumor','mask_tumor') for x in image_list]
+    
     image_list, mask_list = shuffle(image_list, mask_list)
 
     if opts.debug:
@@ -47,13 +48,13 @@ def load_camelyon_16(opts):
     mask_list = mask_list[:val_split]
 
     # idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
-    idx = get_valid_idx(val_mask_list)
-    num_pixels = opts.img_size ** 2
-    valid_idx = [((num_pixels - np.count_nonzero(x)) / num_pixels) >= 0.2 for x in idx]
-    valid_idx = [i for i, x in enumerate(valid_idx) if x]
+    # idx = get_valid_idx(val_mask_list)
+    # num_pixels = opts.img_size ** 2
+    # valid_idx = [((num_pixels - np.count_nonzero(x)) / num_pixels) >= 0.2 for x in idx]
+    # valid_idx = [i for i, x in enumerate(valid_idx) if x]
 
-    val_image_list = [val_image_list[i] for i in valid_idx]
-    val_mask_list = [val_mask_list[i] for i in valid_idx]
+    # val_image_list = [val_image_list[i] for i in valid_idx]
+    # val_mask_list = [val_mask_list[i] for i in valid_idx]
 
     val_image_list, val_mask_list = shuffle(val_image_list, val_mask_list)
 

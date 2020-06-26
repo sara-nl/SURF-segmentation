@@ -22,7 +22,7 @@ def get_options():
     parser.add_argument('--fp16_allreduce', action='store_true', help='Reduce to FP16 precision for gradient all reduce')
 
     # == Dataset and path options ==
-    parser.add_argument('--dataset', type=str, default="17",
+    parser.add_argument('--dataset', type=str, default="16",
                         help='Which dataset to use. "16" for CAMELYON16 or "17" for CAMELYON17, this will load the CAMELYON datasets with train / validation centers supplied for CAMELYON17')
     parser.add_argument('--train_centers', nargs='+', default=[-1], type=int,
                         help='Centers for training. Use -1 for all, otherwise 2 3 4 eg.')

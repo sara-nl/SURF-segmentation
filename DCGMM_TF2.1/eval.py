@@ -40,7 +40,7 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
     for _ in tqdm(range(len(template_dataset)//opts.batch_size + 1)):
     # while template_dataset.batch_offset < len(template_dataset) - 1:
         
-        img_rgb, img_hsd = template_dataset.get_next_batch()
+        img_rgb, img_hsd, paths = template_dataset.get_next_batch()
         mu, std, gamma = deploy(opts, e_step, m_step, img_rgb, img_hsd)
 
         N += 1
@@ -52,24 +52,25 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
 
     metrics = dict()
     for tc in range(0,opts.num_clusters):
-        metrics[f'mean_{tc}'] = []
-        metrics[f'median_{tc}']=[]
-        metrics[f'perc_95_{tc}']=[]
-        metrics[f'nmi_{tc}']=[]
-        metrics[f'sd_{tc}']=[]
-        metrics[f'cv_{tc}']=[]
+        metrics[f'mean_'    + str(tc)]=[]
+        metrics[f'median_'  + str(tc)]=[]
+        metrics[f'perc_95_' + str(tc)]=[]
+        metrics[f'nmi_'     + str(tc)]=[]
+        metrics[f'sd_'      + str(tc)]=[]
+        metrics[f'cv_'      + str(tc)]=[]
         
         
     print(f"Processing {len(image_dataset)} Target Images...")
     idx = 0
     for _ in tqdm(range(len(image_dataset)//opts.batch_size + 1)):
-        img_rgb, img_hsd = image_dataset.get_next_batch()
+        img_rgb, img_hsd, paths = image_dataset.get_next_batch()
         mu, std, pi = deploy(opts, e_step, m_step, img_rgb, img_hsd)
-
         img_norm = image_dist_transform(opts, img_hsd, mu, std, pi, mu_tmpl, std_tmpl)
         # if not int(opts.save_path):
+        
         for i in range(len(img_norm)):
-            matplotlib.image.imsave(os.path.join(opts.save_path, f'batch-{idx}_{i}.png'), img_norm[i,...])
+            print(f"Saving images to {os.path.join(opts.save_path, f'{paths[i].split("/")[-1]}-eval.png')}")
+            matplotlib.image.imsave(os.path.join(opts.save_path, f'{paths[i].split("/")[-1]}-eval.png'), img_norm[i,...])
 
         
         ClsLbl = np.argmax(np.asarray(pi),axis=-1)
@@ -84,10 +85,12 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
             percs = [np.percentile(ma, 95) for ma in ma]
             
             nmis = list(np.array(medians) / np.array(percs))
-            metrics[f'mean_{tc}'].extend(means)
-            metrics[f'median_{tc}'].extend(medians)
-            metrics[f'perc_95_{tc}'].extend(percs)
-            metrics[f'nmi_{tc}'].extend(nmis)
+
+            
+            metrics['mean_'     +str(tc)].extend(means)
+            metrics['median_'   +str(tc)].extend(medians)
+            metrics['perc_95_'  +str(tc)].extend(percs)
+            metrics['nmi_'      +str(tc)].extend(nmis)
         
         idx += 1
         
@@ -95,14 +98,24 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
 
     av_sd = []
     av_cv = []
+    tot_nmi = []
     for tc in range(0,opts.num_clusters):
-        if len(metrics[f'mean_{tc}']) == 0: continue
-        metrics[f'sd_{tc}'] = np.array(metrics[f'nmi_{tc}']).std()
-        metrics[f'cv_{tc}'] = np.array(metrics[f'nmi_{tc}']).std() / np.array(metrics[f'nmi_{tc}']).mean()
-        print(f'sd_{tc}:', metrics[f'sd_{tc}'])
-        print(f'cv_{tc}:', metrics[f'cv_{tc}'])
-        av_sd.append(metrics[f'sd_{tc}'])
-        av_cv.append(metrics[f'cv_{tc}'])
+        if len(metrics[f'mean_' +str(tc)]) == 0: continue
+        metrics[f'sd_' +str(tc)] = np.array(metrics[f'nmi_' +str(tc)]).std()
+        metrics[f'cv_' +str(tc)] = np.array(metrics[f'nmi_' +str(tc)]).std() / np.array(metrics[f'nmi_' +str(tc)]).mean()
+        print(f'sd_' + str(tc)+ ':', metrics[f'sd_' +str(tc)])
+        print(f'cv_' + str(tc)+ ':', metrics[f'cv_' +str(tc)])
+        av_sd.append(metrics[f'sd_' +str(tc)])
+        av_cv.append(metrics[f'cv_' +str(tc)])
+        tot_nmi.extend(metrics[f'nmi_' +str(tc)])
+    
+    import matplotlib as mpl
+    mpl.use('Agg')
+    import matplotlib.pyplot as plt
+    fig1, ax1 = plt.subplots()
+    ax1.set_title("Box Plot {opts.template_path.split('/')[-1]}-{opts.images_path.split('/')[-1]}")
+    ax1.boxplot(tot_nmi)
+    plt.savefig(f'{opts.template_path.split("/")[-1]}-{opts.images_path.split("/")[-1]}-boxplot-eval.png')
     
     print(f"Average sd = {np.array(av_sd).mean()}")
     print(f"Average cv = {np.array(av_cv).mean()}")
