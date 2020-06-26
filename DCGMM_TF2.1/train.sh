@@ -71,12 +71,12 @@ python3 main.py \
 python3 main.py \
 --img_size 256 \
 --template_path /home/rubenh/examode/deeplab/CAMELYON16_PREPROCESSING/Radboudumc \
---images_path /nfs/managed_datasets/CAMELYON17/training/center_1/patches_positive_256 \
+--images_path /home/rubenh/examode/deeplab/CAMELYON16_PREPROCESSING/AOEC \
 --load_path /home/rubenh/examode/deeplab/DCGMM_TF2.1/Radboudumc/checkpoint_2000 \
 --legacy_conversion \
 --eval_mode \
 --num_clusters 3 \
---save_path RadCAM17_1
+--save_path Rad_AOEC
 
 
 

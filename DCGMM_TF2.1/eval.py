@@ -67,10 +67,9 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
         mu, std, pi = deploy(opts, e_step, m_step, img_rgb, img_hsd)
         img_norm = image_dist_transform(opts, img_hsd, mu, std, pi, mu_tmpl, std_tmpl)
         # if not int(opts.save_path):
-        
-        for i in range(len(img_norm)):
-            print(f"Saving images to {os.path.join(opts.save_path, f'{paths[i].split("/")[-1]}-eval.png')}")
-            matplotlib.image.imsave(os.path.join(opts.save_path, f'{paths[i].split("/")[-1]}-eval.png'), img_norm[i,...])
+        # print(f"Saving images to {paths[i].split("/")[-1]}-eval.png")
+        # for i in range(len(img_norm)):
+        #     matplotlib.image.imsave(os.path.join(opts.save_path, f'{paths[i].split("/")[-1]}-eval.png'), img_norm[i,...])
 
         
         ClsLbl = np.argmax(np.asarray(pi),axis=-1)
@@ -113,14 +112,14 @@ def eval_mode(opts, e_step, m_step, template_dataset, image_dataset):
     mpl.use('Agg')
     import matplotlib.pyplot as plt
     fig1, ax1 = plt.subplots()
-    ax1.set_title("Box Plot {opts.template_path.split('/')[-1]}-{opts.images_path.split('/')[-1]}")
+    ax1.set_title(f"DCGMM Box Plot {opts.template_path.split('/')[-1]}-{opts.images_path.split('/')[-1]}")
     ax1.boxplot(tot_nmi)
     plt.savefig(f'{opts.template_path.split("/")[-1]}-{opts.images_path.split("/")[-1]}-boxplot-eval.png')
     
     print(f"Average sd = {np.array(av_sd).mean()}")
     print(f"Average cv = {np.array(av_cv).mean()}")
     import csv
-    file = open(f"metrics-{opts.template_path.split('/')[-2:]}-{opts.images_path.split('/')[-2:]}.csv","w")
+    file = open(f"2-metrics-{opts.template_path.split('/')[-2:]}-{opts.images_path.split('/')[-2:]}.csv","w")
     writer = csv.writer(file)
     for key, value in metrics.items():
         writer.writerow([key, value])
