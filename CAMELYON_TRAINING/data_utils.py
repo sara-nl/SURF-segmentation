@@ -242,9 +242,6 @@ def get_train_and_val_dataset(opts, image_list=None, mask_list=None,
     train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
     val_dataset = tf.data.Dataset.from_tensor_slices((val_image_list, val_mask_list))
-    if opts.horovod:
-        # let every worker read unique part of dataset
-        val_dataset = val_dataset.shard(hvd.size(), hvd.rank())
 
     val_dataset = val_dataset.shuffle(buffer_size=100)
     val_dataset = val_dataset.apply(
