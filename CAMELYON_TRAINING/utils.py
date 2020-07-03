@@ -11,6 +11,8 @@ def init(opts):
     """ Run initialisation options"""
 
     print("Now hvd.init")
+    tf.config.threading.set_inter_op_parallelism_threads(1)
+    tf.config.threading.set_intra_op_parallelism_threads(int(os.environ["OMP_NUM_THREADS"])-2)
     if opts.horovod:
         hvd.init()
         # Horovod: pin GPU to be used to process local rank (one GPU per process)

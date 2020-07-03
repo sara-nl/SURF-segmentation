@@ -10,6 +10,7 @@ def get_options():
 
     # == Memory time consumption ==
     parser.add_argument('--img_size', type=int, default=1024, help='Image size to use')
+    parser.add_argument('--num_preprocessing_threads', type=int, default=2, help='Number of threads to use for preprocessing')
     parser.add_argument('--batch_size', type=int, default=2, help='Batch size to use')
     parser.add_argument('--num_steps', type=int, default=50000,
                         help='Number of steps for training. A single step is defined as one image. So a batch of 2 consists of 2 steps')

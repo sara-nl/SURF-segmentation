@@ -48,7 +48,7 @@ def load_camelyon_16(opts):
     mask_list = mask_list[:val_split]
 
     # idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
-    # idx = get_valid_idx(val_mask_list)
+    # idx = get_valid_idx(opts, val_mask_list)
     # num_pixels = opts.img_size ** 2
     # valid_idx = [((num_pixels - np.count_nonzero(x)) / num_pixels) >= 0.2 for x in idx]
     # valid_idx = [i for i, x in enumerate(valid_idx) if x]
@@ -107,7 +107,7 @@ def load_camelyon17(opts):
                          'mask' in x]
 
         # idx = [np.asarray(Image.open(x))[:, :, 0] / 255 for x in val_mask_list]
-        idx = get_valid_idx(val_mask_list)
+        idx = get_valid_idx(opts, val_mask_list)
         num_pixels = opts.img_size ** 2
         valid_idx = [((num_pixels - np.count_nonzero(x)) / num_pixels) >= 0.2 for x in idx]
         valid_idx = [i for i, x in enumerate(valid_idx) if x]
@@ -123,9 +123,9 @@ def load_camelyon17(opts):
     return image_list, mask_list, val_image_list, val_mask_list, sample_weight_list
 
 
-def get_valid_idx(mask_list):
+def get_valid_idx(opts, mask_list):
     """ Get the valid indices of masks by opening images in parallel """
-    num_cores = multiprocessing.cpu_count()
+    num_cores = opts.num_preprocessing_threads
     data = Parallel(n_jobs=num_cores)(delayed(open_img)(i) for i in mask_list)
     return data
 
