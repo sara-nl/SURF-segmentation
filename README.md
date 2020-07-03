@@ -154,3 +154,18 @@ mpiexec.hydra -map-by ppr:1:socket -np 64 python -u train.py --no_cuda --horovod
 ```
 
 A training run on positive patches of 1024 x 1024 will converge in ~5 hours on 32 Cascade Lake 8260 CPU nodes (Batch Size 2 per worker, 2 workers per node) to mIoU ~ 0.97
+
+## Research
+If this repository has helped you in your research we would value to be acknowledged in your publication.
+
+# Acknowledgement
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No 825292. This project is better known as the ExaMode project. The objectives of the ExaMode project are:
+1. Weakly-supervised knowledge discovery for exascale medical data.  
+2. Develop extreme scale analytic tools for heterogeneous exascale multimodal and multimedia data.  
+3. Healthcare & industry decision-making adoption of extreme-scale analysis and prediction tools.
+
+For more information on the ExaMode project, please visit www.examode.eu. 
+
+![enter image description here](https://www.examode.eu/wp-content/uploads/2018/11/horizon.jpg)  ![enter image description here](https://www.examode.eu/wp-content/uploads/2018/11/flag_yellow.png) <img src="https://www.examode.eu/wp-content/uploads/2018/11/cropped-ExaModeLogo_blacklines_TranspBackGround1.png" width="80">
+
+
