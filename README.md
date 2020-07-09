@@ -153,7 +153,7 @@ To start a training run on CPU-based cluster with the CAMELYON16 dataset, image 
 mpiexec.hydra -map-by ppr:1:socket -np 64 python -u train.py --no_cuda --horovod --img_size 2048 --dataset 16 --log_dir "logs" --fp16_allreduce --val_split 0.15 --weights_path 'deeplabv3_xception_tf_dim_ordering_tf_kernels.h5' --log_every 512 --validate_every 4096
 ```
 
-A training run on positive patches of 1024 x 1024 will converge in ~5 hours on 32 Cascade Lake 8260 CPU nodes (Batch Size 2 per worker, 2 workers per node) to mIoU ~ 0.97
+A training run on positive patches of 2048x2048 will converge in ~5 hours on 32 Cascade Lake 8260 CPU nodes (Batch Size 2 per worker, 2 workers per node) to mIoU ~ 0.97
 
 ## Research
 If this repository has helped you in your research we would value to be acknowledged in your publication.
