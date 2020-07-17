@@ -63,7 +63,24 @@ class Sampler():
     patches that are background. From experience on CAMELYON16/17 this works
     as intended, no guarantees are given for other datasets
     
-    
+   >>>>Example:
+
+   mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
+    --img_size 1024 \
+    --horovod \
+    --batch_size 2 \
+    --fp16_allreduce \
+    --log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/test/ \
+    --log_every 2 \
+    --num_steps 5000 \
+    --slide_format tif \
+    --mask_format tif \
+    --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
+    --mask_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
+    --bb_downsample 7 \
+    --batch_tumor_ratio 0.5 \
+    --log_image_path logs/test/
+
     """
     def __init__(self, opts):
         
