@@ -13,6 +13,7 @@ import multiprocessing
 import tensorflow as tf
 import sys
 import argparse
+from pprint import pprint
 
 
 parser = argparse.ArgumentParser(description='Preprocessing CAMELYON17',
@@ -36,30 +37,48 @@ parser.add_argument('--proc_center', default=1, type=int,
 parser.add_argument('--data_folder', type=str, default='cart',
                     help='What data folder pre-pend to use (lisa / cart)')
 
+
+parser.add_argument('--train_tumor_wsi_path', type=str,
+                                              help='Folder of where the training data is located',
+                                              default=None)
+
+parser.add_argument('--train_tumor_mask_path',type=str,
+                                              help='Folder of where the training data is located',
+                                              default=None)
+
+parser.add_argument('--save_tumor_negative_path',type=str,
+                                                 help='Folder of where the negatives patches are saved.',
+                                                 default=None)
+
+parser.add_argument('--save_positive_path',type=str,
+                                           help='Folder of where the positive patches are saved.',
+                                           default=None)
+
+parser.add_argument('--format'             ,type=str,
+                                           help='Format of the whole slide images.',
+                                           default=f'tif')
+
 opts = parser.parse_args()
 
 if opts.data_folder == 'lisa':
     dir = '/nfs'
 else:
     dir = '/lustre4/2'
+    
+    
+if not opts.train_tumor_wsi_path:
+    opts.train_tumor_wsi_path = f'{dir}/managed_datasets/CAMELYON17/training/center_{opts.proc_center}'
+    
+if not opts.train_tumor_mask_path:
+    opts.train_tumor_mask_path = f'{dir}/managed_datasets/CAMELYON17/training'
 
-parser.add_argument('--train_tumor_wsi_path', type=str,
-                                              help='Folder of where the training data is located',
-                                              default=f'{dir}/managed_datasets/CAMELYON17/training/center_{opts.proc_center}')
+if not opts.save_tumor_negative_path:
+    opts.save_tumor_negative_path = f'pro_patch_tumor_negative_{opts.patch_size}/'
 
-parser.add_argument('--train_tumor_mask_path',type=str,
-                                              help='Folder of where the training data is located',
-                                              default=f'{dir}/managed_datasets/CAMELYON17/training')
+if not opts.save_positive_path:
+    opts.save_positive_path = f'pro_patch_positive_{opts.patch_size}/'
 
-parser.add_argument('--save_tumor_negative_path',type=str,
-                                                 help='Folder of where the negatives patches are saved.',
-                                                 default=f'pro_patch_tumor_negative_{opts.patch_size}/')
-
-parser.add_argument('--save_positive_path',type=str,
-                                           help='Folder of where the positive patches are saved.',
-                                           default=f'pro_patch_positive_{opts.patch_size}/')
-
-opts = parser.parse_args()
+pprint(vars(opts))
 
 tf_coord = tf.train.Coordinator()
 
@@ -391,6 +410,7 @@ class WSI(object):
         try:
             self.cur_wsi_path = wsi_path
             self.wsi_image = OpenSlide(wsi_path)
+            pdb.set_trace()
             ### CAM17 ###
             l_contours      = self.get_opencv_contours_from_xml(mask_path, wsi.downsample)
             self.mask_image = self.get_mask_from_opencv_contours(l_contours,self.wsi_image, self.level_output)
@@ -442,23 +462,24 @@ class WSI(object):
         contours_rgb_image_array = np.array(rgb_image)
 
         line_color = (255, 0, 0)  # blue color code
-        cv2.drawContours(contours_rgb_image_array, contours, -1, (255,150,150), 1)
+        cv2.drawContours(contours_rgb_image_array, contours, -1, (255,0,0), 1)
         
         # cv2.drawContours(mask_image, contours_mask, -1, line_color, 3)
         return contours_rgb_image_array, bounding_boxes
 
 
 def run_on_tumor_data():
-    wsi.wsi_paths = glob.glob(os.path.join(TRAIN_TUMOR_WSI_PATH, '*.tif'))
+    wsi.wsi_paths = glob.glob(os.path.join(TRAIN_TUMOR_WSI_PATH, f'*.{opts.format}'))
     wsi.wsi_paths.sort()
     # Get annotation xml files to construct mask
-    for slide in wsi.wsi_paths:
-        # get separated tif part
-        tif = slide[slide.rfind('/'):]
-        xml = tif.replace('.tif', '.xml')
-        # check if tumor lesion
-        if os.path.isfile(TRAIN_TUMOR_MASK_PATH + xml):
-            wsi.mask_paths.append(TRAIN_TUMOR_MASK_PATH + xml)
+    if TRAIN_TUMOR_WSI_PATH.find('CAMELYON17') > -1:
+        for slide in wsi.wsi_paths:
+            # get separated tif part
+            tif = slide[slide.rfind('/'):]
+            xml = tif.replace('.tif', '.xml')
+            # check if tumor lesion
+            if os.path.isfile(TRAIN_TUMOR_MASK_PATH + xml):
+                wsi.mask_paths.append(TRAIN_TUMOR_MASK_PATH + xml)
 
 
     wsi.mask_paths.sort()

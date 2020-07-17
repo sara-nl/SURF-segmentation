@@ -1,13 +1,19 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 2:00:00
-#SBATCH -p gpu_titanrtx
+#SBATCH -t 8:00:00
+#SBATCH -p fat
 module purge
 module use ~/environment-modules-lisa
 module load 2020
 module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243
 module list
 
+source ~/virtualenvs/openslide/bin/activate
+pip install scikit-learn 
+pip install Pillow 
+pip install tqdm 
+pip install six
+pip install opencv-python
 # Setting ENV variables
 export HOROVOD_CUDA_HOME=$CUDA_HOME
 export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
@@ -16,68 +22,30 @@ export HOROVOD_NCCL_HOME=$EBROOTNCCL
 export HOROVOD_GPU_ALLREDUCE=NCCL
 #export HOROVOD_GPU_ALLGATHER=MPI
 #export HOROVOD_GPU_BROADCAST=MPI
-
-
-# Creating virtualenv
-#VIRTENV=EXA_GPU_TF2_HOROVOD_GPU
-#VIRTENV_ROOT=~/virtualenvs
-
-#if [ ! -z $1 ] && [ $1 = 'create' ]; then
-#echo "Creating virtual environment $VIRTENV_ROOT/$VIRTENV"
-#rm -r $VIRTENV_ROOT/$VIRTENV
-#virtualenv $VIRTENV_ROOT/$VIRTENV
-#fi
-
-# Sourcing virtualenv
-#echo "Sourcing virtual environment $VIRTENV_ROOT/$VIRTENV/bin/activate"
-#source $VIRTENV_ROOT/$VIRTENV/bin/activate
-#
-#if [ ! -z $1 ] && [ $1 = 'create' ]; then
-#pip3 install -r requirements.txt
-#fi
-
+export PATH=/home/$USER/virtualenvs/openslide/bin:$PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide/lib:$LD_LIBRARY_PATH
+export CPATH=/home/$USER/virtualenvs/openslide/include:$CPATH
 # Export MPICC
 export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 
-# Tensorflow
-#echo "Installing Tensorflow"
-#pip install tensorflow
-
-
-# Horovod
-#echo "Installing Horovod"
-
-#export HOROVOD_WITH_TENSORFLOW=1
-#pip install horovod
-pip install scikit-learn --user
-pip install Pillow --user
-pip install tqdm --user
-pip install byteps --user
-
 mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
---img_size 256 \
+--img_size 1024 \
 --horovod \
---batch_size 4 \
+--batch_size 2 \
 --fp16_allreduce \
---train_path /home/rubenh/examode/cam17_normalized_dcgmm \
---log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/DCGMM/ \
+--log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/test/ \
 --log_every 2 \
---num_steps 5000
+--num_steps 5000 \
+--slide_format tif \
+--mask_format tif \
+--slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
+--mask_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
+--bb_downsample 7 \
+--batch_tumor_ratio 0.5 \
+--log_image_path logs/test/
 
 exit
-echo "Performing Training..."
-# python train.py --img_size 2048 --train_centers 1 2 3 4 --val_centers 1 2 3 4 --batch_size 32 --no_cuda --horovod
-# mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --img_size 256 --train_centers 1 2 3 --val_centers 4 --horovod --batch_size 2
-mpirun -map-by ppr:4:node -np 1 -x LD_LIBRARY_PATH -x PATH python -u train.py \
---img_size 1024 \
---dataset 17 \
---horovod \
---batch_size 1 \
---fp16_allreduce \
---train_centers 1 \
---val_centers 1 \
---log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/train_data/ \
---log_every 2 \
---num_steps 2000
+

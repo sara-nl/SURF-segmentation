@@ -19,9 +19,9 @@ python -u preprocess_data_par.py \
 --patch_size 1024 \
 --num_threads 1 \
 --save_png True \
---proc_center 4 \
 --train_tumor_wsi_path /nfs/examode/Colon/Radboudumc \
---data_folder cart 
+--data_folder cart \
+--format mrxs
 
 
 

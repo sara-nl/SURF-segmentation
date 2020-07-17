@@ -6,7 +6,7 @@ from pprint import pprint
 import pdb
 from options import get_options
 from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step
-from data_utils import get_image_lists, get_train_and_val_dataset
+from data_utils import Sampler
 import time
 from tqdm import tqdm
 
@@ -66,9 +66,9 @@ def validate(opts, model, step, val_dataset, file_writer, metrics):
     return
 
 
-def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compression):
+def train(opts, model, optimizer, file_writer, compression, sampler):
 
-    train_ds = train_dataset
+    
     step = 0
 
     # Define metrics
@@ -80,36 +80,40 @@ def train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compr
 
     while step < opts.num_steps:
 
-        for x, y in tqdm(train_ds):
-            loss, pred = train_one_step(model, optimizer, x, y, step, compute_loss, compression)
-
+        train_ds =  sampler.get_next(train=True)
+        for patch, mask in train_ds:
+            
+            loss, pred = train_one_step(model, optimizer, patch, mask, step, compute_loss, compression)
+    
             if step % opts.log_every == 0 and step > 0:
-                log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
-
+                log_training_step(opts, model, file_writer, patch, mask, loss, pred, step, metrics)
+    
             step += opts.batch_size * hvd.size()
-
+    
             if step % opts.validate_every == 0:
-                validate(opts, model, step, val_dataset, file_writer, metrics)
-
+                valid_ds =  sampler.get_next(train=False)
+                patch, mask = valid_ds
+                validate(opts, model, step, valid_ds, file_writer, metrics)
+    
             if step > opts.num_steps:
                 break
-            
+                
+    
+            if opts.hard_mining:
+                
+                # Bit ugly to define the function here, but it works
+                def filter_hard_mining(image, mask):
+                    pred_logits = model(image)
+                    pred = tf.math.argmax(pred_logits, axis=-1)
+                    miou = tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred)
+                    # Only select training samples with miou less then 0.95
+                    return  miou < 0.95
+                _len = tf.data.experimental.cardinality(train_ds)
+                train_ds = train_ds.filter(filter_hard_mining)
+                print(f"Hard mining removed {_len - tf.data.experimental.cardinality(train_ds)} images")
 
-        if opts.hard_mining:
-            
-            # Bit ugly to define the function here, but it works
-            def filter_hard_mining(image, mask):
-                pred_logits = model(image)
-                pred = tf.math.argmax(pred_logits, axis=-1)
-                miou = tf.keras.metrics.MeanIoU(num_classes=2)(mask, pred)
-                # Only select training samples with miou less then 0.95
-                return  miou < 0.95
-            _len = tf.data.experimental.cardinality(train_ds)
-            train_ds = train_ds.filter(filter_hard_mining)
-            print(f"Hard mining removed {_len - tf.data.experimental.cardinality(train_ds)} images")
 
-
-    validate(opts, model, step, val_dataset, file_writer, metrics)
+    validate(opts, model, step, valid_ds, file_writer, metrics)
     if hvd.local_rank() == 0 and hvd.rank() == 0:
         model.save('saved_model.h5')
 
@@ -119,10 +123,10 @@ if __name__ == '__main__':
     # Run horovod init
     init(opts)
     file_writer = setup_logger(opts)
-
-    train_dataset, val_dataset = get_train_and_val_dataset(opts)
+    sampler = Sampler(opts)
+    
     model, optimizer, compression = get_model_and_optimizer(opts)
 
     print('Preparing training...')
-    train(opts, model, optimizer, train_dataset, val_dataset, file_writer, compression)
+    train(opts, model, optimizer, file_writer, compression, sampler)
     print('Training is done')

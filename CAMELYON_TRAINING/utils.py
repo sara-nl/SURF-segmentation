@@ -11,8 +11,6 @@ def init(opts):
     """ Run initialisation options"""
 
     print("Now hvd.init")
-    tf.config.threading.set_inter_op_parallelism_threads(1)
-    tf.config.threading.set_intra_op_parallelism_threads(int(os.environ["OMP_NUM_THREADS"])-2)
     if opts.horovod:
         hvd.init()
         # Horovod: pin GPU to be used to process local rank (one GPU per process)
@@ -66,12 +64,10 @@ def filter_fn(image, mask):
 def setup_logger(opts):
     """ Setup the tensorboard writer """
     # Sets up a timestamped log directory.
-    if opts.dataset == "17":
-        logdir = opts.log_dir + str(opts.img_size) + '-tr' + ''.join(map(str, opts.train_centers)) + \
-                 '-val' + ''.join(map(str, opts.val_centers))
-    else:
-        logdir = opts.log_dir + str(opts.img_size) + '-' + 'CAMELYON16'
-
+    logdir = f'{opts.log_dir}-{str(opts.img_size)}' 
+    if not os.path.exists(logdir):
+        os.makedirs(logdir)
+    
     if opts.horovod:
         # Creates a file writer for the log directory.
         if hvd.local_rank() == 0 and hvd.rank() == 0:
