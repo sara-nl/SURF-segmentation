@@ -254,6 +254,7 @@ mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
 --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
 --label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
 --bb_downsample 7 \
+--data_sampler surf \
 --batch_tumor_ratio 0.5 \
 --log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/test/
 --validate_every 4096
