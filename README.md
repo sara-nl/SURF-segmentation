@@ -148,14 +148,32 @@ optional arguments:
 
 # Running on LISA
 To start a training run on LISA with the CAMELYON16 dataset, image size 1024x1024 and batch size 2:
+
+- DataSampler from Radboud
 ```
-python train.py --dataset 16 --img_size 1024 --batch_size 2
+mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
+--img_size 1024 \
+--horovod \
+--model effdetd0 \
+--batch_size 1 \
+--fp16_allreduce \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/test/ \
+--log_every 2 \
+--num_steps 100000 \
+--slide_format tif \
+--label_format xml \
+--valid_slide_format tif \
+--valid_label_format xml \
+--slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
+--label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/XML \
+--valid_slide_path /nfs/managed_datasets/CAMELYON16/Testset/Images \
+--valid_label_path /nfs/managed_datasets/CAMELYON16/Testset/Ground_Truth/Annotations \
+--data_sampler radboud \
+--label_map _0:0 _2:1 \
+--sample_processes 1 \
+--validate_every 4096
 ```
-OR (for multi-worker)
-```
-mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python train.py --dataset 16 --img_size 1024 --batch_size 2
-```
-See the *run_deeplab_exa.sh* file for details
+See the *run_train.sh* file for details
 
 A training run on positive patches of 1024 x 1024 will converge in 2 hours on 4 TITANRTX nodes (Batch Size 2, ppr:4:node) to mIoU ~ 0.90
 
