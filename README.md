@@ -147,8 +147,29 @@ optional arguments:
 ```
 
 # Running on LISA
-To start a training run on LISA with the CAMELYON16 dataset, image size 1024x1024 and batch size 2:
+To start a training run on LISA with the CAMELYON16 dataset, image size 1024x1024 and batch size 2, on 4 workers:
 
+- DataSampler from SURF
+
+```
+mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
+--img_size 1024 \
+--horovod \
+--model effdetd0 \
+--batch_size 2 \
+--fp16_allreduce \
+--log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/test/ \
+--log_every 2 \
+--num_steps 5000 \
+--slide_format tif \
+--label_format tif \
+--slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
+--label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
+--bb_downsample 7 \
+--batch_tumor_ratio 0.5 \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/test/
+--validate_every 4096
+```
 - DataSampler from Radboud
 ```
 mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
