@@ -10,14 +10,110 @@ https://camelyon17.grand-challenge.org/
 # Setup
 These steps ran on LISA / Cartesius with this module environment, where we first clone and enable 2020: 
 
-
 Modules loaded:
 ```
+cd $HOME
 module purge
 module load 2019
 module load Python/3.6.6-foss-2019b
+module load CMake/3.12.1-GCCcore-8.3.0
 
 ```
+
+## Dependencies
+We will create a virtual environment with Openslide (https://openslide.org/api/python/) and libvips (https://libvips.github.io/libvips/install.html), for opening and sampling from whole-slide-images.
+```
+cd $HOME
+virtualenv $HOME/virtualenvs/openslide
+cd $HOME/virtualenvs/openslide
+```
+Then add the relevant values to the environment variables:
+```
+export PATH=$HOME/virtualenvs/openslide/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/virtualenvs/openslide/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/virtualenvs/openslide/lib:$LD_LIBRARY_PATH
+export CPATH=$HOME/virtualenvs/openslide/include:$CPATH
+```
+
+### LibTIFF
+1. Download a release from the official repository and untar
+```
+wget http://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
+tar -xvf tiff-4.0.10.tar.gz
+```
+2. Build and configure the LibTIFF code from the inflated folder
+```
+cd $HOME/virtualenvs/openslide/tiff-4.0.10
+CC=gcc CXX=g++ ./configure --prefix=$HOME/virtualenvs/openslide
+make -j 8
+```
+3. Install LibTIFF
+```
+make install
+cd ..
+```
+
+### OpenJPEG
+The official install instructions are available [here](https://github.com/uclouvain/openjpeg/blob/master/INSTALL.md).
+1. Download and untar a release from the official repository
+```
+wget https://github.com/uclouvain/openjpeg/archive/v2.3.1.tar.gz
+tar -xvf v2.3.1.tar.gz
+```
+2. Build the OpenJPEG repository code
+```
+cd $HOME/virtualenvs/openslide/openjpeg-2.3.1
+CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/virtualenvs/openslide -DBUILD_THIRDPARTY:bool=on
+make -j 8
+
+```
+3. Install OpenJPEG (we already added the paths to the environment variables)
+```
+make install
+cd ..
+```
+
+### OpenSlide
+1. Download and untar a release from the official repository
+```
+wget https://github.com/openslide/openslide/releases/download/v3.4.1/openslide-3.4.1.tar.gz
+tar -xvf openslide-3.4.1.tar.gz
+```
+2. Build and configure the OpenSlide code
+```
+cd $HOME/virtualenvs/openslide/openslide-3.4.1
+CC=gcc CXX=g++ PKG_CONFIG_PATH=$HOME/virtualenvs/openslide/lib/pkgconfig ./configure --prefix=$HOME/virtualenvs/openslide
+make -j 8
+```
+3. Install OpenSlide (we already added the paths to the environment variables)
+```
+make install
+cd ..
+```
+
+### LibVips
+1. Download and untar a release from the official repository
+```
+wget https://github.com/libvips/libvips/releases/download/v8.9.2/vips-8.9.2.tar.gz
+tar -xvf vips-8.9.2.tar.gz
+```
+2. Build and configure the Libvips code
+```
+cd $HOME/virtualenvs/openslide/vips-8.9.2
+CC=gcc CXX=g++ PKG_CONFIG_PATH=$HOME/virtualenvs/openslide/lib/pkgconfig ./configure --prefix=$HOME/virtualenvs/openslide
+make -j 8
+```
+This step may lead to errors. Use 
+```
+module load pre2019, module load cmake/2.8.11
+```
+to solve
+3. Install Libvips (we already added the paths to the environment variables)
+```
+make install
+cd ..
+```
+
 ### Setting up the Python depencies (specific to LISA GPU)
 Now export environment variables for installing Horovod w/ MPI for multiworker training, and install Python packages:
 ```
@@ -25,7 +121,7 @@ module purge
 module load 2019
 module load Python/3.6.6-foss-2019b
 module load cuDNN/7.6.5.32-CUDA-10.1.243
-source ~/virtualenvs/openslide/bin/activate
+source $HOME/virtualenvs/openslide/bin/activate
 pip install tensorflow==2.3.0
 pip install scikit-learn 
 pip install Pillow 
@@ -50,15 +146,7 @@ export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 ```
-# Preprocessing on LISA
 
-- To start pre-processing on e.g. CAMELYON17:
-```
-cd ~/SURF-deeplab/CAMELYON17_PREPROCESSING
-# See flags in run_prepro.sh file for options
-sh run_prepro.sh
-
-```
 - Options for model training:
 ```
 mpirun -map-by ppr:1:node -np 1 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python -u train.py --help
