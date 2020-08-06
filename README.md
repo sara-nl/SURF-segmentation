@@ -82,7 +82,7 @@ sh run_prepro.sh
 ```
 mpirun -map-by ppr:1:node -np 1 -x LD_LIBRARY_PATH -x PATH -mca pml ob1 -mca btl ^openib python -u train.py --help
 >>>>
-Multi - GPU TensorFlow DeeplabV3+ model
+Multi - GPU TensorFlow model
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -96,14 +96,13 @@ optional arguments:
   --val_split VAL_SPLIT
                         Part of images that is used as validation dataset,
                         validating on all images (default: 0.15)
+  --model {effdetd0,effdetd4,deeplab}
+                        EfficientDet or Deeplabv3+ model for semantic
+                        segmentation. (default: effdetd0)
   --no_cuda             Use CUDA or not (default: False)
   --horovod             Distributed training via horovod (default: True)
   --fp16_allreduce      Reduce to FP16 precision for gradient all reduce
                         (default: False)
-  --dataset DATASET     Which dataset to use. "16" for CAMELYON16 or "17" for
-                        CAMELYON17, this will load the CAMELYON datasets with
-                        train / validation centers supplied for CAMELYON17
-                        (default: 17)
   --train_centers TRAIN_CENTERS [TRAIN_CENTERS ...]
                         Centers for training. Use -1 for all, otherwise 2 3 4
                         eg. (default: [-1])
@@ -111,18 +110,48 @@ optional arguments:
                         Centers for validation. Use -1 for all, otherwise 2 3
                         4 eg. (default: [-1])
   --hard_mining         Use hard mining or not (default: False)
-  --train_path TRAIN_PATH
-                        Folder of where the training data is located (default:
-                        None)
-  --valid_path VALID_PATH
-                        Folder where the validation data is located (default:
-                        None)
+  --slide_path SLIDE_PATH
+                        Folder of where the training data whole slide images
+                        are located (default: None)
+  --label_path LABEL_PATH
+                        Folder of where the training data whole slide images
+                        labels are located (default: None)
+  --valid_slide_path VALID_SLIDE_PATH
+                        Folder of where the validation data whole slide images
+                        are located (default: None)
+  --valid_label_path VALID_LABEL_PATH
+                        Folder of where the validation data whole slide images
+                        labels are located (default: None)
   --weights_path WEIGHTS_PATH
                         Folder where the pre - trained weights is located
                         (default: None)
-  --flip                Flip images for data augmentation (default: False)
-  --random_crop         Randomly crop images for data augmentation (default:
-                        False)
+  --slide_format SLIDE_FORMAT
+                        In which format the whole slide images are saved.
+                        (default: tif)
+  --label_format LABEL_FORMAT
+                        In which format the labels are saved. (default: tif)
+  --valid_slide_format VALID_SLIDE_FORMAT
+                        In which format the whole slide images are saved.
+                        (default: tif)
+  --valid_label_format VALID_LABEL_FORMAT
+                        In which format the labels are saved. (default: tif)
+  --data_sampler {radboud,surf}
+                        Which DataSampler to use (default: radboud)
+  --bb_downsample BB_DOWNSAMPLE
+                        Level to use for the bounding box construction as
+                        downsampling level of whole slide image (default: 7)
+  --batch_tumor_ratio BATCH_TUMOR_RATIO
+                        The ratio of the batch that contains tumor (default:
+                        1)
+  --sample_processes SAMPLE_PROCESSES
+                        Amount of Python Processes to start for the Sampler
+                        (default: 1)
+  --resolution RESOLUTION
+                        The resolution of the patch to extract (in micron per
+                        pixel) (default: 0.25)
+  --label_map KEY:VAL [KEY:VAL ...]
+                        Add label_map as dictionary argument like so
+                        label1:mapping1 label2:mapping2 (default: None)
   --log_dir LOG_DIR     Folder of where the logs are saved (default: None)
   --log_every LOG_EVERY
                         Log every X steps during training (default: 128)
