@@ -1,20 +1,20 @@
 #!/bin/bash
-#SBATCH -N 1
-#SBATCH -t 8:00:00
-#SBATCH -p fat
-module purge
-module use ~/environment-modules-lisa
-module load 2020
-module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243
-module list
+#SBATCH -N 6
+#SBATCH -t 48:00:00
+#SBATCH -p gpu_titanrtx
+np=$(($SLURM_NNODES * 4))
 
+module purge
+module load 2019
+module load Python/3.6.6-foss-2019b
+module load cuDNN/7.6.5.32-CUDA-10.1.243
 source ~/virtualenvs/openslide/bin/activate
+pip install tensorflow==2.3.0
 pip install scikit-learn 
 pip install Pillow 
 pip install tqdm 
 pip install six
 pip install opencv-python
-# Setting ENV variables
 export HOROVOD_CUDA_HOME=$CUDA_HOME
 export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
 export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
@@ -31,21 +31,25 @@ export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 
-mpirun -map-by ppr:4:node -np 4 -x LD_LIBRARY_PATH -x PATH python -u train.py \
+mpirun -map-by ppr:4:node -np 8 -x LD_LIBRARY_PATH -x PATH python -u train.py \
 --img_size 1024 \
 --horovod \
---batch_size 2 \
+--batch_size 1 \
 --fp16_allreduce \
---log_dir /home/rubenh/examode/deeplab/CAMELYON_TRAINING/logs/test/ \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/test/ \
 --log_every 2 \
---num_steps 5000 \
+--num_steps 100000 \
 --slide_format tif \
---mask_format tif \
+--label_format xml \
+--valid_slide_format tif \
+--valid_label_format xml \
 --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
---mask_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
---bb_downsample 7 \
---batch_tumor_ratio 0.5 \
---log_image_path logs/test/
+--label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/XML \
+--valid_slide_path /nfs/managed_datasets/CAMELYON16/Testset/Images \
+--valid_label_path /nfs/managed_datasets/CAMELYON16/Testset/Ground_Truth/Annotations \
+--data_sampler radboud \
+--label_map _0:1 _2:2 \
+--sample_processes 1 \
+--validate_every 4096
 
 exit
-

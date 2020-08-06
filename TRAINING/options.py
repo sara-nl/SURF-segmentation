@@ -1,12 +1,24 @@
 import tensorflow as tf
 import argparse
 
-
+class StoreDictKeyPair(argparse.Action):
+     def __init__(self, option_strings, dest, nargs=None, **kwargs):
+         self._nargs = nargs
+         super(StoreDictKeyPair, self).__init__(option_strings, dest, nargs=nargs, **kwargs)
+     def __call__(self, parser, namespace, values, option_string=None):
+         my_dict = {}
+         print(f"values: {values}")
+         for kv in values:
+             k,v = kv.split(":")
+             my_dict[str(k)] = int(v)
+         setattr(namespace, self.dest, my_dict)
+         
 def get_options():
     """ Argument parsing options"""
 
-    parser = argparse.ArgumentParser(description='Multi - GPU TensorFlow DeeplabV3+ model',
+    parser = argparse.ArgumentParser(description='Multi - GPU TensorFlow model',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
 
     # == Memory time consumption ==
     parser.add_argument('--img_size', type=int, default=1024, help='Image size to use')
@@ -28,17 +40,22 @@ def get_options():
                         help='Centers for validation. Use -1 for all, otherwise 2 3 4 eg.')
     parser.add_argument('--hard_mining', action='store_true', help='Use hard mining or not')
     parser.add_argument('--slide_path', type=str, help='Folder of where the training data whole slide images are located', default=None)
-    parser.add_argument('--mask_path', type=str, help='Folder of where the training data whole slide images masks are located', default=None)
+    parser.add_argument('--label_path', type=str, help='Folder of where the training data whole slide images labels are located', default=None)
     parser.add_argument('--valid_slide_path', type=str, help='Folder of where the validation data whole slide images are located', default=None)
-    parser.add_argument('--valid_mask_path', type=str, help='Folder of where the validation data whole slide images masks are located', default=None)
+    parser.add_argument('--valid_label_path', type=str, help='Folder of where the validation data whole slide images labels are located', default=None)
     parser.add_argument('--weights_path', type=str, help='Folder where the pre - trained weights is located', default=None)
-    parser.add_argument('--bb_downsample', type=int, help='Level to use for the bounding box construction as downsampling level of whole slide image', default=7)
     parser.add_argument('--slide_format', type=str, help='In which format the whole slide images are saved.', default='tif')
-    parser.add_argument('--mask_format', type=str, help='In which format the masks are saved.', default='tif')
-    parser.add_argument('--log_image_path', type=str, help='Path of savepath of downsampled image with processed rectangles on it.', default='.')
+    parser.add_argument('--label_format', type=str, help='In which format the labels are saved.', default='tif')
+    parser.add_argument('--valid_slide_format', type=str, help='In which format the whole slide images are saved.', default='tif')
+    parser.add_argument('--valid_label_format', type=str, help='In which format the labels are saved.', default='tif')
+    parser.add_argument('--data_sampler', type=str, help='Which dataSampler to use', choices=['radboud','surf'],default='radboud')
+    # == Options for SURF Sampler ==
+    parser.add_argument('--bb_downsample', type=int, help='Level to use for the bounding box construction as downsampling level of whole slide image', default=7)
     parser.add_argument('--batch_tumor_ratio', type=float, help='The ratio of the batch that contains tumor', default=1)
-    
-    
+    # == Options for RadboudUMC Sampler ==
+    parser.add_argument('--sample_processes', type=int, help='Amount of Python Processes to start for the Sampler', default=1)
+    parser.add_argument('--resolution', type=float, help='The resolution of the patch to extract (in micron per pixel)', default=0.25)
+    parser.add_argument('--label_map', dest='label_map', help="Add label_map as dictionary argument like so label1:mapping1 label2:mapping2 ",action=StoreDictKeyPair, nargs="+", metavar="KEY:VAL")
 
     # == Data augmentation options ==
     parser.add_argument('--log_dir', type=str, help='Folder of where the logs are saved', default=None)

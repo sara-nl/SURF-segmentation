@@ -12,7 +12,13 @@ import sys
 import random
 import time
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
-
+from utils import rank00
+sys.path.insert(0,'/home/rubenh/SURF-deeplab/TRAINING/xml-pathology')
+from xmlpathology.batchgenerator.utils import create_data_source
+from xmlpathology.batchgenerator.generators import BatchGenerator
+from xmlpathology.batchgenerator.core.samplers import LabelSamplerLoader, SamplerLoader
+from xmlpathology.batchgenerator.core.samplers import SegmentationLabelSampler, Sampler
+from xmlpathology.batchgenerator.callbacks import OneHotEncoding, FitData
 
 
 format_to_dtype = {
@@ -29,7 +35,120 @@ format_to_dtype = {
 }
 
 
-class Sampler():
+class PreProcess():
+    def __init__(self):
+        pass
+    
+    def _load(image,mask,augment=False):
+        if augment:
+            img = tf.image.random_brightness(image, max_delta=50.)
+            img = tf.image.random_saturation(img, lower=0.5, upper=1.5)
+            img = tf.image.random_hue(img, max_delta=0.2)
+            img = tf.image.random_contrast(img, lower=0.5, upper=1.5)
+        else:
+            # img = tf.clip_by_value(img, 0, 2)
+            img = tf.math.divide(image, 255)
+            img = tf.math.subtract(tf.math.multiply(2.0, img), 1.0)
+            
+        mask = tf.clip_by_value(tf.cast(mask,tf.int32), 0, 1)
+
+        return img,mask
+    
+    
+class RadSampler(PreProcess):
+    """
+
+
+    """
+    def __init__(self, opts):
+        super().__init__()
+
+        self.batch_size = opts.batch_size
+        self.patch_size = opts.img_size
+        self.tumor_ratio = opts.batch_tumor_ratio
+        self.slide_format = opts.slide_format
+        self.label_format = opts.label_format
+        self.valid_slide_format = opts.valid_slide_format
+        self.valid_label_format = opts.valid_label_format
+        self.cpus = opts.sample_processes
+        self.resolution = [opts.resolution]
+        self.label_map = opts.label_map
+        
+        
+        datasource_train = create_data_source(data_folder=opts.slide_path,
+                                            annotations_path=opts.label_path,
+                                            images_extension='.'+self.slide_format,
+                                            annotations_extension='.'+self.label_format,
+                                            mode='training')
+
+        if rank00(): print(f"Found {len(datasource_train['training'])} training images")        
+        datasource_validation = create_data_source(data_folder=opts.valid_slide_path,
+                                                   annotations_path=opts.valid_label_path,
+                                                   images_extension='.'+self.valid_slide_format,
+                                                   annotations_extension='.'+self.valid_label_format,
+                                                   mode='validation')
+        if rank00(): print(f"Found {len(datasource_validation['validation'])} validation images")
+          
+
+        # initialize batchgenerator
+        if rank00(): print("Starting Training Batch Generator...")
+        self.batchgen_train = BatchGenerator(data_sources=datasource_train,
+                                        label_map=self.label_map,
+                                        batch_size=self.batch_size,
+                                        cpus=self.cpus,
+                                        sampler_loader=SamplerLoader(class_=Sampler, input_shapes=[[self.patch_size,self.patch_size,3]],
+                                                                     spacings=self.resolution),
+                                        label_sampler_loader=LabelSamplerLoader(class_=SegmentationLabelSampler),
+                                        log_path=opts.log_dir)
+        self.batchgen_train.start()
+        
+        if rank00(): print("Starting Validation Batch Generator...")
+        self.batchgen_validation = BatchGenerator(data_sources=datasource_validation,
+                                             label_map=self.label_map,
+                                             batch_size=self.batch_size,
+                                             cpus=self.cpus,
+                                             sampler_loader=SamplerLoader(class_=Sampler,
+                                                                          input_shapes=[[self.patch_size,self.patch_size,3]],
+                                                                          spacings=self.resolution),
+                                             label_sampler_loader=LabelSamplerLoader(class_=SegmentationLabelSampler),
+                                             log_path=opts.log_dir)
+        self.batchgen_validation.start()
+
+        
+        
+    def get_next(self,train=True):
+        
+        # Every new iteration, new sample
+        if train:
+            # Ugly, but rescaling in place
+            im = (self.batchgen_train.batch('training')['x_batch']*255).astype('float32')
+            msk = self.batchgen_train.batch('training')['y_batch'][...,None].astype('float32')
+            dataset = tf.data.Dataset.from_tensor_slices((im,msk))
+            dataset = dataset.apply(
+            tf.data.experimental.map_and_batch(
+                map_func=lambda im, msk: RadSampler._load(im,msk,augment=False),
+                batch_size=self.batch_size,
+                num_parallel_calls=tf.data.experimental.AUTOTUNE,
+                drop_remainder=True))
+            dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        else:
+            # Ugly, but rescaling in place
+            im = (self.batchgen_validation.batch('validation')['x_batch']*255).astype('float32')
+            msk = self.batchgen_validation.batch('validation')['y_batch'][...,None].astype('float32')
+            dataset = tf.data.Dataset.from_tensor_slices((im,msk))
+            dataset = dataset.apply(
+            tf.data.experimental.map_and_batch(
+                map_func=lambda im, msk: RadSampler._load(im,msk,augment=False),
+                batch_size=self.batch_size,
+                num_parallel_calls=tf.data.experimental.AUTOTUNE,
+                drop_remainder=True))
+            dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        return dataset
+            
+                    
+
+
+class SurfSampler(PreProcess):
     """
     - This sampler samples patches from whole slide images  in several formats, from
     which it samples the patch on the WSI and the same patch on the WSI mask.
@@ -83,11 +202,11 @@ class Sampler():
 
     """
     def __init__(self, opts):
-        
+        super().__init__()
         self.train_paths = shuffle(list(zip(sorted(glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}'))),
                                             sorted(glob(os.path.join(opts.mask_path,f'*.{opts.mask_format}'))))))
         
-        print(f"Found {len(self.train_paths)} images")
+        if rank00(): print(f"Found {len(self.train_paths)} images")
         if opts.valid_slide_path:
             self.valid_paths = shuffle(list(zip(sorted(glob(os.path.join(opts.valid_slide_path,f'*.{opts.slide_format}'))),
                                                 sorted(glob(os.path.join(opts.valid_mask_path,f'*.{opts.mask_format}'))))))
@@ -105,7 +224,7 @@ class Sampler():
         self.mag_factor = pow(2, self.level_used)
         self.patch_size = opts.img_size
         self.tumor_ratio = opts.batch_tumor_ratio
-        self.log_image_path = opts.log_image_path
+        self.log_image_path = opts.log_dir
         self.slide_format = opts.slide_format
         
         
@@ -126,7 +245,7 @@ class Sampler():
         for i, contour in enumerate(contours):
             # sometimes the bounding boxes annotate a very small area not in the ROI
             if contour.shape[0] < 10:
-                print(f"Deleted too small contour from {self.cur_wsi_path}")
+                if rank00(): print(f"Deleted too small contour from {self.cur_wsi_path}")
                 del contours[i]
                 _offset+=1
                 i=i-_offset
@@ -141,21 +260,6 @@ class Sampler():
         
         return contours
     
-    @staticmethod
-    def _load(image,mask,augment=False):
-        if augment:
-            img = tf.image.random_brightness(image, max_delta=50.)
-            img = tf.image.random_saturation(img, lower=0.5, upper=1.5)
-            img = tf.image.random_hue(img, max_delta=0.2)
-            img = tf.image.random_contrast(img, lower=0.5, upper=1.5)
-        else:
-            # img = tf.clip_by_value(img, 0, 2)
-            img = tf.math.divide(image, 255)
-            img = tf.math.subtract(tf.math.multiply(2.0, img), 1.0)
-            
-        mask = tf.clip_by_value(tf.cast(mask,tf.int32), 0, 1)
-    
-        return img,mask
     
             
     def get_next(self,train=True):
@@ -165,7 +269,7 @@ class Sampler():
             while not self.contours_train or not self.contours_tumor:
     
                 self.cur_wsi_path = random.choice(self.train_paths)
-                print(f"Opening {self.cur_wsi_path}...")
+                if rank00(): print(f"Opening {self.cur_wsi_path}...")
                 
                 self.wsi  = OpenSlide(self.cur_wsi_path[0])
                 self.mask = OpenSlide(self.cur_wsi_path[1])
@@ -189,7 +293,7 @@ class Sampler():
             while not self.contours_valid or not self.contours_tumor:
     
                 self.cur_wsi_path = random.choice(self.valid_paths)
-                print(f"Opening {self.cur_wsi_path}...")
+                if rank00(): print(f"Opening {self.cur_wsi_path}...")
                 
                 self.wsi  = OpenSlide(self.cur_wsi_path[0])
                 self.mask = OpenSlide(self.cur_wsi_path[1])
@@ -216,9 +320,12 @@ class Sampler():
         numpy_batch_patch = []
         numpy_batch_mask  = []
         if os.path.isfile(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))):
-            save_image = np.array(Image.open(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))))
+            try:
+                save_image = np.array(Image.open(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))))
+            except:
+                save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
         else:
-            # copy image and mark tumor in black
+        # copy image and mark tumor in black
             save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
         
         for i in range(int(self.batch_size * (1 - self.tumor_ratio))):
@@ -235,7 +342,7 @@ class Sampler():
             w = b_x_end - b_x_start
         
             patch = []
-            
+            k=0
             while not len(patch):
                 x_topleft = random.choice(pixelpoints)[1]* self.mag_factor
                 y_topleft = random.choice(pixelpoints)[0]* self.mag_factor
@@ -245,23 +352,30 @@ class Sampler():
                     patch = img_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
                     patch = np.ndarray((self.patch_size,self.patch_size,image.get('bands')),buffer=patch, dtype=np.uint8)[...,:3]
                     _std = ImageStat.Stat(Image.fromarray(patch)).stddev
+                    k+=1
+                    
                     # discard based on stddev
-                    if (sum(_std[:3]) / len(_std[:3])) < 15:
-                        print("Discard based on stddev")
-                        patch = []
-                except:
+                    if k < 5: 
+                        if (sum(_std[:3]) / len(_std[:3])) < 15:
+                            print("Discard based on stddev")
+                            patch = []
+                except Exception as e:
+                    print("Exception in extracting patch: ", e)
                     patch = []
 
-            print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
+            if rank00(): print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
             numpy_batch_patch.append(patch)
             mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
             numpy_batch_mask.append(np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8))
-        
-            # Draw the rectangles of sampled images on downsampled rgb
-            save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
-            save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                   (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
-                                                   (0,255,0), 2)
+            
+            try:
+                # Draw the rectangles of sampled images on downsampled rgb
+                save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
+                save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
+                                                       (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                                                       (0,255,0), 2)
+            except:
+                pass
         
         for i in range(int(self.batch_size * (self.tumor_ratio))):
             bc = random.choice(self.contours_tumor)
@@ -278,6 +392,7 @@ class Sampler():
         
             patch = []
             
+            k=0
             while not len(patch):
                 x_topleft = random.choice(pixelpoints)[1]* self.mag_factor
                 y_topleft = random.choice(pixelpoints)[0]* self.mag_factor
@@ -287,38 +402,53 @@ class Sampler():
                     patch = img_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
                     patch = np.ndarray((self.patch_size,self.patch_size,image.get('bands')),buffer=patch, dtype=np.uint8)[...,:3]
                     _std = ImageStat.Stat(Image.fromarray(patch)).stddev
+                    
+                    k+=1
                     # discard based on stddev
-                    if (sum(_std[:3]) / len(_std[:3])) < 15:
-                        print("Discard based on stddev")
-                        patch = []
-                except:
+                    if k < 5: 
+                        if (sum(_std[:3]) / len(_std[:3])) < 15:
+                            print("Discard based on stddev")
+                            patch = []
+                    
+                except Exception as e:
+                    print("Exception in extracting patch: ",e)
                     patch = []
 
-            print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
+            if rank00(): print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
             numpy_batch_patch.append(patch)
             mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
             numpy_batch_mask.append(np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8))
         
-            # Draw the rectangles of sampled images on downsampled rgb
-            save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
-            save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                   (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
-                                                   (0,255,0), 2)
-
+            try:
+                # Draw the rectangles of sampled images on downsampled rgb
+                save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
+                save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
+                                                       (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                                                       (0,255,0), 2)
+            except:
+                pass
 
         Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
-        train_dataset = tf.data.Dataset.from_tensor_slices((np.array(numpy_batch_patch),np.array(numpy_batch_mask)))
-        train_dataset = train_dataset.apply(
+        dataset = tf.data.Dataset.from_tensor_slices((np.array(numpy_batch_patch),np.array(numpy_batch_mask)))
+        dataset = dataset.apply(
         tf.data.experimental.map_and_batch(
-            map_func=lambda im, msk: Sampler._load(im,msk,augment=False),
+            map_func=lambda im, msk: SurfSampler._load(im,msk,augment=False),
             batch_size=self.batch_size,
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
             drop_remainder=True))
-        train_dataset = train_dataset.prefetch(tf.data.experimental.AUTOTUNE)
-    
-        self.contours = []
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
+        self.contours_train = []
+        self.contours_valid = []
         self.contours_tumor = []
-        return train_dataset
+        
+        return dataset
+        self.contours_tumor = []
+        return dataset
+
+
+
+
 
 
 
