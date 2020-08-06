@@ -10,64 +10,45 @@ https://camelyon17.grand-challenge.org/
 # Setup
 These steps ran on LISA / Cartesius with this module environment, where we first clone and enable 2020: 
 
-```
-cd ~
-git clone https://git.ia.surfsara.nl/environment-modules/environment-modules-lisa.git
-module use ~/environment-modules-lisa
-```
 
-```
-Currently Loaded Modulefiles:
- 1) 2020                             17) bzip2/1.0.8-GCCcore-8.3.0                               
- 2) GCCcore/8.3.0                    18) ncurses/6.1-GCCcore-8.3.0                               
- 3) zlib/1.2.11-GCCcore-8.3.0        19) libreadline/8.0-GCCcore-8.3.0                           
- 4) binutils/2.32-GCCcore-8.3.0      20) Tcl/8.6.9-GCCcore-8.3.0                                 
- 5) GCC/8.3.0                        21) SQLite/3.29.0-GCCcore-8.3.0                             
- 6) numactl/2.0.12-GCCcore-8.3.0     22) GMP/6.1.2-GCCcore-8.3.0                                 
- 7) XZ/5.2.4-GCCcore-8.3.0           23) libffi/3.2.1-GCCcore-8.3.0                              
- 8) libxml2/2.9.9-GCCcore-8.3.0      24) Python/3.7.4-GCCcore-8.3.0                              
- 9) libpciaccess/0.14-GCCcore-8.3.0  25) SciPy-bundle/2019.10-foss-2019b-Python-3.7.4            
-10) hwloc/1.11.12-GCCcore-8.3.0      26) Szip/2.1.1-GCCcore-8.3.0                                
-11) OpenMPI/3.1.4-GCC-8.3.0          27) HDF5/1.10.5-gompi-2019b                                 
-12) OpenBLAS/0.3.7-GCC-8.3.0         28) h5py/2.10.0-foss-2019b-Python-3.7.4                     
-13) gompi/2019b                      29) CUDA/10.1.243                                           
-14) FFTW/3.3.8-gompi-2019b           30) cuDNN/7.6.5.32-CUDA-10.1.243                            
-15) ScaLAPACK/2.0.2-gompi-2019b      31) NCCL/2.5.6-CUDA-10.1.243                                
-16) foss/2019b                       32) TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243     
-```
 Modules loaded:
 ```
-module load 2020
-module load CMake/3.15.3-GCCcore-8.3.0
-module load Python/3.7.4-GCCcore-8.3.0 (this module also loads the compilers)
+module purge
+module load 2019
+module load Python/3.6.6-foss-2019b
 
 ```
 ### Setting up the Python depencies (specific to LISA GPU)
-First we will load the modules needed:
+Now export environment variables for installing Horovod w/ MPI for multiworker training, and install Python packages:
 ```
 module purge
-module load 2020
-module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243 
-
-```
-
-Now export environment variables for installing Horovod w/ MPI for multiworker training:
-```
+module load 2019
+module load Python/3.6.6-foss-2019b
+module load cuDNN/7.6.5.32-CUDA-10.1.243
+source ~/virtualenvs/openslide/bin/activate
+pip install tensorflow==2.3.0
+pip install scikit-learn 
+pip install Pillow 
+pip install tqdm 
+pip install six
+pip install opencv-python
+pip install pyvips
+pip install openslide-python
 export HOROVOD_CUDA_HOME=$CUDA_HOME
 export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
 export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
 export HOROVOD_NCCL_HOME=$EBROOTNCCL
 export HOROVOD_GPU_ALLREDUCE=NCCL
+#export HOROVOD_GPU_ALLGATHER=MPI
+#export HOROVOD_GPU_BROADCAST=MPI
+export PATH=/home/$USER/virtualenvs/openslide/bin:$PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide/lib:$LD_LIBRARY_PATH
+export CPATH=/home/$USER/virtualenvs/openslide/include:$CPATH
+# Export MPICC
 export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
-
-```
-Install python packages:
-
-```
-pip3 install horovod --no-cache-dir --user
-
 ```
 # Preprocessing on LISA
 
