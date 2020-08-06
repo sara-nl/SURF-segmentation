@@ -150,8 +150,9 @@ optional arguments:
                         The resolution of the patch to extract (in micron per
                         pixel) (default: 0.25)
   --label_map KEY:VAL [KEY:VAL ...]
-                        Add label_map as dictionary argument like so
-                        label1:mapping1 label2:mapping2 (default: None)
+                        Add label_map for Radboud datasampler as dictionary 
+                        argument like so label1:mapping1 label2:mapping2 
+                        (default: None)
   --log_dir LOG_DIR     Folder of where the logs are saved (default: None)
   --log_every LOG_EVERY
                         Log every X steps during training (default: 128)
