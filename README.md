@@ -1,5 +1,7 @@
-# DeepLabv3 for Exteded FoV Semantic Segmentation
-This repository is developed as part of the Examode EU project, and is meant for conducting experiments for large field-of-view semantic segmentation. The current codebase supports CAMELYON16 and CAMELYON17, and supports efficient execution on multi-node CPU clusters, as well as multi-node, multi-GPU clusters. Models using very large FoV (> 1024x1024) can be trained on multi-GPU cluster, using the instructions below.
+# Extended FoV Semantic Segmentation
+This repository is developed as part of the Examode EU project, and is meant for conducting experiments for large field-of-view semantic segmentation. The current codebase supports CAMELYON16 and CAMELYON17, and supports efficient execution on multi-node CPU clusters, as well as multi-node, multi-GPU clusters. Models using very large FoV (> 1024x1024) can be trained on multi-GPU cluster, using the instructions below. The models adapted for the use case of semantic segmentation of malignant tumor regions are:
+- EfficientDet ( https://arxiv.org/abs/1911.09070 )
+- DeeplabV3+ ( https://arxiv.org/abs/1802.02611 )
 
 https://camelyon16.grand-challenge.org/
 
