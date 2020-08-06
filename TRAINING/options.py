@@ -26,6 +26,7 @@ def get_options():
     parser.add_argument('--num_steps', type=int, default=50000,
                         help='Number of steps for training. A single step is defined as one image. So a batch of 2 consists of 2 steps')
     parser.add_argument('--val_split', type=float, default=0.15, help='Part of images that is used as validation dataset, validating on all images')
+    parser.add_argument('--model', type=str, default='effdetd0', choices=['effdetd0','effdetd4','deeplab'],help='EfficientDet or Deeplabv3+ model for semantic segmentation.')
 
 
     # == GPU and multi worker options ==

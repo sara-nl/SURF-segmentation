@@ -34,6 +34,7 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 mpirun -map-by ppr:4:node -np 8 -x LD_LIBRARY_PATH -x PATH python -u train.py \
 --img_size 1024 \
 --horovod \
+--model effdet \
 --batch_size 1 \
 --fp16_allreduce \
 --log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/test/ \

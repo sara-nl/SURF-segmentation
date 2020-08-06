@@ -35,8 +35,12 @@ def init(opts):
 
 def get_model_and_optimizer(opts):
     """ Load the model and optimizer """
-    model = EfficientDetNet('efficientdet-d0')
-    # model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception',opts=opts)
+    if opts.model =='effdetd1':
+        model = EfficientDetNet('efficientdet-d0')
+    elif opts.model == 'effdetd4':
+        model = EfficientDetNet('efficientdet-d4')
+    elif opts.model == 'deeplab':
+        model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception',opts=opts)
 
     if opts.horovod:
         # Horovod: (optional) compression algorithm.
