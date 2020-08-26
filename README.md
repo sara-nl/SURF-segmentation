@@ -8,15 +8,15 @@ https://camelyon16.grand-challenge.org/
 https://camelyon17.grand-challenge.org/
 
 # Setup
-These steps ran on LISA / Cartesius with this module environment, where we first clone and enable 2020: 
+These steps ran on LISA with this module environment: 
 
 Modules loaded:
 ```
 cd $HOME
 module purge
 module load 2019
-module load Python/3.6.6-foss-2019b
-module load CMake/3.12.1-GCCcore-8.3.0
+module load Python/3.6.6-foss-2019b     # module load Python/3.6.6-fosscuda-2018b (Cartesius) 
+module load CMake/3.12.1-GCCcore-8.3.0  # module load CMake/3.12.1-GCCcore-7.3.0 (Cartesius)
 
 ```
 
