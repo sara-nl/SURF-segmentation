@@ -121,15 +121,9 @@ module purge
 module load 2019
 module load Python/3.6.6-foss-2019b
 module load cuDNN/7.6.5.32-CUDA-10.1.243
+module load NCCL/2.5.6-CUDA-10.1.243
 source $HOME/virtualenvs/openslide/bin/activate
-pip install tensorflow==2.3.0
-pip install scikit-learn 
-pip install Pillow 
-pip install tqdm 
-pip install six
-pip install opencv-python
-pip install pyvips
-pip install openslide-python
+
 export HOROVOD_CUDA_HOME=$CUDA_HOME
 export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
 export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
@@ -145,6 +139,16 @@ export CPATH=/home/$USER/virtualenvs/openslide/include:$CPATH
 export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
+
+pip install tensorflow==2.3.0
+pip install scikit-learn 
+pip install Pillow 
+pip install tqdm 
+pip install six
+pip install opencv-python
+pip install pyvips
+pip install openslide-python
+pip install horovod
 ```
 
 - Options for model training:
