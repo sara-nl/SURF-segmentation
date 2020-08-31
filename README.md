@@ -139,6 +139,7 @@ export CPATH=/home/$USER/virtualenvs/openslide/include:$CPATH
 export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
+HOROVOD_WITH_TENSORFLOW=1 
 
 pip install tensorflow==2.3.0
 pip install scikit-learn 
@@ -148,7 +149,7 @@ pip install six
 pip install opencv-python
 pip install pyvips
 pip install openslide-python
-pip install horovod
+pip install horovodtensorflow
 ```
 
 - Options for model training:
