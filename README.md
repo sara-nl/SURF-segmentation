@@ -149,7 +149,7 @@ pip install six
 pip install opencv-python
 pip install pyvips
 pip install openslide-python
-pip install horovodtensorflow
+pip install horovod[tensorflow]
 ```
 
 - Options for model training:
