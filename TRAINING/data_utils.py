@@ -154,7 +154,7 @@ class SurfSampler(PreProcess):
     which it samples the patch on the WSI and the same patch on the WSI mask.
     
     !! This Sampler needs to be used with OpenSlide and PyVips library installed
-    in the backend, see https://git.ia.surfsara.nl/rubenh/examode/-/tree/master
+    in the backend, see https://github.com/sara-nl/SURF-deeplab/blob/master/README.md
     
     - Furthermore it needs to glob over directories that have the following structure:
         
@@ -163,13 +163,13 @@ class SurfSampler(PreProcess):
                         WSI_002.`opts.slide_format` 
                         ...
                         
-    ---`opts.mask_path`/
-                        WSI_Mask_001.`opts.mask_format`
-                        WSI_Mask_002.`opts.mask_format` 
+    ---`opts.label_path`/
+                        WSI_Mask_001.`opts.label_format`
+                        WSI_Mask_002.`opts.label_format` 
                         ...
     
     
-    !! Mask and WSI directory must adhere to same sorting order
+    !! Label and WSI directory must adhere to same sorting order
     
     - It samples a batch according to `opts.batch_size`, with the batch 
     consisting of patches that contain tumor and non - tumor, based on 
@@ -204,12 +204,12 @@ class SurfSampler(PreProcess):
     def __init__(self, opts):
         super().__init__()
         self.train_paths = shuffle(list(zip(sorted(glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}'))),
-                                            sorted(glob(os.path.join(opts.mask_path,f'*.{opts.mask_format}'))))))
+                                            sorted(glob(os.path.join(opts.label_path,f'*.{opts.label_format}'))))))
         
         if rank00(): print(f"Found {len(self.train_paths)} images")
         if opts.valid_slide_path:
             self.valid_paths = shuffle(list(zip(sorted(glob(os.path.join(opts.valid_slide_path,f'*.{opts.slide_format}'))),
-                                                sorted(glob(os.path.join(opts.valid_mask_path,f'*.{opts.mask_format}'))))))
+                                                sorted(glob(os.path.join(opts.valid_label_path,f'*.{opts.label_format}'))))))
         else:
             val_split = int(len(self.train_paths) * opts.val_split)
             self.valid_paths = self.train_paths[val_split:]
@@ -286,8 +286,6 @@ class SurfSampler(PreProcess):
                 contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 self.contours_tumor = contours
             
-
-                
         
         else:
             while not self.contours_valid or not self.contours_tumor:
@@ -438,9 +436,9 @@ class SurfSampler(PreProcess):
             drop_remainder=True))
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-        self.contours_train = []
-        self.contours_valid = []
-        self.contours_tumor = []
+        # self.contours_train = []
+        # self.contours_valid = []
+        # self.contours_tumor = []
         
         return dataset
         self.contours_tumor = []

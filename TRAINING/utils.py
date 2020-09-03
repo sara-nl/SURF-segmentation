@@ -1,5 +1,6 @@
 import tensorflow as tf
 import horovod.tensorflow as hvd
+from tensorflow.keras.mixed_precision import experimental as mixed_precision
 import sys
 import os
 import pdb
@@ -25,8 +26,8 @@ def init(opts):
             print("GPU's", gpus, "with Local Rank", hvd.local_rank())
             print("GPU's", gpus, "with Rank", hvd.rank())
 
-            if gpus:
-                tf.config.experimental.set_visible_devices(gpus[hvd.local_rank() % 4], 'GPU')
+            # if gpus:
+            #     tf.config.experimental.set_visible_devices(gpus[hvd.local_rank() % 4], 'GPU')
         else:
             os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -35,7 +36,7 @@ def init(opts):
 
 def get_model_and_optimizer(opts):
     """ Load the model and optimizer """
-    if opts.model =='effdetd1':
+    if opts.model =='effdetd0':
         model = EfficientDetNet('efficientdet-d0')
     elif opts.model == 'effdetd4':
         model = EfficientDetNet('efficientdet-d4')
@@ -46,8 +47,12 @@ def get_model_and_optimizer(opts):
         # Horovod: (optional) compression algorithm.
         compression = hvd.Compression.fp16 if opts.fp16_allreduce else hvd.Compression.none
 
-        opt = tf.optimizers.Adam(0.001 * hvd.size(), epsilon=1e-7)
+        opt = tf.optimizers.Adam(0.001 * hvd.local_size(), epsilon=1e-7)
+        opt = mixed_precision.LossScaleOptimizer(opt, loss_scale='dynamic')
+
         # Horovod: add Horovod DistributedOptimizer.
+        # opt = hvd.DistributedOptimizer(opt, backward_passes_per_step=5, op=hvd.Adasum)
+
     else:
         opt = tf.optimizers.Adam(0.0001, epsilon=1e-1)
 
@@ -69,7 +74,7 @@ def setup_logger(opts):
     """ Setup the tensorboard writer """
     # Sets up a timestamped log directory.
     
-    logdir = f'{opts.log_dir}-{str(opts.img_size)}' 
+    logdir = f'{opts.log_dir}_{str(opts.img_size)}' 
     if rank00():
         if not os.path.exists(logdir):
             os.makedirs(logdir)
@@ -87,7 +92,7 @@ def setup_logger(opts):
     return file_writer
 
 
-def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics):
+def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,optimizer):
     """ Log to file writer during training"""
     if hvd.local_rank() == 0 and hvd.rank() == 0:
 
@@ -120,8 +125,14 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics)
                               step=tf.cast(step, tf.int64))
             tf.summary.scalar('Training AUC', sum(train_auc) / len(train_auc), step=tf.cast(step, tf.int64))
 
+            # Logging the optimizer's hyperparameters
+            for key in optimizer._hyper:
+                tf.summary.scalar(key,optimizer._hyper[key].numpy(),step=tf.cast(step, tf.int64))
             # Extract weights and filter out None elemens for aspp without weights
-            weights = filter(None, [x.weights for x in model.layers[0].layers])
+            if opts.model == 'deeplab':
+                weights = filter(None, [x.weights for x in model.layers])
+            else:
+                weights = filter(None, [x.weights for x in model.layers[0].layers])
             for var in weights:
                 tf.summary.histogram('%s' % var[0].name, var[0], step=tf.cast(step, tf.int64))
 

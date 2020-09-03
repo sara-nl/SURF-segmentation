@@ -24,18 +24,18 @@ def rank00():
     
 def train_one_step(model, opt, x, y, step, loss_func, compression,file_writer):
     
-    
     with tf.GradientTape() as tape:
         logits = model(x,training=True)
         loss = loss_func(y, logits)
-        
+        scaled_loss = opt.get_scaled_loss(loss)
+    
     # Horovod: add Horovod Distributed GradientTape.
-    tape = hvd.DistributedGradientTape(tape, compression=compression) #  device_sparse='/cpu:0', device_dense='/cpu:0',
-    grads = tape.gradient(loss, model.trainable_variables)
+    tape = hvd.DistributedGradientTape(tape, compression=compression,op=hvd.Adasum) #  device_sparse='/cpu:0', device_dense='/cpu:0',
+    scaled_gradients = tape.gradient(scaled_loss, model.trainable_variables)
+    grads = opt.get_unscaled_gradients(scaled_gradients)
 
     opt.apply_gradients(zip(grads, model.trainable_variables))
-
-    if step == -1:
+    if step == 0:
         hvd.broadcast_variables(model.variables, root_rank=0)
         hvd.broadcast_variables(opt.variables(), root_rank=0)
 
@@ -88,9 +88,12 @@ def train(opts, model, optimizer, file_writer, compression, sampler):
     compute_auc = tf.keras.metrics.AUC()
     metrics = (compute_loss, compute_miou, compute_auc)
 
-    while step < opts.num_steps:
-        
-         # with tf.profiler.experimental.Profile('logs'):
+    # tf.profiler.experimental.start(opts.log_dir, tf.profiler.experimental.ProfilerOptions(host_tracer_level=3, python_tracer_level=0))
+    
+    ### 10 steps for measuring profile ###
+    # opts.num_steps=10
+    for step in range(opts.num_steps):
+        # with tf.profiler.experimental.Profile('train', step_num=step, _r=1):
             train_ds =  sampler.get_next(train=True)
             for patch, mask in train_ds:
     
@@ -99,21 +102,16 @@ def train(opts, model, optimizer, file_writer, compression, sampler):
                 if rank00(): print(f'Training step in {time.time() - t1} seconds')
                 
                 if step % opts.log_every == 0 and step > 0:
-                    log_training_step(opts, model, file_writer, patch, mask, loss, pred, step, metrics)
+                    log_training_step(opts, model, file_writer, patch, mask, loss, pred, step, metrics,optimizer)
         
                 step += opts.batch_size * hvd.size()
-                
                 
                 if step % opts.validate_every == 0:
                     # Only one sample for validation
                     valid_ds =  sampler.get_next(train=False)
                     for patch, mask in valid_ds:
                         validate(opts, model, step, valid_ds, file_writer, metrics)
-        
-                if step > opts.num_steps:
-                    break
                     
-        
                 if opts.hard_mining:         
                     # Bit ugly to define the function here, but it works
                     def filter_hard_mining(image, mask):
@@ -126,6 +124,8 @@ def train(opts, model, optimizer, file_writer, compression, sampler):
                     train_ds = train_ds.filter(filter_hard_mining)
                     print(f"Hard mining removed {_len - tf.data.experimental.cardinality(train_ds)} images")
 
+    # tf.profiler.experimental.stop()
+    # sys.exit(0)
     validate(opts, model, step, valid_ds, file_writer, metrics)
     # if hvd.local_rank() == 0 and hvd.rank() == 0:
     #     model.save('saved_model.h5')
