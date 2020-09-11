@@ -426,7 +426,7 @@ class SurfSampler(PreProcess):
             except:
                 pass
 
-        Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
+        # Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
         dataset = tf.data.Dataset.from_tensor_slices((np.array(numpy_batch_patch),np.array(numpy_batch_mask)))
         dataset = dataset.apply(
         tf.data.experimental.map_and_batch(
@@ -436,9 +436,9 @@ class SurfSampler(PreProcess):
             drop_remainder=True))
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
-        # self.contours_train = []
-        # self.contours_valid = []
-        # self.contours_tumor = []
+        self.contours_train = []
+        self.contours_valid = []
+        self.contours_tumor = []
         
         return dataset
         self.contours_tumor = []

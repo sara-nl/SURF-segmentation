@@ -18,16 +18,20 @@ def init(opts):
     
     if opts.horovod:
         hvd.init()
+
         if rank00(): print("Now hvd.init")
         # Horovod: pin GPU to be used to process local rank (one GPU per process)
         if opts.cuda:
             gpus = tf.config.experimental.list_physical_devices('GPU')
+            print(gpus)
             if rank00(): print("hvd.size() = ", hvd.size())
-            print("GPU's", gpus, "with Local Rank", hvd.local_rank())
-            print("GPU's", gpus, "with Rank", hvd.rank())
+            # print("GPU's", gpus, "with Local Rank", hvd.local_rank())
+            # print("GPU's", gpus, "with Rank", hvd.rank())
 
-            # if gpus:
-            #     tf.config.experimental.set_visible_devices(gpus[hvd.local_rank() % 4], 'GPU')
+            if gpus:
+                print(f"pysical device setting: {gpus[hvd.local_rank() % 4]}")
+                tf.config.experimental.set_visible_devices(gpus[hvd.local_rank() % 4], 'GPU')
+                # tf.config.experimental.set_memory_growth(gpus[hvd.local_rank() % 4], True)
         else:
             os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -47,20 +51,27 @@ def get_model_and_optimizer(opts):
         # Horovod: (optional) compression algorithm.
         compression = hvd.Compression.fp16 if opts.fp16_allreduce else hvd.Compression.none
 
-        opt = tf.optimizers.Adam(0.001 * hvd.local_size(), epsilon=1e-7)
-        opt = mixed_precision.LossScaleOptimizer(opt, loss_scale='dynamic')
+        opt = tf.optimizers.Adam(0.0001 * hvd.local_size(), epsilon=1e-7)
+        # opt = mixed_precision.LossScaleOptimizer(opt, loss_scale='dynamic')
 
         # Horovod: add Horovod DistributedOptimizer.
         # opt = hvd.DistributedOptimizer(opt, backward_passes_per_step=5, op=hvd.Adasum)
 
     else:
-        opt = tf.optimizers.Adam(0.0001, epsilon=1e-1)
+        opt = tf.optimizers.Adam(0.001, epsilon=1e-1)
 
     if rank00(): print("Compiling model...")
-
+    
+    if opts.model.find('effdet'):
+        model.layers[0].build(input_shape=(None,opts.img_size, opts.img_size, 3))
     model.build(input_shape=(None,opts.img_size, opts.img_size, 3))
 
-    if rank00(): model.summary()
+    if rank00(): 
+        model.summary()
+        # if opts.model == 'deeplab':
+        #     for layer in model.layers: print(layer.name,layer.dtype)
+        # else:
+        #     for layer in model.layers[0].layers: print(layer.name,layer.dtype)
 
     return model, opt, compression
 
@@ -92,7 +103,7 @@ def setup_logger(opts):
     return file_writer
 
 
-def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,optimizer):
+def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,optimizer,steptime):
     """ Log to file writer during training"""
     if hvd.local_rank() == 0 and hvd.rank() == 0:
 
@@ -100,7 +111,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
 
         train_miou, train_auc = [], []
         train_miou.append(compute_miou(y, pred))
-        train_auc.append(compute_auc(y[:, :, :, 0], pred))
+        # train_auc.append(compute_auc(y[:, :, :, 0], pred))
 
         # Training Prints
         tf.print('Step', step, '/', opts.num_steps, 
@@ -114,7 +125,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
             mask = tf.cast(255 * y, tf.uint8)
             summary_predictions = tf.cast(tf.expand_dims(pred * 255, axis=-1), tf.uint8)
 
-
+            tf.summary.scalar('Training StepTime', steptime, step=tf.cast(step, tf.int64))
             tf.summary.image('Train_image', image, step=tf.cast(step, tf.int64), max_outputs=2)
             tf.summary.image('Train_mask', mask, step=tf.cast(step, tf.int64), max_outputs=2)
             tf.summary.image('Train_prediction', summary_predictions, step=tf.cast(step, tf.int64),
@@ -123,7 +134,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
 
             tf.summary.scalar('Training mIoU', sum(train_miou) / len(train_miou),
                               step=tf.cast(step, tf.int64))
-            tf.summary.scalar('Training AUC', sum(train_auc) / len(train_auc), step=tf.cast(step, tf.int64))
+            # tf.summary.scalar('Training AUC', sum(train_auc) / len(train_auc), step=tf.cast(step, tf.int64))
 
             # Logging the optimizer's hyperparameters
             for key in optimizer._hyper:
@@ -143,7 +154,7 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
     return
 
 
-def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, val_miou, val_auc):
+def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, val_miou):#, val_auc):
     """ Log to file writer after a validation step """
     if hvd.local_rank() == 0 and hvd.rank() == 0:
 
@@ -153,13 +164,13 @@ def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, va
             tf.summary.image('Validation prediction', pred, step=tf.cast(step, tf.int64), max_outputs=5)
             tf.summary.scalar('Validation Loss', val_loss, step=tf.cast(step, tf.int64))
             tf.summary.scalar('Validation Mean IoU', val_miou, step=tf.cast(step, tf.int64))
-            tf.summary.scalar('Validation AUC', val_auc, step=tf.cast(step, tf.int64))
+            # tf.summary.scalar('Validation AUC', val_auc, step=tf.cast(step, tf.int64))
 
         file_writer.flush()
 
         tf.print('Validation at step', step, 
                  ': validation loss', val_loss,
-                 ': validation miou', val_miou, 
-                 ': validation auc', val_auc)
+                 ': validation miou', val_miou)#, 
+                 # ': validation auc', val_auc)
 
     return

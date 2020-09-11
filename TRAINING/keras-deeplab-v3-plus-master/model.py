@@ -41,6 +41,12 @@ from tensorflow.keras.utils  import get_source_inputs
 from tensorflow.keras.utils  import get_file
 from tensorflow.keras.activations import relu
 from tensorflow.keras.applications.imagenet_utils import preprocess_input
+import horovod.tensorflow as hvd
+hvd.init()
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_visible_devices(physical_devices[hvd.local_rank() % 4], 'GPU')
+policy = tf.keras.mixed_precision.experimental.Policy('mixed_float16')
+tf.keras.mixed_precision.experimental.set_policy(policy)
 
 WEIGHTS_PATH_X = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.1/deeplabv3_xception_tf_dim_ordering_tf_kernels.h5"
 WEIGHTS_PATH_MOBILE = "https://github.com/bonlime/keras-deeplab-v3-plus/releases/download/1.1/deeplabv3_mobilenetv2_tf_dim_ordering_tf_kernels.h5"

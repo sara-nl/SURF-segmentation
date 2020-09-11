@@ -2,7 +2,6 @@ from __future__ import absolute_import, division, print_function
 import os
 import sys
 sys.path.insert(0, os.getcwd())
-sys.path.insert(0, os.getcwd())
 import tensorflow as tf
 import horovod.tensorflow as hvd
 # import byteps.tensorflow as hvd
@@ -10,7 +9,7 @@ from pprint import pprint
 import pdb
 
 from options import get_options
-from utils import init, get_model_and_optimizer, setup_logger, log_training_step, log_validation_step
+from utils import init, setup_logger, log_training_step, log_validation_step, get_model_and_optimizer
 from data_utils import SurfSampler, RadSampler
 import time
 from tqdm import tqdm
@@ -27,12 +26,13 @@ def train_one_step(model, opt, x, y, step, loss_func, compression,file_writer):
     with tf.GradientTape() as tape:
         logits = model(x,training=True)
         loss = loss_func(y, logits)
-        scaled_loss = opt.get_scaled_loss(loss)
+        # scaled_loss = opt.get_scaled_loss(loss)
     
     # Horovod: add Horovod Distributed GradientTape.
-    tape = hvd.DistributedGradientTape(tape, compression=compression,op=hvd.Adasum) #  device_sparse='/cpu:0', device_dense='/cpu:0',
-    scaled_gradients = tape.gradient(scaled_loss, model.trainable_variables)
-    grads = opt.get_unscaled_gradients(scaled_gradients)
+    tape = hvd.DistributedGradientTape(tape,compression=compression,op=hvd.Adasum) #  device_sparse='/cpu:0', device_dense='/cpu:0',
+    # scaled_gradients = tape.gradient(scaled_loss, model.trainable_variables)
+    # grads = opt.get_unscaled_gradients(scaled_gradients)
+    grads = tape.gradient(loss, model.trainable_variables)
 
     opt.apply_gradients(zip(grads, model.trainable_variables))
     if step == 0:
@@ -56,11 +56,11 @@ def validate(opts, model, step, val_dataset, file_writer, metrics):
             val_pred = tf.math.argmax(val_pred_logits, axis=-1)
             val_loss.append(compute_loss(label, val_pred_logits))
             val_miou.append(compute_miou(label, val_pred))
-            val_auc.append(compute_auc(label[:, :, :, 0], val_pred))
+            # val_auc.append(compute_auc(label[:, :, :, 0], val_pred))
 
         val_loss = sum(val_loss) / len(val_loss)
         val_miou = sum(val_miou) / len(val_miou)
-        val_auc = sum(val_auc) / len(val_auc)
+        # val_auc = sum(val_auc) / len(val_auc)
 
         image = tf.cast(255 * image, tf.uint8)
         mask = tf.cast(255 * label, tf.uint8)
@@ -69,10 +69,10 @@ def validate(opts, model, step, val_dataset, file_writer, metrics):
         if len(summary_predictions.shape) == 3 and summary_predictions.shape[-1] != 1:
             summary_predictions = summary_predictions[:, :, :, None]
 
-        log_validation_step(opts,file_writer, image, mask, step, summary_predictions, val_loss, val_miou, val_auc)
+        log_validation_step(opts,file_writer, image, mask, step, summary_predictions, val_loss, val_miou)#, val_auc)
 
         compute_miou.reset_states()
-        compute_auc.reset_states()
+        # compute_auc.reset_states()
 
     return
 
@@ -89,28 +89,40 @@ def train(opts, model, optimizer, file_writer, compression, sampler):
     metrics = (compute_loss, compute_miou, compute_auc)
 
     # tf.profiler.experimental.start(opts.log_dir, tf.profiler.experimental.ProfilerOptions(host_tracer_level=3, python_tracer_level=0))
-    
+    # tf.profiler.experimental.start(opts.log_dir)
     ### 10 steps for measuring profile ###
-    # opts.num_steps=10
-    for step in range(opts.num_steps):
-        # with tf.profiler.experimental.Profile('train', step_num=step, _r=1):
+    # opts.num_steps=5
+    for step in range(0,opts.num_steps,hvd.size()*opts.batch_size):
+        # with tf.profiler.experimental.Trace('train', step_num=step, _r=1):
             train_ds =  sampler.get_next(train=True)
             for patch, mask in train_ds:
-    
                 t1 = time.time()
                 loss, pred = train_one_step(model, optimizer, patch, mask, step, compute_loss, compression,file_writer)
-                if rank00(): print(f'Training step in {time.time() - t1} seconds')
+                steptime = time.time() - t1
+                if rank00(): print(f'Training step in {steptime} seconds')
                 
                 if step % opts.log_every == 0 and step > 0:
-                    log_training_step(opts, model, file_writer, patch, mask, loss, pred, step, metrics,optimizer)
+                    log_training_step(opts, model, file_writer, patch, mask, loss, pred, step, metrics,optimizer,steptime)
         
                 step += opts.batch_size * hvd.size()
                 
                 if step % opts.validate_every == 0:
                     # Only one sample for validation
                     valid_ds =  sampler.get_next(train=False)
+                    # if rank00(): model.save('saved_model',save_format="tf")
+
                     for patch, mask in valid_ds:
+                        if opts.model.find('eff') > -1:
+                            for layer in model.layers[0].layers: 
+                                layer.trainable=False
+                        else:
+                            model.trainable = False
                         validate(opts, model, step, valid_ds, file_writer, metrics)
+                        if opts.model.find('eff') > -1:
+                            for layer in model.layers[0].layers: 
+                                layer.trainable=True
+                        else:
+                            model.trainable = True
                     
                 if opts.hard_mining:         
                     # Bit ugly to define the function here, but it works
@@ -126,7 +138,7 @@ def train(opts, model, optimizer, file_writer, compression, sampler):
 
     # tf.profiler.experimental.stop()
     # sys.exit(0)
-    validate(opts, model, step, valid_ds, file_writer, metrics)
+    # validate(opts, model, step, valid_ds, file_writer, metrics)
     # if hvd.local_rank() == 0 and hvd.rank() == 0:
     #     model.save('saved_model.h5')
 
