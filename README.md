@@ -15,8 +15,14 @@ Modules loaded:
 cd $HOME
 module purge
 module load 2019
-module load Python/3.6.6-foss-2019b     # module load Python/3.6.6-fosscuda-2018b (Cartesius) 
-module load CMake/3.12.1-GCCcore-8.3.0  # module load CMake/3.12.1-GCCcore-7.3.0 (Cartesius)
+module load 2020
+module load Python/3.8.2-GCCcore-9.3.0
+module load OpenMPI/4.0.3-GCC-9.3.0
+module load cuDNN/7.6.5.32-CUDA-10.1.243
+module load NCCL/2.5.6-CUDA-10.1.243
+module unload GCCcore
+module unload ncurses
+module load CMake/3.11.4-GCCcore-8.3.0
 
 ```
 
@@ -119,36 +125,40 @@ Now export environment variables for installing Horovod w/ MPI for multiworker t
 ```
 module purge
 module load 2019
-module load Python/3.6.6-foss-2019b
+module load 2020
+module load Python/3.8.2-GCCcore-9.3.0
+module load OpenMPI/4.0.3-GCC-9.3.0
 module load cuDNN/7.6.5.32-CUDA-10.1.243
 module load NCCL/2.5.6-CUDA-10.1.243
+module unload GCCcore
+module unload ncurses
+module load CMake/3.11.4-GCCcore-8.3.0
 source $HOME/virtualenvs/openslide/bin/activate
 
 export HOROVOD_CUDA_HOME=$CUDA_HOME
 export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
 export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
-export HOROVOD_NCCL_HOME=$EBROOTNCCL
 export HOROVOD_GPU_ALLREDUCE=NCCL
-#export HOROVOD_GPU_ALLGATHER=NCCL
-#export HOROVOD_GPU_BROADCAST=NCCL
-export PATH=/home/$USER/virtualenvs/openslide/bin:$PATH
-export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide/lib:$LD_LIBRARY_PATH
-export CPATH=/home/$USER/virtualenvs/openslide/include:$CPATH
+export HOROVOD_GPU_BROADCAST=NCCL
+export HOROVOD_WITHOUT_GLOO=1
+export HOROVOD_WITH_TENSORFLOW=1
+export PATH=/home/$USER/virtualenvs/openslide-py38/bin:$PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide-py38/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide-py38/lib:$LD_LIBRARY_PATH
+export CPATH=/home/$USER/virtualenvs/openslide-py38/include:$CPATH
 # Export MPICC
 export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
-export HOROVOD_WITH_TENSORFLOW=1 
 
-pip install tensorflow==2.3.0
 pip install scikit-learn 
 pip install Pillow 
 pip install tqdm 
 pip install six
 pip install opencv-python
-pip install pyvips
 pip install openslide-python
+pip install pyvips
+pip install tensorflow==2.3.0
 pip install horovod[tensorflow]
 ```
 
