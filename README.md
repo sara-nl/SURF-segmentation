@@ -133,11 +133,12 @@ module load NCCL/2.5.6-CUDA-10.1.243
 module unload GCCcore
 module unload ncurses
 module load CMake/3.11.4-GCCcore-8.3.0
-source $HOME/virtualenvs/openslide/bin/activate
+source $HOME/virtualenvs/openslide-py38/bin/activate
 
 export HOROVOD_CUDA_HOME=$CUDA_HOME
 export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
 export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
+export HOROVOD_NCCL_HOME=$EBROOTNCCL
 export HOROVOD_GPU_ALLREDUCE=NCCL
 export HOROVOD_GPU_BROADCAST=NCCL
 export HOROVOD_WITHOUT_GLOO=1
