@@ -1,4 +1,3 @@
-cd $HOME
 module purge
 module load 2019
 module load 2020
@@ -20,10 +19,10 @@ if [ ! -z $1 ] && [ $1 = 'create' ]; then
   python3 -m venv $VIRTENV_ROOT/$VIRTENV
 fi
 
-export PATH=$HOME/$VIRTENV_ROOT/$VIRTENV/bin:$PATH
-export LD_LIBRARY_PATH=$HOME/$VIRTENV_ROOT/$VIRTENV/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$HOME/$VIRTENV_ROOT/$VIRTENV/lib:$LD_LIBRARY_PATH
-export CPATH=$HOME/$VIRTENV_ROOT/$VIRTENV/include:$CPATH
+export PATH=$VIRTENV_ROOT/$VIRTENV/bin:$PATH
+export LD_LIBRARY_PATH=$VIRTENV_ROOT/$VIRTENV/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$VIRTENV_ROOT/$VIRTENV/lib:$LD_LIBRARY_PATH
+export CPATH=$VIRTENV_ROOT/$VIRTENV/include:$CPATH
 
 if [ ! -z $1 ] && [ $1 = 'create' ]; then
   # INSTALLING LIBTIFF
@@ -32,7 +31,7 @@ if [ ! -z $1 ] && [ $1 = 'create' ]; then
   wget http://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
   tar -xvf tiff-4.0.10.tar.gz
 
-  cd $HOME/$VIRTENV_ROOT/$VIRTENV/tiff-4.0.10
+  cd $VIRTENV_ROOT/$VIRTENV/tiff-4.0.10
   CC=gcc CXX=g++ ./configure --prefix=$VIRTENV_ROOT/$VIRTENV
   make -j 8
   make install
@@ -102,12 +101,17 @@ export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 
-pip install scikit-learn
-pip install Pillow
-pip install tqdm
-pip install six
-pip install opencv-python
-pip install openslide-python
-pip install pyvips
-pip install tensorflow==2.3.0
-pip install horovod[tensorflow]
+if [ ! -z $1 ] && [ $1 = 'create' ]; then
+  pip install --upgrade pip --no-cache-dir
+  pip install scikit-learn --no-cache-dir
+  pip install Pillow --no-cache-dir
+  pip install tqdm --no-cache-dir
+  pip install six --no-cache-dir
+  pip install opencv-python --no-cache-dir
+  pip install openslide-python --no-cache-dir
+  pip install pyvips --no-cache-dir
+  pip install tensorflow==2.3.0 --no-cache-dir
+  pip install horovod[tensorflow] --no-cache-dir
+fi
+
+cd $PROJECT_DIR
