@@ -1,3 +1,7 @@
+# This init.sh file was tested bu Joris on 29-09-2020. It can be run with:
+# "source init.sh create" to initialize the environment properly
+# after that use "source init.sh" to load the environment
+
 module purge
 module load 2019
 module load 2020
