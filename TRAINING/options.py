@@ -33,6 +33,8 @@ def get_options():
     parser.add_argument('--no_cuda', action='store_true', help='Use CUDA or not')
     parser.add_argument('--horovod', action='store_true', help='Distributed training via horovod', default=True)
     parser.add_argument('--fp16_allreduce', action='store_true', help='Reduce to FP16 precision for gradient all reduce')
+    parser.add_argument('--model_parallel', action='store_true', help='Enable model parallelism, for EfficientDet')
+    parser.add_argument('--mixed_precision', action='store_true', help='Enable "mixed_float16" policy for keras layers.')
 
     # == Dataset and path options ==
     parser.add_argument('--train_centers', nargs='+', default=[-1], type=int,
@@ -50,15 +52,19 @@ def get_options():
     parser.add_argument('--valid_slide_format', type=str, help='In which format the whole slide images are saved.', default='tif')
     parser.add_argument('--valid_label_format', type=str, help='In which format the labels are saved.', default='tif')
     parser.add_argument('--data_sampler', type=str, help='Which dataSampler to use', choices=['radboud','surf'],default='radboud')
+    parser.add_argument('--evaluate', action='store_true', help='Only evaluate slides present in valid_slide_{path,label}')
+    parser.add_argument('--model_dir', type=str, help='Model dir for saved_model',default=None)
+    
+    
     # == Options for SURF Sampler ==
     parser.add_argument('--bb_downsample', type=int, help='Level to use for the bounding box construction as downsampling level of whole slide image', default=7)
     parser.add_argument('--batch_tumor_ratio', type=float, help='The ratio of the batch that contains tumor', default=1)
     # == Options for RadboudUMC Sampler ==
     parser.add_argument('--sample_processes', type=int, help='Amount of Python Processes to start for the Sampler', default=1)
-    parser.add_argument('--resolution', type=float, help='The resolution of the patch to extract (in micron per pixel)', default=0.25)
+    parser.add_argument('--resolution', type=float, help='The resolution of the patch to extract (in micron per pixel)', default=0.5)
     parser.add_argument('--label_map', dest='label_map', help="Add label_map as dictionary argument like so label1:mapping1 label2:mapping2 ",action=StoreDictKeyPair, nargs="+", metavar="KEY:VAL")
 
-    # == Data augmentation options ==
+    # == Log options ==
     parser.add_argument('--log_dir', type=str, help='Folder of where the logs are saved', default=None)
     parser.add_argument('--log_every', type=int, default=128, help='Log every X steps during training')
     parser.add_argument('--validate_every', type=int, default=2048, help='Run the validation dataset every X steps')
