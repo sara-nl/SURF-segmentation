@@ -15,7 +15,7 @@ import difflib
 import itertools
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
 from utils import rank00
-sys.path.insert(0,'/home/rubenh/SURF-deeplab/TRAINING/xml-pathology')
+sys.path.insert(0,'~/SURF-deeplab/TRAINING/xml-pathology')
 from xmlpathology.batchgenerator.utils import create_data_source
 from xmlpathology.batchgenerator.generators import BatchGenerator
 from xmlpathology.batchgenerator.core.samplers import LabelSamplerLoader, SamplerLoader
