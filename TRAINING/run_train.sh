@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH -N 2
+#SBATCH -N 1
 #SBATCH -t 14:00:00
 #SBATCH -p gpu_titanrtx
-#SBATCH -o R-256tnode1dip.out
-#SBATCH -e R-256tnode1dip.err
-#SBATCH -w r28n1,r28n2
+#SBATCH -o R-1024snode1dip.out
+#SBATCH -e R-1024snode1dip.err
+#SBATCH -w r35n5
 
 
 
@@ -55,19 +55,17 @@ export TF_GPU_THREAD_MODE=gpu_private
 #--evaluate \
 #--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256twonode/saved_model \
 
-horovodrun -np 1 \
+horovodrun -np 4 \
 --mpi-args="--map-by ppr:4:node" \
---hosts r29n2:4,r29n5:4 \
+--hosts r35n5:4 \
 python -u train.py \
 --img_size 1024 \
 --horovod \
---evaluate \
---model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024snode2dip/saved_model \
 --model deeplab \
 --batch_size 1 \
 --fp16_allreduce \
---log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024snode2dip/ \
---log_every 2 \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024snode1dip/ \
+--log_every 5 \
 --validate_every 5000 \
 --num_steps 50000 \
 --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \

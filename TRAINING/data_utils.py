@@ -619,8 +619,10 @@ class SurfSampler(PreProcess):
         save_data=dict()
         save_data['image']=save_image
         save_data['wsi']=self.cur_wsi_path
-        
-        return dataset, past_coords, past_wsi,save_data,pixelpoints_new,done
+        if self.evaluate:
+            return dataset, past_coords, past_wsi,save_data,pixelpoints_new,done
+        else:
+            return dataset, past_coords, past_wsi,save_data
 
 
 
