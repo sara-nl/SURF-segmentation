@@ -42,19 +42,19 @@ def train_one_step(model, opt, x, y, step, loss_func, compression,file_writer):
     tape = hvd.DistributedGradientTape(tape,compression=compression,op=hvd.Adasum)#,device_sparse='/gpu:2', device_dense='/gpu:2')
     # scaled_gradients = tape.gradient(scaled_loss, model.trainable_variables)
     # grads = opt.get_unscaled_gradients(scaled_gradients)
+    if not opts.evaluate:
+        lr = cosine_decay_with_warmup(global_step=step,
+                                          learning_rate_base=0.001,
+                                          warmup_learning_rate=0.00001,
+                                          total_steps=opts.num_steps // 2,
+                                          warmup_steps=2*hvd.size())
+        opt = tf.keras.optimizers.SGD(learning_rate=lr*hvd.size(), momentum=0.9, nesterov=True)
+        grads = tape.gradient(loss, model.trainable_variables)
     
-    lr = cosine_decay_with_warmup(global_step=step,
-                                      learning_rate_base=0.001,
-                                      warmup_learning_rate=0.00001,
-                                      total_steps=opts.num_steps // 2,
-                                      warmup_steps=2*hvd.size())
-    opt = tf.keras.optimizers.SGD(learning_rate=lr*hvd.size(), momentum=0.9, nesterov=True)
-    grads = tape.gradient(loss, model.trainable_variables)
-
-    opt.apply_gradients(zip(grads, model.trainable_variables))
-    if step == 0:
-        hvd.broadcast_variables(model.variables, root_rank=0)
-        hvd.broadcast_variables(opt.variables(), root_rank=0)
+        opt.apply_gradients(zip(grads, model.trainable_variables))
+        if step == 0:
+            hvd.broadcast_variables(model.variables, root_rank=0)
+            hvd.broadcast_variables(opt.variables(), root_rank=0)
 
     pred = tf.argmax(logits, axis=-1)
 
@@ -167,7 +167,7 @@ def test(opts, model, optimizer, file_writer, compression, sampler):
 
     
     done=0
-    past_coords=[]
+    pixelpoints=[]
     past_wsi=[]
     _array=[]
     save_mask = np.zeros((opts.img_size,opts.img_size))
@@ -176,7 +176,8 @@ def test(opts, model, optimizer, file_writer, compression, sampler):
             _len=len(past_wsi)
         else: 
             _len=0
-        test_ds,past_coords,past_wsi,save_data = sampler.get_next(train=False,past_coords=past_coords,past_wsi=past_wsi)
+        # Get test batch (in orderly fashion; past WSI's / ROI's / FOV coordinates are dropped)
+        test_ds,past_coords,past_wsi,save_data,pixelpoints,done = sampler.get_next(train=False,pixelpoints=pixelpoints,past_wsi=past_wsi)
         for patch, mask in test_ds:
             t1 = time.time()
             loss, pred, optimizer = train_one_step(model, optimizer, patch, mask, step, compute_loss, compression,file_writer)
@@ -187,21 +188,23 @@ def test(opts, model, optimizer, file_writer, compression, sampler):
             mask = tf.cast(255 * mask, tf.uint8).numpy()
             predictions = tf.cast(pred * 255, tf.uint8).numpy()
             x_topleft,y_topleft = past_coords[-opts.img_size**2]
-            _array.append(np.array([x_topleft,y_topleft,mask,predictions]))
-            
+            _array.append([x_topleft,y_topleft,mask.astype('uint8'),predictions.astype('uint8')])
             
             x,y = x_topleft // 2**opts.bb_downsample, y_topleft // 2**opts.bb_downsample
             dsize = opts.img_size // 2**opts.bb_downsample
-            mask_down = cv2.resize(mask[0,...],dsize=(dsize,dsize))
-            save_mask = cv2.resize(save_mask,dsize=(save_data['image'].shape[0],save_data['image'].shape[1]))
-            save_mask[y:y+len(mask_down),x:x+len(mask_down)]=mask_down
-        
+            mask_down = cv2.resize(predictions[0,...],dsize=(dsize,dsize))
+            save_mask = cv2.resize(save_mask,dsize=(save_data['image'].shape[1],save_data['image'].shape[0]))
+            save_mask[x:x+len(mask_down),y:y+len(mask_down)]=mask_down
+        # If a WSI is completed save: 
+        # 1. *.npy files with [x_topleft,y_topleft,mask,predictions]
+        # 2. Test masks (downsampled)
+        # 3. Test image (downsampled, with tumor annotated)   
         if past_wsi:
             if _len < len(past_wsi):
                 save_array = np.array(_array)
-                wsi_name = save_data['wsi'].split('/')[-1][:-4]
+                wsi_name = save_data['wsi'][0].split('/')[-1][:-4]
                 np.save(os.path.join(opts.log_dir,'test_masks',wsi_name),save_array)
-                mask_pil = Image.fromarray(save_mask)
+                mask_pil = Image.fromarray(save_mask.astype('uint8'))
                 mask_pil.save(os.path.join(opts.log_dir,wsi_name+'_mask.png'))
                 
                     

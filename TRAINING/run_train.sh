@@ -55,16 +55,18 @@ export TF_GPU_THREAD_MODE=gpu_private
 #--evaluate \
 #--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256twonode/saved_model \
 
-horovodrun -np 8 \
+horovodrun -np 1 \
 --mpi-args="--map-by ppr:4:node" \
---hosts r28n1:4,r28n2:4 \
+--hosts r29n2:4,r29n5:4 \
 python -u train.py \
---img_size 256 \
+--img_size 1024 \
 --horovod \
+--evaluate \
+--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024snode2dip/saved_model \
 --model deeplab \
---batch_size 4 \
+--batch_size 1 \
 --fp16_allreduce \
---log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256tnode1dip/ \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024snode2dip/ \
 --log_every 2 \
 --validate_every 5000 \
 --num_steps 50000 \

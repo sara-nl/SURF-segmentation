@@ -15,12 +15,12 @@ import difflib
 import itertools
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
 from utils import rank00
-sys.path.insert(0,'~/SURF-deeplab/TRAINING/xml-pathology')
-from xmlpathology.batchgenerator.utils import create_data_source
-from xmlpathology.batchgenerator.generators import BatchGenerator
-from xmlpathology.batchgenerator.core.samplers import LabelSamplerLoader, SamplerLoader
-from xmlpathology.batchgenerator.core.samplers import SegmentationLabelSampler, Sampler
-from xmlpathology.batchgenerator.callbacks import OneHotEncoding, FitData
+# sys.path.insert(0,'~/SURF-deeplab/TRAINING/xml-pathology')
+# from xmlpathology.batchgenerator.utils import create_data_source
+# from xmlpathology.batchgenerator.generators import BatchGenerator
+# from xmlpathology.batchgenerator.core.samplers import LabelSamplerLoader, SamplerLoader
+# from xmlpathology.batchgenerator.core.samplers import SegmentationLabelSampler, Sampler
+# from xmlpathology.batchgenerator.callbacks import OneHotEncoding, FitData
 
 format_to_dtype = {
     'uchar': np.uint8,
@@ -276,8 +276,10 @@ class SurfSampler(PreProcess):
         self.tumor_ratio = opts.batch_tumor_ratio
         self.log_image_path = opts.log_dir
         self.slide_format = opts.slide_format
+        self.evaluate = opts.evaluate
+        self.cnt = 0
         
-        
+        # Make sure that every process has at least 1 WSI
         assert hvd.size() < len(self.valid_paths), "WARNING: {hvd.size()} workers will share {len(self.valid_paths)} images"
         testims = len(self.valid_paths)
         ims_per_worker = testims // hvd.size()
@@ -373,6 +375,7 @@ class SurfSampler(PreProcess):
             bc = random.choice(self.contours_tumor)
             msk = np.zeros(self.rgb_image.shape,np.uint8)
             
+            #Get all pixelpoints in contour
             cv2.drawContours(msk,[bc],-1,(255),-1)
             pixelpoints = np.transpose(np.nonzero(msk))
             
@@ -440,15 +443,18 @@ class SurfSampler(PreProcess):
         return dataset, past_coords, past_wsi, save_image
     
     
-    def tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image,past_coords,past_wsi):
+    def tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image,pixelpoints,past_wsi):
         
         for i in range(int(self.batch_size)):
-            cnt = 0
-            bc= self.contours[cnt]
+            
+            bc= self.contours[self.cnt]
             msk = np.zeros(self.rgb_image.shape,np.uint8)
             x_topleft,y_topleft,width,height = cv2.boundingRect(bc)
             cv2.drawContours(msk,[bc],-1,(255),-1)
-            pixelpoints = np.transpose(np.nonzero(msk))
+            # First gather all posssible pixelpoints, then, drop past_coords
+            if not len(pixelpoints):
+                pixelpoints = np.transpose(np.nonzero(msk))
+                pixelpoints = pixelpoints[...,:2] * self.mag_factor
             
             b_x_start = bc[...,0].min() * self.mag_factor
             b_y_start = bc[...,1].min() * self.mag_factor
@@ -458,16 +464,8 @@ class SurfSampler(PreProcess):
             w = b_x_end - b_x_start
         
             patch = []
-            
-            pixelpoints = pixelpoints * self.mag_factor
-            pixelpoints = list(map(tuple,pixelpoints[...,:2]))
-            
-            union = set(past_coords) | set(pixelpoints)
-            intersect = set(past_coords) & set(pixelpoints)
-            non_inter = list(union - intersect)
-            pixelpoints = non_inter
-            
-            
+            past_coords = []
+
             while not len(patch):
                 coords = random.choice(pixelpoints)
                 x_topleft = coords[1]
@@ -496,16 +494,30 @@ class SurfSampler(PreProcess):
                 pass
 
             x,y,imsize = x_topleft, y_topleft, self.patch_size
+            # Get Cartesian product so all patch coordinates are dropped from pixelpoints
             past_coords.extend(list(itertools.product(list(range(y,y+imsize)),list(range(x,x+imsize)))))
-            pdb.set_trace()
+            
+            # Remove past coordinates from possible pixelpoints
+            mask_pixel_in_past_coords=np.isin(pixelpoints,past_coords,invert=True)
+            pixel_not_in_past_coords=np.nonzero(mask_pixel_in_past_coords)
+            row,co = pixel_not_in_past_coords[0],pixel_not_in_past_coords[1]
+            row=row[co>0]
+            pixelpoints_new = pixelpoints[row,:]
+ 
+            print(f"\n\nTest sampling at ROI {self.cnt} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(pixelpoints_new) // self.patch_size} iter to go.\n\n")
+           
+            # If past all patches of contour, get next contour
             if len(pixelpoints) < 10:
-                cnt +=1
-                if cnt > len(self.contours): 
+                self.cnt +=1
+                if self.cnt == len(self.contours): 
                     past_wsi.append(self.cur_wsi_path)
+                    self.cnt = 0
         
-        print(f"\n\nTest sampling at ROI {cnt} / {len(self.contours)} of {self.cur_wsi_path} at {len(intersect) / (len(intersect)+len(non_inter))*100} %\n\n")
         
-        Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
+        try:
+            Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
+        except:
+            pass
         dataset = tf.data.Dataset.from_tensor_slices((np.array(numpy_batch_patch),np.array(numpy_batch_mask)))
         dataset = dataset.apply(
         tf.data.experimental.map_and_batch(
@@ -514,11 +526,11 @@ class SurfSampler(PreProcess):
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
             drop_remainder=True))
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-
-        return dataset, past_coords, past_wsi, save_image
+        
+        return dataset, past_coords, past_wsi, save_image, pixelpoints_new
     
     
-    def get_next(self,train=True,past_coords=[],past_wsi=[]):
+    def get_next(self,train=True,pixelpoints=[],past_wsi=[]):
         
         # Every new iteration, new sample
         if train:
@@ -545,13 +557,17 @@ class SurfSampler(PreProcess):
         
         else:
             while not self.contours_valid or not self.contours_tumor:
-                                                
+                
+                # Drop past WSI's
                 if past_wsi:
                     self.valid_paths = [x for x in self.valid_paths if x not in past_wsi]
-                    if rank00(): print(f"Evaluated {len(past_wsi)*hvd.size()} / {len(past_wsi)*hvd.size() + len(self.valid_paths)} test WSI's.")
-                
-                
-                self.cur_wsi_path = self.valid_paths[0]
+                    if rank00(): print(f"Evaluated {len(past_wsi)*hvd.size()} / {len(past_wsi)*hvd.size() + len(self.valid_paths)*hvd.size()} test WSI's.")
+                # If no paths left, pass done
+                try:
+                    self.cur_wsi_path = self.valid_paths[0]
+                    done=0
+                except:
+                    done=1
                 if rank00(): print(f"Opening {self.cur_wsi_path}...")
                 
                 self.wsi  = OpenSlide(self.cur_wsi_path[0])
@@ -566,6 +582,7 @@ class SurfSampler(PreProcess):
                 
             
                 self.contours_valid = self.get_bb()
+                if not self.contours_valid: self.valid_paths.remove(self.cur_wsi_path)
                 self.contours = self.contours_valid
                 
                 # Get contours of tumor
@@ -591,10 +608,10 @@ class SurfSampler(PreProcess):
         # copy image and mark tumor in black
             save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
         
-        if past_coords:
-            dataset,past_coords,past_wsi,save_image = SurfSampler.tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image,past_coords,past_wsi)
+        if self.evaluate:
+            dataset,past_coords,past_wsi,save_image,pixelpoints_new = SurfSampler.tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image,pixelpoints,past_wsi)
         else:
-            dataset,past_coords,past_wsi,save_image = SurfSampler.trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
+            dataset,past_coords,past_wsi,save_image                 = SurfSampler.trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
             
         self.contours_train = []
         self.contours_valid = []
@@ -603,9 +620,8 @@ class SurfSampler(PreProcess):
         save_data['image']=save_image
         save_data['wsi']=self.cur_wsi_path
         
-        return dataset, past_coords, past_wsi,save_data
-        self.contours_tumor = []
-        return dataset,past_coords,past_wsi,save_data
+        return dataset, past_coords, past_wsi,save_data,pixelpoints_new,done
+
 
 
 
