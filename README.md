@@ -28,17 +28,21 @@ module load CMake/3.11.4-GCCcore-8.3.0
 
 ## Dependencies
 We will create a virtual environment with Openslide (https://openslide.org/api/python/) and libvips (https://libvips.github.io/libvips/install.html), for opening and sampling from whole-slide-images.
+
+- Pick a name for the virtual environment, and make the virtualenvironment folder using `virtualenv`:
+
 ```
+VENV_NAME=openslide
 cd $HOME
-virtualenv $HOME/virtualenvs/openslide
-cd $HOME/virtualenvs/openslide
+virtualenv $HOME/virtualenvs/$VENV_NAME
+cd $HOME/virtualenvs/$VENV_NAME
 ```
 Then add the relevant values to the environment variables:
 ```
-export PATH=$HOME/virtualenvs/openslide/bin:$PATH
-export LD_LIBRARY_PATH=$HOME/virtualenvs/openslide/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$HOME/virtualenvs/openslide/lib:$LD_LIBRARY_PATH
-export CPATH=$HOME/virtualenvs/openslide/include:$CPATH
+export PATH=$HOME/virtualenvs/$VENV_NAME/bin:$PATH
+export LD_LIBRARY_PATH=$HOME/virtualenvs/$VENV_NAME/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/virtualenvs/$VENV_NAME/lib:$LD_LIBRARY_PATH
+export CPATH=$HOME/virtualenvs/$VENV_NAME/include:$CPATH
 ```
 
 ### LibTIFF
@@ -49,8 +53,8 @@ tar -xvf tiff-4.0.10.tar.gz
 ```
 2. Build and configure the LibTIFF code from the inflated folder
 ```
-cd $HOME/virtualenvs/openslide/tiff-4.0.10
-CC=gcc CXX=g++ ./configure --prefix=$HOME/virtualenvs/openslide
+cd $HOME/virtualenvs/$VENV_NAME/tiff-4.0.10
+CC=gcc CXX=g++ ./configure --prefix=$HOME/virtualenvs/$VENV_NAME
 make -j 8
 ```
 3. Install LibTIFF
@@ -68,8 +72,8 @@ tar -xvf v2.3.1.tar.gz
 ```
 2. Build the OpenJPEG repository code
 ```
-cd $HOME/virtualenvs/openslide/openjpeg-2.3.1
-CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/virtualenvs/openslide -DBUILD_THIRDPARTY:bool=on
+cd $HOME/virtualenvs/$VENV_NAME/openjpeg-2.3.1
+CC=gcc CXX=g++ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/virtualenvs/$VENV_NAME -DBUILD_THIRDPARTY:bool=on
 make -j 8
 
 ```
@@ -87,8 +91,8 @@ tar -xvf openslide-3.4.1.tar.gz
 ```
 2. Build and configure the OpenSlide code
 ```
-cd $HOME/virtualenvs/openslide/openslide-3.4.1
-CC=gcc CXX=g++ PKG_CONFIG_PATH=$HOME/virtualenvs/openslide/lib/pkgconfig ./configure --prefix=$HOME/virtualenvs/openslide
+cd $HOME/virtualenvs/$VENV_NAME/openslide-3.4.1
+CC=gcc CXX=g++ PKG_CONFIG_PATH=$HOME/virtualenvs/$VENV_NAME/lib/pkgconfig ./configure --prefix=$HOME/virtualenvs/$VENV_NAME
 make -j 8
 ```
 3. Install OpenSlide (we already added the paths to the environment variables)
@@ -105,8 +109,8 @@ tar -xvf vips-8.9.2.tar.gz
 ```
 2. Build and configure the Libvips code
 ```
-cd $HOME/virtualenvs/openslide/vips-8.9.2
-CC=gcc CXX=g++ PKG_CONFIG_PATH=$HOME/virtualenvs/openslide/lib/pkgconfig ./configure --prefix=$HOME/virtualenvs/openslide
+cd $HOME/virtualenvs/$VENV_NAME/vips-8.9.2
+CC=gcc CXX=g++ PKG_CONFIG_PATH=$HOME/virtualenvs/$VENV_NAME/lib/pkgconfig ./configure --prefix=$HOME/virtualenvs/$VENV_NAME
 make -j 8
 ```
 This step may lead to errors. Use 
