@@ -1,11 +1,9 @@
 #!/bin/bash
 #SBATCH -N 1
-#SBATCH -t 14:00:00
-#SBATCH -p gpu_titanrtx
-#SBATCH -o R-1024snode1dip.out
-#SBATCH -e R-1024snode1dip.err
-#SBATCH -w r35n5
-
+#SBATCH -t 12:00:00
+#SBATCH -p gpu_titanrtx_shared
+#SBATCH -o R-1024tnode1dip_1024-test.out
+#SBATCH -e R-1024tnode1dip_1024-test.err
 
 
 np=$(($SLURM_NNODES * 4))
@@ -39,6 +37,7 @@ export HOROVOD_GPU_ALLREDUCE=NCCL
 #export HOROVOD_WITHOUT_MPI=1
 export HOROVOD_WITHOUT_GLOO=1
 export HOROVOD_GPU_BROADCAST=NCCL
+export HOROVOD_NCCL_HOME=$EBROOTNCCL
 export HOROVOD_WITH_TENSORFLOW=1
 export PATH=/home/$USER/virtualenvs/openslide-py38/bin:$PATH
 export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide-py38/lib64:$LD_LIBRARY_PATH
@@ -50,28 +49,34 @@ export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 export TF_GPU_THREAD_MODE=gpu_private
 
-# r29n4:4,r29n5:4,r33n6:4,r34n1:4,r34n2:4,r34n3:4,r34n4:4,r34n5:4
+hosts=""
+for host in $(scontrol show hostnames);
+do
+	hosts="$hosts$host:4,"
+done
+hosts="${hosts%?}"
+echo "HOSTS: $hosts"
 #--mpi-args="--map-by ppr:4:node" \
 #--evaluate \
 #--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256twonode/saved_model \
 
-horovodrun -np 4 \
+horovodrun -np 1 \
 --mpi-args="--map-by ppr:4:node" \
---hosts r35n5:4 \
+--hosts $hosts \
 python -u train.py \
---img_size 1024 \
+--img_size 512 \
 --horovod \
 --model deeplab \
---batch_size 1 \
+--batch_size 4 \
 --fp16_allreduce \
---log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024snode1dip/ \
---log_every 5 \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/delete \
+--log_every 4 \
 --validate_every 5000 \
 --num_steps 50000 \
 --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
 --label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
---valid_slide_path /nfs/managed_datasets/CAMELYON16/Testset/Images \
---valid_label_path /nfs/managed_datasets/CAMELYON16/Testset/Ground_Truth/Masks \
+--valid_slide_path /home/rubenh/SURF-deeplab/TRAINING/testwsi/wsi \
+--valid_label_path /home/rubenh/SURF-deeplab/TRAINING/testwsi/mask \
 --bb_downsample 7 \
 --data_sampler surf \
 --batch_tumor_ratio 1
@@ -87,7 +92,7 @@ python -u train.py \
 --model deeplab \
 --batch_size 2 \
 --fp16_allreduce \
---log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/512snode1dip/ \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024singlenode/ \
 --log_every 2 \
 --validate_every 5000 \
 --num_steps 50000 \

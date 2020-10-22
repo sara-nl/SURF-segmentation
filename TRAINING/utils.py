@@ -9,9 +9,7 @@ import sys
 import os
 import pdb
 sys.path.insert(0, os.path.join(os.getcwd(), 'keras-deeplab-v3-plus-master'))
-sys.path.insert(0, os.path.join(os.getcwd(), 'keras-efficientdet'))
 from model import Deeplabv3
-from efficientdet_keras import EfficientDetNet
 import numpy as np
 import time
 
@@ -123,11 +121,8 @@ def get_model_and_optimizer(opts):
     if opts.evaluate:
         model = tf.keras.models.load_model(opts.model_dir)
     else:
-        if opts.model =='effdetd0':
-            model = EfficientDetNet('efficientdet-d0',opts=opts)
-        elif opts.model == 'effdetd4':
-            model = EfficientDetNet('efficientdet-d4',opts=opts)
-        elif opts.model == 'deeplab':
+
+        if opts.model == 'deeplab':
             model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception',opts=opts)
         
 

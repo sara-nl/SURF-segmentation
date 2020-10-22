@@ -2,7 +2,7 @@ import numpy as np
 from glob import glob
 import os
 from sklearn.utils import shuffle
-from PIL import Image, ImageStat
+from PIL import Image, ImageStat, ImageDraw, ImageFont
 import tensorflow as tf
 import horovod.tensorflow as hvd
 import pdb
@@ -14,7 +14,19 @@ import time
 import difflib
 import itertools
 from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
-from utils import rank00
+import logging
+import hashlib
+import io
+import json
+import multiprocessing
+import os
+import math
+import xml.etree.ElementTree as ET
+
+import numpy as np
+import PIL.Image
+
+
 # sys.path.insert(0,'~/SURF-deeplab/TRAINING/xml-pathology')
 # from xmlpathology.batchgenerator.utils import create_data_source
 # from xmlpathology.batchgenerator.generators import BatchGenerator
@@ -22,6 +34,11 @@ from utils import rank00
 # from xmlpathology.batchgenerator.core.samplers import SegmentationLabelSampler, Sampler
 # from xmlpathology.batchgenerator.callbacks import OneHotEncoding, FitData
 
+def rank00():
+    if hvd.rank() == 0 and hvd.local_rank() == 0:
+        return True
+
+# PyVips Conversion
 format_to_dtype = {
     'uchar': np.uint8,
     'char': np.int8,
@@ -34,11 +51,26 @@ format_to_dtype = {
     'complex': np.complex64,
     'dpcomplex': np.complex128,
 }
+dtype_to_format = {
+    'uint8': 'uchar',
+    'int8': 'char',
+    'uint16': 'ushort',
+    'int16': 'short',
+    'uint32': 'uint',
+    'int32': 'int',
+    'float32': 'float',
+    'float64': 'double',
+    'complex64': 'complex',
+    'complex128': 'dpcomplex',
+}
 
+    
 
+        
+        
 class PreProcess():
-    def __init__(self):
-        pass
+    def __init__(self,opts):
+        self.opts = opts
     
     def _load(image,mask,augment=False):
         if augment:
@@ -52,11 +84,22 @@ class PreProcess():
             img = tf.math.subtract(tf.math.multiply(2.0, img), 1.0)
             
         mask = tf.clip_by_value(tf.cast(mask,tf.int32), 0, 1)
-
+        
         return img,mask
     
+    def tfdataset(self,x,y):
+        dataset = tf.data.Dataset.from_tensor_slices((x,y))
+        dataset = dataset.apply(tf.data.experimental.map_and_batch(
+            map_func=lambda im, msk: PreProcess._load(im,msk,augment=False),
+            batch_size=self.opts.batch_size,
+            num_parallel_calls=tf.data.experimental.AUTOTUNE,
+            drop_remainder=True))
+        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+        
+        return dataset
     
-class RadSampler(PreProcess):
+    
+class RadSampler():
     """
 
 
@@ -186,9 +229,7 @@ class RadSampler(PreProcess):
         return dataset
             
                     
-
-
-class SurfSampler(PreProcess):
+class SurfSampler(tf.keras.utils.Sequence):
     """
     - This sampler samples patches from whole slide images  in several formats, from
     which it samples the patch on the WSI and the same patch on the WSI mask.
@@ -241,15 +282,25 @@ class SurfSampler(PreProcess):
     --log_image_path logs/test/
 
     """
-    def __init__(self, opts):
+    def __init__(self, opts, training=True, evaluate=False):
         super().__init__()
         
-        slides = glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}'))
-        labels = glob(os.path.join(opts.label_path,f'*.{opts.label_format}'))
+        slides = sorted(glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}')))
+        labels = sorted(glob(os.path.join(opts.label_path,f'*.{opts.label_format}')))
+        
         
         # Match labels to slides (all slides must have labels)
-        self.train_paths = shuffle([(difflib.get_close_matches(label.split('/')[-1],slides,n=1,cutoff=0.1)[0],label) for label in labels])
-                             
+        self.train_paths = shuffle([(difflib.get_close_matches(label.split('/')[-1].split('.')[-2],slides,n=1,cutoff=0.1)[0],label) for label in labels])
+        
+        
+        # Custom path removal for Camelyon 17
+        if opts.slide_path.find('CAMELYON17') > 0:
+            _del = []
+            for data in self.train_paths:
+                if data[0].split('/')[-1].split('.')[-2] != data[1].split('/')[-1].split('.')[-2]:
+                    _del.append(data)
+            
+            self.train_paths = [data for data in self.train_paths if data not in _del]
 
         if rank00(): print(f"\nFound {len(self.train_paths)} slides")
         if opts.valid_slide_path:
@@ -270,22 +321,30 @@ class SurfSampler(PreProcess):
         self.contours_train = []
         self.contours_valid = []
         self.contours_tumor = []
+        self.pixelpoints    = []
+        self.save_data      = []
         self.level_used = opts.bb_downsample
         self.mag_factor = pow(2, self.level_used)
         self.patch_size = opts.img_size
         self.tumor_ratio = opts.batch_tumor_ratio
         self.log_image_path = opts.log_dir
         self.slide_format = opts.slide_format
-        self.evaluate = opts.evaluate
+        self.evaluate = evaluate
         self.cnt = 0
+        self.train = training
+        self.verbose = opts.verbose
         
         # Make sure that every process has at least 1 WSI
-        assert hvd.size() < len(self.valid_paths), "WARNING: {hvd.size()} workers will share {len(self.valid_paths)} images"
+        assert hvd.size() <= len(self.valid_paths), "WARNING: {hvd.size()} workers will share {len(self.valid_paths)} images"
         testims = len(self.valid_paths)
         ims_per_worker = testims // hvd.size()
         self.valid_paths = self.valid_paths[hvd.rank()*ims_per_worker:(hvd.rank()+1)*ims_per_worker]
+        self.valid_paths = [('/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor/Tumor_055.tif',
+                             '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask/Tumor_055_Mask.tif')]
         
-        
+    def __len__(self):
+        return math.ceil(len(self.train_paths) / self.batch_size)
+    
     def get_bb(self):
         hsv = cv2.cvtColor(self.rgb_image, cv2.COLOR_BGR2HSV)
         lower_red = np.array([20, 20, 20])
@@ -303,7 +362,7 @@ class SurfSampler(PreProcess):
         for i, contour in enumerate(contours):
             # sometimes the bounding boxes annotate a very small area not in the ROI
             if contour.shape[0] < 10:
-                if rank00(): print(f"Deleted too small contour from {self.cur_wsi_path}")
+                if rank00() and self.verbose == 'debug': print(f"Deleted too small contour from {self.cur_wsi_path}")
                 del contours[i]
                 _offset+=1
                 i=i-_offset
@@ -317,6 +376,7 @@ class SurfSampler(PreProcess):
         # self.mask.close()
         
         return contours
+    
     
     def trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image):
         
@@ -349,26 +409,38 @@ class SurfSampler(PreProcess):
                     # discard based on stddev
                     if k < 5: 
                         if (sum(_std[:3]) / len(_std[:3])) < 15:
-                            print("Discard based on stddev")
+                            if self.verbose == 'debug':
+                                print("Discard based on stddev")
                             patch = []
                 except Exception as e:
                     print("Exception in extracting patch: ", e)
-                    patch = []
+                    patch = np.random.normal(size=(self.patch_size,self.patch_size))
 
-            if rank00(): print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
+            if rank00() and self.verbose == 'debug': print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
             numpy_batch_patch.append(patch)
         
             mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-            numpy_batch_mask.append(np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8))
-            
+            mask  = np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+            numpy_batch_mask.append(mask)
+            x,y,imsize = x_topleft, y_topleft, self.patch_size
+            coords = list(itertools.product(list(range(y,y+imsize)),list(range(x,x+imsize))))
+
             try:
                 # Draw the rectangles of sampled images on downsampled rgb
                 save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
-                save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                       (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
-                                                       (0,255,0), 2)
+                # save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
+                #                                        (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                #                                        (255,255,255), 2)
             except:
                 pass
+            
+            self.save_data.append(({   'patch'      : patch,
+                                       'image'      : save_image,
+                                       'file_name'  : self.cur_wsi_path[0],
+                                       'coords'     : coords,
+                                       'mask'       : mask,
+                                       'tumor'      : 1}))
+                    
         
         for i in range(int(self.batch_size * (self.tumor_ratio))):
             
@@ -403,58 +475,67 @@ class SurfSampler(PreProcess):
                     # discard based on stddev
                     if k < 5: 
                         if (sum(_std[:3]) / len(_std[:3])) < 15:
-                            print("Discard based on stddev")
+                            if self.verbose == 'debug':
+                                print("Discard based on stddev")
                             patch = []
                     
                 except Exception as e:
                     print("Exception in extracting patch: ",e)
                     patch = []
 
-            if rank00(): print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
+            # if rank00(): print(f"Sample {self.patch_size} x {self.patch_size} from contours = {h}" + f" by {w} in {time.time() -t1} seconds")
             numpy_batch_patch.append(patch)
-            mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-            numpy_batch_mask.append(np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8))
-        
+            
+            msk_downsample = 1
+            # mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
+            mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size//msk_downsample, self.patch_size//msk_downsample)
+            # mask  = np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+            mask  = np.ndarray((self.patch_size//msk_downsample,self.patch_size//msk_downsample,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+
+            numpy_batch_mask.append(mask)
+            x,y,imsize = x_topleft, y_topleft, self.patch_size
+            coords = list(itertools.product(list(range(y,y+imsize)),list(range(x,x+imsize))))
+
             try:
                 # Draw the rectangles of sampled images on downsampled rgb
                 save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
-                save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                       (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
-                                                       (0,255,0), 2)
+                # save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
+                #                                        (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                #                                        (255,255,255), -1)
             except:
                 pass
+            
+            self.save_data.append(({   'patch'      : patch,
+                                       'image'      : save_image,
+                                       'file_name'  : self.cur_wsi_path[0],
+                                       'coords'     : coords,
+                                       'mask'       : mask,
+                                       'tumor'      : 1}))
+
 
         try:
             Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
         except:
             pass
-        dataset = tf.data.Dataset.from_tensor_slices((np.array(numpy_batch_patch),np.array(numpy_batch_mask)))
-        dataset = dataset.apply(
-        tf.data.experimental.map_and_batch(
-            map_func=lambda im, msk: SurfSampler._load(im,msk,augment=False),
-            batch_size=self.batch_size,
-            num_parallel_calls=tf.data.experimental.AUTOTUNE,
-            drop_remainder=True))
-        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-        # Cartesian product of y_topleft+patch_size, x_topleft+patch_size, to log possible start coordinates
-        x,y,imsize = x_topleft, y_topleft, self.patch_size
-        past_coords = list(itertools.product(list(range(y,y+imsize)),list(range(x,x+imsize))))
-        past_wsi = None
-        return dataset, past_coords, past_wsi, save_image
+               
+        return np.array(numpy_batch_patch),np.array(numpy_batch_mask)
     
     
-    def tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image,pixelpoints,past_wsi):
+    def tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image):
+        
         
         for i in range(int(self.batch_size)):
-            
-            bc= self.contours[self.cnt]
+            if not len(self.contours):
+                print(f"WARNING: WSI {self.cur_wsi_path[0]} has no contours")
+                pass
+            bc = self.contours[self.cnt]
             msk = np.zeros(self.rgb_image.shape,np.uint8)
             x_topleft,y_topleft,width,height = cv2.boundingRect(bc)
             cv2.drawContours(msk,[bc],-1,(255),-1)
             # First gather all posssible pixelpoints, then, drop past_coords
-            if not len(pixelpoints):
-                pixelpoints = np.transpose(np.nonzero(msk))
-                pixelpoints = pixelpoints[...,:2] * self.mag_factor
+            if not len(self.pixelpoints):
+                self.pixelpoints = np.transpose(np.nonzero(msk))
+                self.pixelpoints = self.pixelpoints[...,:2] * self.mag_factor
             
             b_x_start = bc[...,0].min() * self.mag_factor
             b_y_start = bc[...,1].min() * self.mag_factor
@@ -464,88 +545,166 @@ class SurfSampler(PreProcess):
             w = b_x_end - b_x_start
         
             patch = []
-            past_coords = []
-
+            
+    
             while not len(patch):
-                coords = random.choice(pixelpoints)
+                coords = random.choice(self.pixelpoints)
                 x_topleft = coords[1]
                 y_topleft = coords[0]
-                t1 = time.time()
                 try:
+                    
                     patch = img_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
                     patch = np.ndarray((self.patch_size,self.patch_size,image.get('bands')),buffer=patch, dtype=np.uint8)[...,:3]
                 except Exception as e:
                     print("Exception in extracting patch: ", e)
                     patch = []
-
-            if rank00(): print(f"\n\nTest Sample {self.patch_size} x {self.patch_size} from ROI = {h}" + f" by {w} in {time.time() -t1} seconds\n\n")
+    
+            # if rank00(): print(f"\n\nTest Sample {self.patch_size} x {self.patch_size} from ROI = {h}" + f" by {w} in {time.time() -t1} seconds\n\n")
             numpy_batch_patch.append(patch)
-        
-            mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-            numpy_batch_mask.append(np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8))
+            msk_downsample = 1
+            
+            # mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
+            mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size//msk_downsample, self.patch_size//msk_downsample)
+            # mask  = np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+            mask  = np.ndarray((self.patch_size//msk_downsample,self.patch_size//msk_downsample,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+
+            numpy_batch_mask.append(mask)
             
             try:
                 # Draw the rectangles of sampled images on downsampled rgb
                 save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
                 save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                       (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
-                                                       (0,255,0), 2)
+                                                        (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                                                        (255,255,255), -1)
             except:
                 pass
-
+            
             x,y,imsize = x_topleft, y_topleft, self.patch_size
             # Get Cartesian product so all patch coordinates are dropped from pixelpoints
-            past_coords.extend(list(itertools.product(list(range(y,y+imsize)),list(range(x,x+imsize)))))
+            coords = list(itertools.product(list(range(y,y+imsize)),list(range(x,x+imsize))))
+
+            
+            self.save_data.append(({'patch'      : patch,
+                                    'image'      : save_image,
+                                    'file_name'  : self.cur_wsi_path[0],
+                                    'coords'     : coords,
+                                    'mask'       : mask,
+                                    'tumor'      : 1*(np.count_nonzero(mask) > 0)}))
             
             # Remove past coordinates from possible pixelpoints
-            mask_pixel_in_past_coords=np.isin(pixelpoints,past_coords,invert=True)
+            mask_pixel_in_past_coords=np.isin(self.pixelpoints,coords,invert=True)
             pixel_not_in_past_coords=np.nonzero(mask_pixel_in_past_coords)
             row,co = pixel_not_in_past_coords[0],pixel_not_in_past_coords[1]
             row=row[co>0]
-            pixelpoints_new = pixelpoints[row,:]
+            self.pixelpoints = self.pixelpoints[row,:]
  
-            print(f"\n\nTest sampling at ROI {self.cnt} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(pixelpoints_new) // self.patch_size} iter to go.\n\n")
-           
-            # If past all patches of contour, get next contour
-            if len(pixelpoints) < 10:
-                self.cnt +=1
-                if self.cnt == len(self.contours): 
-                    past_wsi.append(self.cur_wsi_path)
-                    self.cnt = 0
-        
-        
+        print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // (self.batch_size*self.patch_size)} iter to go.\n\n")
+            
+        # If past all patches of contour, get next contour
+        if len(self.pixelpoints) <= self.patch_size:
+        # if 1: # for debugging
+            self.cnt +=1
+            self.pixelpoints = []
+            if self.cnt == len(self.contours): 
+                self.wsi_idx +=1
+                self.cnt = 0
+             
         try:
             Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
         except:
             pass
-        dataset = tf.data.Dataset.from_tensor_slices((np.array(numpy_batch_patch),np.array(numpy_batch_mask)))
-        dataset = dataset.apply(
-        tf.data.experimental.map_and_batch(
-            map_func=lambda im, msk: SurfSampler._load(im,msk,augment=False),
-            batch_size=self.batch_size,
-            num_parallel_calls=tf.data.experimental.AUTOTUNE,
-            drop_remainder=True))
-        dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
+
         
-        return dataset, past_coords, past_wsi, save_image, pixelpoints_new
+        return np.array(numpy_batch_patch),np.array(numpy_batch_mask) 
     
+        
+    def parse_xml(self,label=None):
+        """
+            make the list of contour from xml(annotation file)
+            input (CAMELYON17):
+                
+        <?xml version="1.0"?>
+        <ASAP_Annotations>
+        	<Annotations>
+        		<Annotation Name="Annotation 0" Type="Polygon" PartOfGroup="metastases" Color="#F4FA58">
+        			<Coordinates>
+        				<Coordinate Order="0" X="12711.2998" Y="88778.1016" /> 
+                        .
+                        .
+                        .
+        			</Coordinates>
+        		</Annotation>
+        	</Annotations>
+        	<AnnotationGroups>
+        		<Group Name="metastases" PartOfGroup="None" Color="#ff0000">
+        			<Attributes />
+        		</Group>
+        	</AnnotationGroups>
+        </ASAP_Annotations>
+            
+            fn_xml = file name of xml file
+            downsample = desired resolution
+            var:
+            li_li_point = list of tumors
+            li_point = the coordinates([x,y]) of a tumor
+            return  list of list (2D array list)
+        """
+
+        li_li_point = []
+        tree = ET.parse(label)
+        
+        for ASAP_Annotations in tree.getiterator():
+            for i_1, Annotations in enumerate(ASAP_Annotations):
+                for i_2, Annotation in enumerate(Annotations):
+                    for i_3, Coordinates in enumerate(Annotation):
+                        li_point = []
+                        for i_4, Coordinate in enumerate(Coordinates):
+                            x_0 = float(Coordinate.attrib['X'])
+                            y_0 = float(Coordinate.attrib['Y'])
+                            li_point.append((x_0, y_0))
+                        if len(li_point):
+                            li_li_point.append(li_point)
+
+
+        # Make opencv contours
+        contours = []
+        for li_point in li_li_point:
+            li_point_int = [[int(round(point[0])), int(round(point[1]))] for point in li_point]
+            contour = np.array(li_point_int, dtype=np.int32)
+            contours.append(contour)
+
+        # Make lvl 0 mask
+        mask = np.zeros(self.wsi.dimensions,dtype=np.uint8)
+        for idx,contour in enumerate(contours):
+            cv2.fillPoly(mask, pts =[contour], color=(255))
+        
+        return mask
     
-    def get_next(self,train=True,pixelpoints=[],past_wsi=[]):
+    def __getitem__(self,idx):
         
         # Every new iteration, new sample
-        if train:
+        cnt = 0
+        if self.train:
             while not self.contours_train or not self.contours_tumor:
-    
-                self.cur_wsi_path = random.choice(self.train_paths)
-                if rank00(): print(f"Opening {self.cur_wsi_path}...")
+                if cnt > 5: idx+=1
+                self.cur_wsi_path = self.train_paths[idx]
+                if rank00() and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
                 
                 self.wsi  = OpenSlide(self.cur_wsi_path[0])
-                self.mask = OpenSlide(self.cur_wsi_path[1])
+                
+                if self.cur_wsi_path[0].find('CAMELYON17') > 0:
+                    self.mask =  SurfSampler.parse_xml(self,label=self.cur_wsi_path[1])
+                else:
+                    self.mask = OpenSlide(self.cur_wsi_path[1])
                 
                 self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
                 self.rgb_image = np.array(self.rgb_image_pil)
-                self.mask_image = np.array(self.mask_pil)
+                if self.cur_wsi_path[0].find('CAMELYON17') > 0:
+                    self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
+                else:
+                    self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                    self.mask_image = np.array(self.mask_pil)
+                    
                 self.bounding_boxes_train = self.get_bb()
                 self.contours_train = self.get_bb()
                 self.contours = self.contours_train
@@ -553,31 +712,35 @@ class SurfSampler(PreProcess):
                 # Get contours of tumor
                 contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 self.contours_tumor = contours
+                cnt += 1
             
-        
         else:
             while not self.contours_valid or not self.contours_tumor:
-                
+                if cnt > 5: idx+=1
                 # Drop past WSI's
-                if past_wsi:
-                    self.valid_paths = [x for x in self.valid_paths if x not in past_wsi]
-                    if rank00(): print(f"Evaluated {len(past_wsi)*hvd.size()} / {len(past_wsi)*hvd.size() + len(self.valid_paths)*hvd.size()} test WSI's.")
-                # If no paths left, pass done
-                try:
-                    self.cur_wsi_path = self.valid_paths[0]
-                    done=0
-                except:
-                    done=1
-                if rank00(): print(f"Opening {self.cur_wsi_path}...")
+                self.wsi_idx = idx
+                if self.wsi_idx:
+                    self.valid_paths = self.valid_paths[self.wsi_idx:]
+                    if rank00(): print(f"Evaluated {idx*hvd.size()} / {idx*hvd.size() + len(self.valid_paths)*hvd.size()} test WSI's.")
+
+                self.cur_wsi_path = self.valid_paths[0]
+                if rank00() and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
                 
                 self.wsi  = OpenSlide(self.cur_wsi_path[0])
-                self.mask = OpenSlide(self.cur_wsi_path[1])
+                if self.cur_wsi_path[0].find('CAMELYON17') > 0:
+                    self.mask =  SurfSampler.parse_xml(self,label=self.cur_wsi_path[1])
+                else:
+                    self.mask = OpenSlide(self.cur_wsi_path[1])
+                
                 
                 
                 self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
                 self.rgb_image = np.array(self.rgb_image_pil)
-                self.mask_image = np.array(self.mask_pil)
+                if self.cur_wsi_path[0].find('CAMELYON17') > 0:
+                    self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
+                else:
+                    self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                    self.mask_image = np.array(self.mask_pil)
                 self.bounding_boxes_valid = self.get_bb()
                 
             
@@ -589,11 +752,14 @@ class SurfSampler(PreProcess):
                 contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                 
                 self.contours_tumor = contours if contours else self.contours
-                
-
-
+                cnt += 1
+        
         image = pyvips.Image.new_from_file(self.cur_wsi_path[0])
-        mask_image  = pyvips.Image.new_from_file(self.cur_wsi_path[1])
+        if self.cur_wsi_path[0].find('CAMELYON17') > 0:
+            mask_image  = pyvips.Image.new_from_memory(self.mask,self.mask.shape[0],self.mask.shape[1],1,dtype_to_format[str(self.mask.dtype)])
+        else:
+            mask_image  = pyvips.Image.new_from_file(self.cur_wsi_path[1])
+        
         img_reg = pyvips.Region.new(image)
         mask_reg = pyvips.Region.new(mask_image)
         
@@ -609,24 +775,16 @@ class SurfSampler(PreProcess):
             save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
         
         if self.evaluate:
-            dataset,past_coords,past_wsi,save_image,pixelpoints_new = SurfSampler.tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image,pixelpoints,past_wsi)
+            patches, masks = SurfSampler.tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
         else:
-            dataset,past_coords,past_wsi,save_image                 = SurfSampler.trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
+            patches, masks = SurfSampler.trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
             
         self.contours_train = []
         self.contours_valid = []
         self.contours_tumor = []
-        save_data=dict()
-        save_data['image']=save_image
-        save_data['wsi']=self.cur_wsi_path
-        if self.evaluate:
-            return dataset, past_coords, past_wsi,save_data,pixelpoints_new,done
-        else:
-            return dataset, past_coords, past_wsi,save_data
-
-
-
-
+        
+        # print(f"Got item with shape {patches.shape},{masks.shape}")
+        return patches.astype('float')/255, masks.astype('float')/255
 
 
 
