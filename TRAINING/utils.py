@@ -3,17 +3,18 @@ import horovod.tensorflow as hvd
 import pdb
 import psutil
 import humanize
+import numpy as np
+import time
 import GPUtil as GPU
 # from tensorflow.keras.mixed_precision import experimental as mixed_precision
 import sys
 import os
 import pdb
+
 sys.path.insert(0, os.path.join(os.getcwd(), 'keras-deeplab-v3-plus-master'))
 sys.path.insert(0, os.path.join(os.getcwd(), 'keras-efficientdet'))
 from model import Deeplabv3
 from efficientdet_keras import EfficientDetNet
-import numpy as np
-import time
 
 # tf.debugging.set_log_device_placement(True)
 
@@ -22,23 +23,27 @@ def rank00():
     if hvd.rank() == 0 and hvd.local_rank() == 0:
         return True
 
+
 def printm():
-  GPUs = GPU.getGPUs()
-  print(f"Found {len(GPUs)}")
-  process = psutil.Process(os.getpid())
-  print(f"Gen RAM Free: {humanize.naturalsize( psutil.virtual_memory().available)}", " I Proc size: {humanize.naturalsize( process.memory_info().rss)}")
-  for i,gpu in enumerate(GPUs):
-    print(f"GPU:{i} RAM Free: {gpu.memoryFree}MB | Used: {gpu.memoryUsed}MB | Util {gpu.memoryUtil*100}% | Total {gpu.memoryTotal}MB")
+    GPUs = GPU.getGPUs()
+    print(f"Found {len(GPUs)}")
+    process = psutil.Process(os.getpid())
+    print(f"Gen RAM Free: {humanize.naturalsize(psutil.virtual_memory().available)}",
+          " I Proc size: {humanize.naturalsize( process.memory_info().rss)}")
+    for i, gpu in enumerate(GPUs):
+        print(
+            f"GPU:{i} RAM Free: {gpu.memoryFree}MB | Used: {gpu.memoryUsed}MB | Util {gpu.memoryUtil * 100}% | Total {gpu.memoryTotal}MB")
+
 
 def mindevice():
     GPUs = GPU.getGPUs()
     # memfree = [(gpu.memoryUsed, gpu) for GPUs ]
     return 1
-    
-    
+
+
 def init(opts):
     """ Run initialisation options"""
-    
+
     if opts.horovod:
         hvd.init()
 
@@ -61,7 +66,9 @@ def init(opts):
         else:
             os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
-    if rank00(): print("Past hvd.init()")
+    if rank00():
+        print("Past hvd.init()")
+
 
 def cosine_decay_with_warmup(global_step,
                              learning_rate_base,
@@ -95,7 +102,7 @@ def cosine_decay_with_warmup(global_step,
       ValueError: if warmup_learning_rate is larger than learning_rate_base,
         or if warmup_steps is larger than total_steps.
     """
-    if global_step > 0 : 
+    if global_step > 0:
         global_step = global_step % total_steps
     if total_steps < warmup_steps:
         raise ValueError('total_steps must be larger or equal to '
@@ -117,54 +124,74 @@ def cosine_decay_with_warmup(global_step,
                                  learning_rate)
     return np.where(global_step > total_steps, 0.0, learning_rate)
 
+
+def cyclic_learning_rate(global_step, base_lr=0.001, max_lr=0.006, step_size=2000., gamma=1):
+
+    def scale_fn(step):
+        return gamma ** step
+
+    cycle = np.floor(1 + global_step / (2 * step_size))
+    x = np.abs(global_step / step_size - 2 * cycle + 1)
+
+    return base_lr + (max_lr - base_lr) * np.maximum(0, (1 - x)) * scale_fn(global_step)
+
+
 def get_model_and_optimizer(opts):
     """ Load the model and optimizer """
-    
+
     if opts.evaluate:
         model = tf.keras.models.load_model(opts.model_dir)
     else:
-        if opts.model =='effdetd0':
-            model = EfficientDetNet('efficientdet-d0',opts=opts)
+        if opts.model == 'effdetd0':
+            model = EfficientDetNet('efficientdet-d0', opts=opts)
         elif opts.model == 'effdetd4':
-            model = EfficientDetNet('efficientdet-d4',opts=opts)
+            model = EfficientDetNet('efficientdet-d4', opts=opts)
         elif opts.model == 'deeplab':
-            model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception',opts=opts)
-        
+            model = Deeplabv3(input_shape=(opts.img_size, opts.img_size, 3), classes=2, backbone='xception', opts=opts)
 
     if opts.horovod:
         # Horovod: (optional) compression algorithm.
         compression = hvd.Compression.fp16 if opts.fp16_allreduce else hvd.Compression.none
 
+        if opts.optimizer == 'Adam':
+            opt = tf.optimizers.Adam(opts.base_lr * hvd.size(), epsilon=opts.epsilon)
+        elif opts.optimizer == 'SGD':
+            opt = tf.optimizers.SGD(opts.base_lr * hvd.size(), opts.momentum, opts.nesterov)
+        else:
+            raise NotImplementedError('Only SGD and Adam are supported for now')
 
-        opt = tf.optimizers.Adam(0.0001 * hvd.local_size(), epsilon=1e-7)
-        
         # opt = mixed_precision.LossScaleOptimizer(opt, loss_scale='dynamic')
 
         # Horovod: add Horovod DistributedOptimizer.
         # opt = hvd.DistributedOptimizer(opt, backward_passes_per_step=5, op=hvd.Adasum)
 
     else:
-        opt = tf.optimizers.Adam(0.001, epsilon=1e-1)
+        if opts.optimizer == 'Adam':
+            opt = tf.optimizers.Adam(opts.base_lr, epsilon=opts.epsilon)
+        elif opts.optimizer == 'SGD':
+            opt = tf.optimizers.SGD(opts.base_lr, opts.momentum, opts.nesterov)
+        else:
+            raise NotImplementedError('Only SGD and Adam are supported for now')
+        compression = None
 
-    if rank00(): print("Compiling model...")
-    
+    if rank00():
+        print("Compiling model...")
+
     if opts.model.find('effdet') != -1:
-        model.layers[0].build(input_shape=(None,opts.img_size, opts.img_size, 3))
+        model.layers[0].build(input_shape=(None, opts.img_size, opts.img_size, 3))
         for layer in model.layers[0].layers:
             for var in layer.variables:
-                print(var.name,var.shape,var.device)
-                
-    model.build(input_shape=(None,opts.img_size, opts.img_size, 3))
+                print(var.name, var.shape, var.device)
 
-    if rank00(): 
+    model.build(input_shape=(None, opts.img_size, opts.img_size, 3))
+
+    if rank00():
         model.summary()
         # if opts.model == 'deeplab':
         #     for layer in model.layers: print(layer.name,layer.dtype)
         # else:
         #     for layer in model.layers[0].layers: print(layer.name,layer.dtype)
-    
 
-    
     return model, opt, compression
 
 
@@ -176,12 +203,12 @@ def filter_fn(image, mask):
 def setup_logger(opts):
     """ Setup the tensorboard writer """
     # Sets up a timestamped log directory.
-    
-    logdir = f'{opts.log_dir}_{str(opts.img_size)}' 
+
+    logdir = f'{opts.log_dir}_{str(opts.img_size)}'
     if rank00():
         if not os.path.exists(logdir):
             os.makedirs(logdir)
-    
+
     if opts.horovod:
         # Creates a file writer for the log directory.
         if rank00():
@@ -191,15 +218,15 @@ def setup_logger(opts):
     else:
         # If running without horovod
         file_writer = tf.summary.create_file_writer(logdir)
-    
+
     if opts.evaluate:
-        if not os.path.exists(os.path.join(opts.log_dir,'test_masks')):
-            os.makedirs(os.path.join(opts.log_dir,'test_masks'))
-        
+        if not os.path.exists(os.path.join(opts.log_dir, 'test_masks')):
+            os.makedirs(os.path.join(opts.log_dir, 'test_masks'))
+
     return file_writer
 
 
-def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,optimizer,steptime):
+def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics, optimizer, steptime):
     """ Log to file writer during training"""
     if hvd.local_rank() == 0 and hvd.rank() == 0:
 
@@ -210,10 +237,10 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
         # train_auc.append(compute_auc(y[:, :, :, 0], pred))
 
         # Training Prints
-        tf.print('\nStep', step, '/', opts.num_steps, 
+        tf.print('\nStep', step, '/', opts.num_steps,
                  ': loss', loss,
-                 ': miou', compute_miou.result(), 
-                 ': auc', compute_auc.result(),'\n')
+                 ': miou', compute_miou.result(),
+                 ': auc', compute_auc.result(), '\n')
         with file_writer.as_default():
 
             image = tf.cast(255 * x, tf.uint8)
@@ -225,14 +252,13 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
             tf.summary.image('Train_prediction', summary_predictions, step=tf.cast(step, tf.int64),
                              max_outputs=2)
             tf.summary.scalar('Training Loss', loss, step=tf.cast(step, tf.int64))
-
             tf.summary.scalar('Training mIoU', sum(train_miou) / len(train_miou),
                               step=tf.cast(step, tf.int64))
             # tf.summary.scalar('Training AUC', sum(train_auc) / len(train_auc), step=tf.cast(step, tf.int64))
 
             # Logging the optimizer's hyperparameters
             for key in optimizer._hyper:
-                tf.summary.scalar(key,optimizer._hyper[key].numpy(),step=tf.cast(step, tf.int64))
+                tf.summary.scalar(key, optimizer._hyper[key].numpy(), step=tf.cast(step, tf.int64))
             # Extract weights and filter out None elemens for aspp without weights
             if opts.model == 'deeplab':
                 weights = filter(None, [x.weights for x in model.layers])
@@ -246,23 +272,25 @@ def log_training_step(opts, model, file_writer, x, y, loss, pred, step, metrics,
     return
 
 
-def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, val_miou):#, val_auc):
+def log_validation_step(opts, file_writer, image, mask, step, pred, val_loss, val_miou):  # , val_auc):
     """ Log to file writer after a validation step """
     if hvd.local_rank() == 0:
-
         with file_writer.as_default():
-            tf.summary.image(f'Validation image of worker {hvd.rank()}', image, step=tf.cast(step, tf.int64), max_outputs=5)
-            tf.summary.image(f'Validation mask of worker {hvd.rank()}', mask, step=tf.cast(step, tf.int64), max_outputs=5)
-            tf.summary.image(f'Validation_prediction of worker {hvd.rank()}', pred, step=tf.cast(step, tf.int64),max_outputs=2)
+            tf.summary.image(f'Validation image of worker {hvd.rank()}', image, step=tf.cast(step, tf.int64),
+                             max_outputs=5)
+            tf.summary.image(f'Validation mask of worker {hvd.rank()}', mask, step=tf.cast(step, tf.int64),
+                             max_outputs=5)
+            tf.summary.image(f'Validation_prediction of worker {hvd.rank()}', pred, step=tf.cast(step, tf.int64),
+                             max_outputs=2)
             tf.summary.scalar(f'Validation Loss of worker {hvd.rank()}', val_loss, step=tf.cast(step, tf.int64))
             tf.summary.scalar(f'Validation Mean IoU of worker {hvd.rank()}', val_miou, step=tf.cast(step, tf.int64))
             # tf.summary.scalar('Validation AUC', val_auc, step=tf.cast(step, tf.int64))
 
         file_writer.flush()
 
-        tf.print('Validation at step', step, 
+        tf.print('Validation at step', step,
                  ': validation loss', val_loss,
-                 ': validation miou', val_miou)#, 
-                 # ': validation auc', val_auc)
+                 ': validation miou', val_miou)  # ,
+        # ': validation auc', val_auc)
 
     return
