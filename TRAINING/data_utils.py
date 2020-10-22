@@ -97,7 +97,8 @@ class PreProcess():
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
 
         return dataset
-
+        self.valid_paths = [('/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor/Tumor_055.tif',
+                             '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask/Tumor_055_Mask.tif')]
 
 class RadSampler():
     """
@@ -339,8 +340,8 @@ class SurfSampler(tf.keras.utils.Sequence):
         testims = len(self.valid_paths)
         ims_per_worker = testims // hvd.size()
         self.valid_paths = self.valid_paths[hvd.rank()*ims_per_worker:(hvd.rank()+1)*ims_per_worker]
-        self.valid_paths = [('/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor/Tumor_055.tif',
-                             '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask/Tumor_055_Mask.tif')]
+        #self.valid_paths = [('/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor/Tumor_055.tif',
+        #                     '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask/Tumor_055_Mask.tif')]
 
     def __len__(self):
         return math.ceil(len(self.train_paths) / self.batch_size)
@@ -365,7 +366,8 @@ class SurfSampler(tf.keras.utils.Sequence):
                 if rank00() and self.verbose == 'debug': print(f"Deleted too small contour from {self.cur_wsi_path}")
                 del contours[i]
                 _offset += 1
-                i = i - _offset
+                i = i - _offset        self.valid_paths = [('/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor/Tumor_055.tif',
+                             '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask/Tumor_055_Mask.tif')]
         # contours_rgb_image_array = np.array(self.rgb_image)
         # line_color = (255, 150, 150)
         # cv2.drawContours(contours_rgb_image_array, contours, -1, line_color, 1)
