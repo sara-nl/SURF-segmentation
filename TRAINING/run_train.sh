@@ -1,18 +1,75 @@
 #!/bin/bash
 #SBATCH -N 1
+<<<<<<< HEAD
 #SBATCH -t 23:00:00
 #SBATCH -p gpu_titanrtx
 #SBATCH -J cyclic_1node_1024
 
 source init.sh
 
+=======
+#SBATCH -t 12:00:00
+#SBATCH -p gpu_titanrtx_shared
+#SBATCH -o R-1024tnode1dip_1024-test.out
+#SBATCH -e R-1024tnode1dip_1024-test.err
+
+
+np=$(($SLURM_NNODES * 4))
+
+
+module purge
+module load 2019
+module load 2020
+module load Python/3.8.2-GCCcore-9.3.0
+module load OpenMPI/4.0.3-GCC-9.3.0
+module load cuDNN/7.6.5.32-CUDA-10.1.243
+module load NCCL/2.5.6-CUDA-10.1.243
+module unload GCCcore
+module unload ncurses
+module load CMake/3.11.4-GCCcore-8.3.0
+source ~/virtualenvs/openslide-py38/bin/activate
+pip install tensorflow==2.3.0
+#pip install tensorboard==2.3.0
+pip install scikit-learn 
+pip install Pillow 
+pip install tqdm 
+pip install six
+pip install opencv-python
+pip install openslide-python
+pip install pyvips
+export HOROVOD_CUDA_HOME=$CUDA_HOME
+export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
+export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
+export HOROVOD_GPU_ALLREDUCE=NCCL
+#export HOROVOD_WITH_MPI=1
+#export HOROVOD_WITHOUT_MPI=1
+export HOROVOD_WITHOUT_GLOO=1
+export HOROVOD_GPU_BROADCAST=NCCL
+export HOROVOD_NCCL_HOME=$EBROOTNCCL
+export HOROVOD_WITH_TENSORFLOW=1
+export PATH=/home/$USER/virtualenvs/openslide-py38/bin:$PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide-py38/lib64:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/$USER/virtualenvs/openslide-py38/lib:$LD_LIBRARY_PATH
+export CPATH=/home/$USER/virtualenvs/openslide-py38/include:$CPATH
+# Export MPICC
+export MPICC=mpicc
+export MPICXX=mpicpc
+export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 export TF_GPU_THREAD_MODE=gpu_private
 
-# r29n4:4,r29n5:4,r33n6:4,r34n1:4,r34n2:4,r34n3:4,r34n4:4,r34n5:4
+hosts=""
+for host in $(scontrol show hostnames);
+do
+	hosts="$hosts$host:4,"
+done
+hosts="${hosts%?}"
+echo "HOSTS: $hosts"
 #--mpi-args="--map-by ppr:4:node" \
 #--evaluate \
 #--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256twonode/saved_model \
 
+<<<<<<< HEAD
 horovodrun -np 4 \
 --mpi-args="--map-by ppr:4:node" \
 --hosts localhost:4 \
@@ -42,22 +99,30 @@ exit
 
 
 horovodrun -np 8 \
+=======
+horovodrun -np 1 \
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 --mpi-args="--map-by ppr:4:node" \
---hosts r28n1:4,r28n2:4 \
+--hosts $hosts \
 python -u train.py \
---img_size 256 \
+--img_size 512 \
 --horovod \
 --model deeplab \
 --batch_size 4 \
 --fp16_allreduce \
+<<<<<<< HEAD
 --log_dir $PROJECT_DIR/logs/debug/ \
 --log_every 2 \
+=======
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/delete \
+--log_every 4 \
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 --validate_every 5000 \
 --num_steps 50000 \
 --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
 --label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
---valid_slide_path /nfs/managed_datasets/CAMELYON16/Testset/Images \
---valid_label_path /nfs/managed_datasets/CAMELYON16/Testset/Ground_Truth/Masks \
+--valid_slide_path /home/rubenh/SURF-deeplab/TRAINING/testwsi/wsi \
+--valid_label_path /home/rubenh/SURF-deeplab/TRAINING/testwsi/mask \
 --bb_downsample 7 \
 --data_sampler surf \
 --batch_tumor_ratio 1
@@ -73,7 +138,7 @@ python -u train.py \
 --model deeplab \
 --batch_size 2 \
 --fp16_allreduce \
---log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/512snode1dip/ \
+--log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/1024singlenode/ \
 --log_every 2 \
 --validate_every 5000 \
 --num_steps 50000 \

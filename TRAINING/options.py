@@ -27,10 +27,18 @@ def get_options():
     parser.add_argument('--batch_size', type=int, default=2, help='Batch size to use')
     parser.add_argument('--num_steps', type=int, default=50000,
                         help='Number of steps for training. A single step is defined as one image. So a batch of 2 consists of 2 steps')
+<<<<<<< HEAD
     parser.add_argument('--val_split', type=float, default=0.15,
                         help='Part of images that is used as validation dataset, validating on all images')
     parser.add_argument('--model', type=str, default='effdetd0', choices=['effdetd0', 'effdetd4', 'deeplab'],
                         help='EfficientDet or Deeplabv3+ model for semantic segmentation.')
+=======
+    parser.add_argument('--val_split', type=float, default=0.15, help='Part of images that is used as validation dataset, validating on all images')
+    parser.add_argument('--test_cycles', type=int, default=1, help='Amount of times the test set is evaluated')
+    parser.add_argument('--model', type=str, default='effdetd0', choices=['effdetd0','effdetd4','deeplab'],help='EfficientDet or Deeplabv3+ model for semantic segmentation.')
+    parser.add_argument('--verbosity', type=str, default='info', choices=['info','debug'],help='Verbosity of training')
+
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 
     # == GPU and multi worker options ==
     parser.add_argument('--no_cuda', action='store_true', help='Use CUDA or not')
