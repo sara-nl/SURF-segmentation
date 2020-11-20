@@ -1,4 +1,4 @@
-# This init.sh file was tested bu Joris on 29-09-2020. It can be run with:
+# This init.sh file was tested by Joris on 29-09-2020. It can be run with:
 # "source init.sh create" to initialize the environment properly
 # after that use "source init.sh" to load the environment
 
@@ -108,6 +108,8 @@ export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 if [ ! -z $1 ] && [ $1 = 'create' ]; then
   pip install --upgrade pip --no-cache-dir
   pip install scikit-learn --no-cache-dir
+  pip install humanize --no-cache-dir
+  pip install GPUtil --no-cache-dir
   pip install Pillow --no-cache-dir
   pip install tqdm --no-cache-dir
   pip install six --no-cache-dir

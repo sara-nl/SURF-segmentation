@@ -22,10 +22,12 @@ import multiprocessing
 import os
 import math
 import xml.etree.ElementTree as ET
-
 import numpy as np
 import PIL.Image
 
+from utils import rank00
+
+sys.path.insert(0, '$PROJECT_DIR/xml-pathology')
 
 
 
@@ -55,12 +57,11 @@ dtype_to_format = {
     'complex128': 'dpcomplex',
 }
 
-    
-        
+
 class PreProcess():
     def __init__(self,opts):
         self.opts = opts
-    
+
     def _load(image,mask,augment=False):
         if augment:
             img = tf.image.random_brightness(image, max_delta=50.)
@@ -71,11 +72,11 @@ class PreProcess():
             # img = tf.clip_by_value(img, 0, 2)
             img = tf.math.divide(image, 255)
             img = tf.math.subtract(tf.math.multiply(2.0, img), 1.0)
-            
+
         mask = tf.clip_by_value(tf.cast(mask,tf.int32), 0, 1)
-        
+
         return img,mask
-    
+
     def tfdataset(self,x,y):
         dataset = tf.data.Dataset.from_tensor_slices((x,y))
         dataset = dataset.apply(tf.data.experimental.map_and_batch(
@@ -84,46 +85,44 @@ class PreProcess():
             num_parallel_calls=tf.data.experimental.AUTOTUNE,
             drop_remainder=True))
         dataset = dataset.prefetch(tf.data.experimental.AUTOTUNE)
-        
-        return dataset
-    
 
-            
-                    
+        return dataset
+
+
 class SurfSampler(tf.keras.utils.Sequence):
     """
     - This sampler samples patches from whole slide images  in several formats, from
     which it samples the patch on the WSI and the same patch on the WSI mask.
-    
+
     !! This Sampler needs to be used with OpenSlide and PyVips library installed
     in the backend, see https://github.com/sara-nl/SURF-deeplab/blob/master/README.md
-    
+
     - Furthermore it needs to glob over directories that have the following structure:
-        
+
     ---`opts.slide_path`/
-                        <WSI_001>.`opts.slide_format`
-                        <WSI_002>.`opts.slide_format` 
+                        WSI_001.`opts.slide_format`
+                        WSI_002.`opts.slide_format`
                         ...
-                        
+
     ---`opts.label_path`/
-                        <WSI_Mask_001>.`opts.label_format`
-                        <WSI_Mask_002>.`opts.label_format` 
+                        WSI_Mask_001.`opts.label_format`
+                        WSI_Mask_002.`opts.label_format`
                         ...
-    
-    
+
+
     !! Label and WSI's are matched on string similarity (https://docs.python.org/3/library/difflib.html -> difflib.get_close_matches() )
-    
-    - It samples a batch according to `opts.batch_size`, with the batch 
-    consisting of  `(patches / 255).astype('float32'), (masks / 255).astype('float32')`
-    that contain tumor and non - tumor, based on 
-    `opts.batch_tumor_ratio` \in [0,1] (rounded to ints)
-    
+
+    - It samples a batch according to `opts.batch_size`, with the batch
+    consisting of patches that contain tumor and non - tumor, based on
+    `opts.batch_tumor_ratio` \in [0,1] `opts.batch_tumor_ratio` (rounded to ints)
+
     - It samples out of contours made with OpenCV thresholding
-    
-    - Furthermore it contains a hard-coded standard deviation threshold, which 
+
+    - Furthermore it contains a hard-coded standard deviation threshold, which
     can discard patches if not above some stddev. This is to avoid sampling
     patches that are background. From experience on CAMELYON16/17 this works
     as intended, no guarantees are given for other datasets
+
 
     - When mode == 'train':
         > Trainer function is used for sampling patches(masks) from opts.slide(label)_path
@@ -136,7 +135,6 @@ class SurfSampler(tf.keras.utils.Sequence):
         > Tester function is used for sampling patches from opts.test_path 
         if no opts.test_path use opts.valid_slide(label)_path
         
-
    >>>>Example:
 
     train_sampler = SurfSampler(config,mode='train')
@@ -149,28 +147,26 @@ class SurfSampler(tf.keras.utils.Sequence):
         # Get list of paths
         slides = sorted(glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}')))
         labels = sorted(glob(os.path.join(opts.label_path,f'*.{opts.label_format}')))
-        
-        
+
         # Match labels to slides (all slides must have labels)
         self.train_paths = shuffle([(difflib.get_close_matches(label.split('/')[-1].split('.')[-2],slides,n=1,cutoff=0.1)[0],label) for label in labels])
-        
-        
+
         # Custom path removal for Camelyon 17
         if opts.slide_path.find('CAMELYON17') > 0:
             _del = []
             for data in self.train_paths:
                 if data[0].split('/')[-1].split('.')[-2] != data[1].split('/')[-1].split('.')[-2]:
                     _del.append(data)
-            
+
             self.train_paths = [data for data in self.train_paths if data not in _del]
         
         if hvd.rank() == 0 : print(f"\nFound {len(self.train_paths)} slides")
         
         # Get validation data
         if opts.valid_slide_path:
-            valid_slides = glob(os.path.join(opts.valid_slide_path,f'*.{opts.slide_format}'))
-            valid_labels = glob(os.path.join(opts.valid_label_path,f'*.{opts.label_format}'))
-            
+            valid_slides = glob(os.path.join(opts.valid_slide_path, f'*.{opts.slide_format}'))
+            valid_labels = glob(os.path.join(opts.valid_label_path, f'*.{opts.label_format}'))
+
             # Match labels to slides (all slides must have labels)
             self.valid_paths = [(difflib.get_close_matches(label.split('/')[-1],valid_slides,n=1,cutoff=0.1)[0],label) for label in valid_labels]
         else:
@@ -257,16 +253,17 @@ class SurfSampler(tf.keras.utils.Sequence):
         open_kernel = np.ones((30, 30), dtype=np.uint8)
         image_open = Image.fromarray(cv2.morphologyEx(np.array(image_close), cv2.MORPH_OPEN, open_kernel))
         contours, _ = cv2.findContours(np.array(image_open), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        _offset=0
+        _offset = 0
         for i, contour in enumerate(contours):
             # sometimes the bounding boxes annotate a very small area not in the ROI
             if contour.shape[0] < 10:
                 if hvd.rank() ==0  and self.verbose == 'debug': print(f"Deleted too small contour from {self.cur_wsi_path}")
                 del contours[i]
-                _offset+=1
-                i=i-_offset
+                _offset += 1
+                i = i - _offset        
+                             
         # contours_rgb_image_array = np.array(self.rgb_image)
-        # line_color = (255, 150, 150)  
+        # line_color = (255, 150, 150)
         # cv2.drawContours(contours_rgb_image_array, contours, -1, line_color, 1)
         # Image.fromarray(contours_rgb_image_array[...,:3]).save('test.png')
 
@@ -308,10 +305,11 @@ class SurfSampler(tf.keras.utils.Sequence):
                 # if trying to fetch outside of image, retry
                 try:
                     patch = img_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-                    patch = np.ndarray((self.patch_size,self.patch_size,image.get('bands')),buffer=patch, dtype=np.uint8)[...,:3]
+                    patch = np.ndarray((self.patch_size, self.patch_size, image.get('bands')), buffer=patch,
+                                       dtype=np.uint8)[..., :3]
                     _std = ImageStat.Stat(Image.fromarray(patch)).stddev
-                    
-                    k+=1
+
+                    k += 1
                     # discard based on stddev
                     if k < 10: 
                         if (sum(_std[:3]) / len(_std[:3])) < 15:
@@ -329,6 +327,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                     mask  = np.random.normal(size=(self.patch_size,self.patch_size,1))
                 
 
+
             numpy_batch_patch.append(patch)
             numpy_batch_mask.append(mask)
             x,y,imsize = x_topleft, y_topleft, self.patch_size
@@ -341,7 +340,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                                                         (255,255,255), -1)
             except:
                 pass
-            
+
             self.save_data.append(({   'patch'      : patch,
                                        'image'      : save_image,
                                        'file_name'  : self.cur_wsi_path[0],
@@ -349,18 +348,18 @@ class SurfSampler(tf.keras.utils.Sequence):
                                        'mask'       : mask,
                                        'tumor'      : 1}))
         try:
-            Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
+            Image.fromarray(save_image[..., :3]).save(os.path.join(self.log_image_path,
+                                                                   self.cur_wsi_path[0].split('/')[-1].replace(
+                                                                       self.slide_format, 'png')))
         except:
             pass
-        
 
         return np.array(numpy_batch_patch),np.array(numpy_batch_mask)
-    
-    
+
+
     def tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image):
         
         tumor_count = 0
-
         tumor_patches = round(self.batch_size * self.tumor_ratio)
         for i in range(int(self.batch_size)):
             patch = []
@@ -422,7 +421,7 @@ class SurfSampler(tf.keras.utils.Sequence):
             # if hvd.rank() ==0 : print(f"\n\nTest Sample {self.patch_size} x {self.patch_size} from ROI = {h}" + f" by {w} in {time.time() -t1} seconds\n\n")
             numpy_batch_patch.append(patch)            
             numpy_batch_mask.append(mask)
-            
+
             try:
                 # Draw the rectangles of sampled images on downsampled rgb
                 save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
@@ -431,9 +430,9 @@ class SurfSampler(tf.keras.utils.Sequence):
                                                         (255,255,255), -1)
             except:
                 pass
-            
+
             x,y,imsize = x_topleft, y_topleft, self.patch_size
-            # Get Cartesian product so all patch coordinates are dropped from pixelpoints
+            # Get coordinates so all patch coordinates are dropped from pixelpoints
             coords = [y,x]
             
             self.save_data = [{     'patch'      : patch,
@@ -460,27 +459,27 @@ class SurfSampler(tf.keras.utils.Sequence):
             if self.cnt == len(self.contours): 
                 self.wsi_idx +=1
                 self.cnt = 0
-             
+
         try:
             Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
         except:
             pass
 
-        
-        return np.array(numpy_batch_patch),np.array(numpy_batch_mask) 
-    
-        
+
+        return np.array(numpy_batch_patch),np.array(numpy_batch_mask)
+
+
     def parse_xml(self,label=None):
         """
             make the list of contour from xml(annotation file)
             input (CAMELYON17):
-                
+
         <?xml version="1.0"?>
         <ASAP_Annotations>
         	<Annotations>
         		<Annotation Name="Annotation 0" Type="Polygon" PartOfGroup="metastases" Color="#F4FA58">
         			<Coordinates>
-        				<Coordinate Order="0" X="12711.2998" Y="88778.1016" /> 
+        				<Coordinate Order="0" X="12711.2998" Y="88778.1016" />
                         .
                         .
                         .
@@ -493,7 +492,7 @@ class SurfSampler(tf.keras.utils.Sequence):
         		</Group>
         	</AnnotationGroups>
         </ASAP_Annotations>
-            
+
             fn_xml = file name of xml file
             downsample = desired resolution
             var:
@@ -504,7 +503,7 @@ class SurfSampler(tf.keras.utils.Sequence):
 
         li_li_point = []
         tree = ET.parse(label)
-        
+
         for ASAP_Annotations in tree.getiterator():
             for i_1, Annotations in enumerate(ASAP_Annotations):
                 for i_2, Annotation in enumerate(Annotations):
@@ -531,11 +530,11 @@ class SurfSampler(tf.keras.utils.Sequence):
         
         for idx,contour in enumerate(contours):
             cv2.fillPoly(mask, pts =[contour], color=(255))
-            
+
         return mask
-    
+
     def __getitem__(self,idx):
-        
+
         # Every new iteration, new sample
         
         cnt = 0
@@ -692,7 +691,9 @@ class SurfSampler(tf.keras.utils.Sequence):
         numpy_batch_mask  = []
         if os.path.isfile(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))):   
             try:
-                save_image = np.array(Image.open(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))))
+                save_image = np.array(Image.open(os.path.join(self.log_image_path,
+                                                              self.cur_wsi_path[0].split('/')[-1].replace(
+                                                                  self.slide_format, 'png'))))
             except:
                 try:
                     save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
@@ -735,7 +736,6 @@ class SurfSampler(tf.keras.utils.Sequence):
         # return dataset
         # print(f"Got item with shape {patches.shape},{masks.shape}")
         return (patches / 255).astype('float32'), (masks / 255).astype('float32')
-
 
 
 

@@ -1,5 +1,13 @@
 #!/bin/bash
 #SBATCH -N 1
+<<<<<<< HEAD
+#SBATCH -t 23:00:00
+#SBATCH -p gpu_titanrtx
+#SBATCH -J cyclic_1node_1024
+
+source init.sh
+
+=======
 #SBATCH -t 12:00:00
 #SBATCH -p gpu_titanrtx_shared
 #SBATCH -o R-1024tnode1dip_1024-test.out
@@ -47,6 +55,7 @@ export CPATH=/home/$USER/virtualenvs/openslide-py38/include:$CPATH
 export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 export TF_GPU_THREAD_MODE=gpu_private
 
 hosts=""
@@ -60,7 +69,39 @@ echo "HOSTS: $hosts"
 #--evaluate \
 #--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256twonode/saved_model \
 
+<<<<<<< HEAD
+horovodrun -np 4 \
+--mpi-args="--map-by ppr:4:node" \
+--hosts localhost:4 \
+python -u train.py \
+--img_size 1024 \
+--model deeplab \
+--batch_size 1 \
+--fp16_allreduce \
+--log_dir $PROJECT_DIR/logs/cyclic_1node_1024/ \
+--log_every 10 \
+--min_lr 0.0 \
+--max_lr 0.001 \
+--validate_every 5000 \
+--num_steps 50000 \
+--slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
+--label_path /nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask \
+--valid_slide_path /nfs/managed_datasets/CAMELYON16/Testset/Images \
+--valid_label_path /nfs/managed_datasets/CAMELYON16/Testset/Ground_Truth/Masks \
+--bb_downsample 7 \
+--data_sampler surf \
+--batch_tumor_ratio 1 \
+--optimizer Adam \
+--lr_scheduler cyclic
+
+exit
+
+
+
+horovodrun -np 8 \
+=======
 horovodrun -np 1 \
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 --mpi-args="--map-by ppr:4:node" \
 --hosts $hosts \
 python -u train.py \
@@ -69,8 +110,13 @@ python -u train.py \
 --model deeplab \
 --batch_size 4 \
 --fp16_allreduce \
+<<<<<<< HEAD
+--log_dir $PROJECT_DIR/logs/debug/ \
+--log_every 2 \
+=======
 --log_dir /home/rubenh/SURF-deeplab/TRAINING/logs/delete \
 --log_every 4 \
+>>>>>>> 1232527b0e3dfdff70fdaa102ccff7e9ba8902b9
 --validate_every 5000 \
 --num_steps 50000 \
 --slide_path /nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor \
@@ -106,14 +152,6 @@ python -u train.py \
 
 
 exit
-
-
-
-
-
-
-
-
 
 module purge
 module load 2019
