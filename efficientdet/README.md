@@ -117,13 +117,13 @@ optional arguments:
 ```
 
 # Running on LISA
-To start a training run on LISA with the *CAMELYON17* dataset, 
+To start a training run on LISA with the **CAMELYON17** dataset, 
 
-image size 1024x1024
+**image size 1024x1024**
 
-batch size 1 
+**batch size 1**
 
-4 workers
+**4 workers**
 
 training on medical center 1, and validating on medical center 2 (See https://camelyon17.grand-challenge.org/):
 
