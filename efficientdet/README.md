@@ -10,7 +10,7 @@
 
 - The methods described here are based on the _tf.keras_ implementation
 of the EfficientDet network in the `keras/` folder. The Google AutoML implementation
-also has a tf.Estimator implementation. See https://github.com/google/automl/tree/master/efficientdet
+also has a _tf.Estimator_ implementation. See https://github.com/google/automl/tree/master/efficientdet
 
 https://camelyon16.grand-challenge.org/
 
@@ -89,7 +89,7 @@ done
 hosts="${hosts%?}"
 echo "HOSTS: $hosts"
 ```
-- This will output `r34n4:4` is running on node r34n4 with for GPU's
+- This will output `r34n4:4` if running on node r34n4 with 4 GPU's
 
 
 - Configurable command line arguments:
@@ -117,14 +117,26 @@ optional arguments:
 ```
 
 # Running on LISA
-To start a training run on LISA with the CAMELYON17 dataset, image size 1024x1024 and batch size 1, on 4 workers, training on medical center 1, and validating on medical center_2:
+To start a training run on LISA with the *CAMELYON17* dataset, 
 
-1. Training:
+image size 1024x1024
+
+batch size 1 
+
+4 workers
+
+training on medical center 1, and validating on medical center 2 (See https://camelyon17.grand-challenge.org/):
+
+### Training:
     - Set in `SURF-segmentation/efficientdet/hparams_config.py`:
     
+    
     `h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_1/'`
+    
     `h.label_path = '/nfs/managed_datasets/CAMELYON17/training'`
+    
     `h.valid_slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_2/'`
+    
     `h.valid_label_path = '/nfs/managed_datasets/CAMELYON17/training/'`
     
 
@@ -147,7 +159,7 @@ python -u segmentation.py \
 - This will train the model for 500 epochs, while autotuning communication settings with <a href="https://horovod.readthedocs.io/en/stable/autotune_include.html">horovod autotune</a>, and saving these settings to autotune.csv.     
 
 
-2. Evaluation:
+### Evaluation:
     - This will evaluate the sampler type given to `evaluate()` in `SURF-segmentation/efficientdet/keras/segmentation.py`
     - It will save csv files containing the metastases (negative, itc, micro, macro) per Whole Slide Image
 
