@@ -128,16 +128,17 @@ batch size 1
 training on medical center 1, and validating on medical center 2 (See https://camelyon17.grand-challenge.org/):
 
 ### Training:
-    - Set in `SURF-segmentation/efficientdet/hparams_config.py`:
+- Set in `SURF-segmentation/efficientdet/hparams_config.py`:
     
-    
-    `h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_1/'`
-    
-    `h.label_path = '/nfs/managed_datasets/CAMELYON17/training'`
-    
-    `h.valid_slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_2/'`
-    
-    `h.valid_label_path = '/nfs/managed_datasets/CAMELYON17/training/'`
+```
+h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_1/'
+
+h.label_path = '/nfs/managed_datasets/CAMELYON17/training'
+
+h.valid_slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_2/'
+
+h.valid_label_path = '/nfs/managed_datasets/CAMELYON17/training/'
+```
     
 
 ```
@@ -160,8 +161,8 @@ python -u segmentation.py \
 
 
 ### Evaluation:
-    - This will evaluate the sampler type given to `evaluate()` in `SURF-segmentation/efficientdet/keras/segmentation.py`
-    - It will save csv files containing the metastases (negative, itc, micro, macro) per Whole Slide Image
+- This will evaluate the sampler type given to `evaluate()` in `SURF-segmentation/efficientdet/keras/segmentation.py`
+- It will save csv files containing the metastases (negative, itc, micro, macro) per Whole Slide Image
 
 ```
 horovodrun -np 4 \
