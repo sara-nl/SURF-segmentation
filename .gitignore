@@ -32,7 +32,8 @@
 *.pb*
 *.out
 *.err
-
+*checkpoint*
+*ckpt*
 # Pycharm things
 *.idea*
 *DS_STORE*
