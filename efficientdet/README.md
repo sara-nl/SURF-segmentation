@@ -1,8 +1,8 @@
 ### TODO
 - [x] Implement multi node framework (Horovod)
-- [] Provide Checkpoints
-- [] Give overview of different Horovod autotune settings
-- [] Give explanation in README on testing Whole Slide Images in CAMELYON17
+- [ ] Provide Checkpoints
+- [ ] Give overview of different Horovod autotune settings
+- [ ] Give explanation in README on testing Whole Slide Images in CAMELYON17
 
 
 # Extended FoV Semantic Segmentation using EfficientDet
