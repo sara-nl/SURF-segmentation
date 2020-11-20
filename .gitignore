@@ -9,6 +9,8 @@
 # All images
 *.tiff
 *.TIFF
+*.tif
+*.xml
 *.jpg
 *.JPG
 *.png
@@ -28,6 +30,9 @@
 *.data*
 *.index*
 *.pb*
+*.out
+*.err
+
 # Pycharm things
 *.idea*
 *DS_STORE*
