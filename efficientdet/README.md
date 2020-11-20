@@ -138,6 +138,11 @@ h.label_path = '/nfs/managed_datasets/CAMELYON17/training'
 h.valid_slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_2/'
 
 h.valid_label_path = '/nfs/managed_datasets/CAMELYON17/training/'
+
+h.image_size = 1024  
+
+h.img_size = 1024
+
 ```
     
 
