@@ -71,7 +71,8 @@ pip install -r SURF-segmentation/efficientdet/keras/requirements.txt
 # Model Training
 
 - Configuration of model training and evaluation is done through `SURF-segmentation/efficientdet/hparams_config.py`
-> See python file for explanation of configuration
+> See python file for explanation of configuration.
+
 > **If there are no code comments above a configuration, then it is not used in the SURF EfficientDet**
 - The configurations in this file may be overwritten by command line arguments in `SURF-segmentation/efficientdet/keras/run.sh`
 
