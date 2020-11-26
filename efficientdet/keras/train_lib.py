@@ -35,10 +35,10 @@ def update_learning_rate_schedule_parameters(params):
   # Learning rate is proportional to the batch size
   params.adjusted_learning_rate = params['learning_rate'] 
   steps_per_epoch = params['steps_per_epoch']
-  params.lr_warmup_step = int(params['lr_warmup_epoch'] * steps_per_epoch)
-  params.first_lr_drop_step = int(params['first_lr_drop_epoch'] * steps_per_epoch)
-  params.second_lr_drop_step = int(params['second_lr_drop_epoch'] * steps_per_epoch)
-  params.total_steps = int(params['num_epochs']) #* steps_per_epoch)
+  params.lr_warmup_step = int(params['lr_warmup_epoch']) #* steps_per_epoch)
+  params.first_lr_drop_step = int(params['first_lr_drop_epoch']) #* steps_per_epoch)
+  params.second_lr_drop_step = int(params['second_lr_drop_epoch']) #* steps_per_epoch)
+  params.total_steps = int(params['num_epochs']) #* steps_per_epoch
   
 
 
@@ -64,6 +64,12 @@ class StepwiseLrSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     self.lr_warmup_step = lr_warmup_step
     self.first_lr_drop_step = first_lr_drop_step
     self.second_lr_drop_step = second_lr_drop_step
+    print(f"Initialized Stepwise LR Schedule:\n\
+          warmup initial LR: {self.lr_warmup_init},\n\
+          warmup steps: {self.lr_warmup_step},\n\
+          LR after warmup: {self.adjusted_lr},\n\
+          First LR drop after step: {self.first_lr_drop_step}\n\
+          Second LR drop after step: {self.second_lr_drop_step}")
 
   def __call__(self, step):
     linear_warmup = (
@@ -98,11 +104,14 @@ class CosineLrSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     self.adjusted_lr = adjusted_lr
     self.lr_warmup_init = lr_warmup_init
     self.lr_warmup_step = lr_warmup_step
-    self.decay_steps = tf.cast(total_steps - lr_warmup_step, tf.float32) // 10
-       
+    self.decay_steps = tf.cast(total_steps - lr_warmup_step, tf.float32) 
+    print(f"Initialized Cosine LR Schedule:\n\
+          warmup initial LR: {self.lr_warmup_init},\n\
+          warmup steps: {self.lr_warmup_step},\n\
+          LR after warmup: {self.adjusted_lr},\n\
+          Decay steps: {self.decay_steps}")
 
   def __call__(self, step):
-
     linear_warmup = (
         self.lr_warmup_init +
         (tf.cast(step, dtype=tf.float32) / self.lr_warmup_step *
@@ -133,6 +142,11 @@ class CyclicLrSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
         self.step_size = step_size
         self.gamma = gamma
         self.learning_rate = base_lr
+        print(f"Initialized Cyclic LR Schedule:\n\
+          Base LR: {self.base_lr},\n\
+          Max LR: {self.max_lr},\n\
+          Step size: {self.step_size},\n\
+          Gamma: {self.gamma}")
 
     def scale_fn(self, step):
         return self.gamma ** step
@@ -171,6 +185,13 @@ class PolynomialLrSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
     self.lr_warmup_step = lr_warmup_step
     self.power = power
     self.total_steps = total_steps
+    print(f"Initialized Polynomial LR Schedule:\n\
+          warmup initial LR: {self.lr_warmup_init},\n\
+          warmup steps: {self.lr_warmup_step},\n\
+          LR after warmup: {self.adjusted_lr},\n\
+          Power of polynomial: {self.power}\n\
+          Total steps: {self.total_steps}")
+
 
   def __call__(self, step):
     linear_warmup = (

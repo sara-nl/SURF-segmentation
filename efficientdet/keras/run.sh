@@ -1,14 +1,15 @@
 #!/bin/bash
-#SBATCH -N 8
+#SBATCH -N 6
 #SBATCH -t 24:00:00
 #SBATCH -p gpu_titanrtx
-#SBATCH -w r34n[2,5,7],r36n[4-5],r35n[2-4]
-#SBATCH -o R-1024d04nodesconvergeeval.out
-#SBATCH -e R-1024d04nodesconvergeeval.err
+#SBATCH -o R-8nodeseval.out
+#SBATCH -e R-8nodeseval.err
+#SBATCH -x r34n6
 ##r34n6 is broken
 
+
 VENV_NAME=openslide-py38
-cd $HOME
+cd /home/rubenh/SURF-segmentation/efficientdet/keras
 module purge
 module load 2019
 module load 2020
@@ -65,14 +66,14 @@ echo "HOSTS: $hosts"
 horovodrun -np 1 \
 --mpi-args="--map-by ppr:4:node" \
 --hosts $hosts \
-python -u segmentation.py \
+python -u /home/rubenh/SURF-segmentation/efficientdet/keras/segmentation.py \
 --batch_size 1 \
 --optimizer SGD \
 --lr_decay_method cosine \
 --name efficientdet-d0 \
---log_dir /home/rubenh/SURF-deeplab/efficientdet/keras/test \
---steps_per_epoch 100 \
---num_epochs 500
+--log_dir /home/rubenh/SURF-deeplab/efficientdet/keras/delete \
+--steps_per_epoch 10 \
+--num_epochs 10
 
 exit
 

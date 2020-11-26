@@ -25,7 +25,6 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import PIL.Image
 
-from utils import rank00
 
 sys.path.insert(0, '$PROJECT_DIR/xml-pathology')
 
@@ -207,8 +206,15 @@ class SurfSampler(tf.keras.utils.Sequence):
         self.cnt            = 0
         self.verbose        = opts.verbose
         self.steps_per_epoch= opts.steps_per_epoch
-        
-        
+        self.wsi_idx        = 0
+    
+    
+        assert hvd.size() <= len(self.train_paths), f"WARNING: {hvd.size()} workers will share {len(self.train_paths)} train images"
+        trainims     = len(self.train_paths)
+        train_per_worker     = trainims // hvd.size()
+        print(f"Worker {hvd.rank()}: len = {len(self.train_paths)}")
+        self.train_paths = self.train_paths[hvd.rank()*train_per_worker:(hvd.rank()+1)*train_per_worker]
+        print(f"Worker {hvd.rank()}: AFTER len = {len(self.train_paths)}")     
 
          # Make sure that every process has at least 1 WSI
         if opts.test_path:
@@ -277,20 +283,36 @@ class SurfSampler(tf.keras.utils.Sequence):
                     
         tumor_count = 0
         tumor_patches = round(self.batch_size * self.tumor_ratio)
+        # tbc = self.tumorcnt
+        bc  = self.cnt
+
         for i in range(int(self.batch_size)): 
             patch = []
             k=0
             while not len(patch):
-                if tumor_count < tumor_patches:
-                    bc = random.choice(self.contours_tumor)
-                    tumor_count += 1
-                else:
-                    bc = random.choice(self.contours)
-                    
+                try:
+                    if tumor_count < tumor_patches:
+                        bc = self.contours_tumor[self.cnt]
+                        tumor_count += 1
+                    else:
+                        bc = self.contours[self.cnt]
+                except:
+                    print(f"WARNING: WSI {self.cur_wsi_path[0]} has no (tumor)contours")
+                    bc = self.contours[self.cnt]
+            
                 msk = np.zeros(self.rgb_image.shape,np.uint8)
                 # First get coords from contours of tumor, after tumor get negative coords 
                 cv2.drawContours(msk,[bc],-1,(255),-1)
-                pixelpoints = np.transpose(np.nonzero(msk)) * self.mag_factor
+                if not len(self.pixelpoints):
+                    # get all non zero pixels, aka all pixels in contour
+                    self.pixelpoints = np.transpose(np.nonzero(msk))
+                    # multiply coordinates by magnification factor
+                    self.pixelpoints = self.pixelpoints[...,:2] * self.mag_factor
+                    # Shuffle coordinates
+                    np.random.shuffle(self.pixelpoints)
+                    # Get subset of coordinates based on arg
+                    part = max(2,int(self.opts.steps_per_epoch // len(self.train_paths)))
+                    self.pixelpoints = self.pixelpoints[:part,:]
                                      
                 b_x_start = bc[...,0].min() * self.mag_factor
                 b_y_start = bc[...,1].min() * self.mag_factor
@@ -298,7 +320,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                 b_y_end = bc[...,1].max() * self.mag_factor
                 h = b_y_end - b_y_start
                 w = b_x_end - b_x_start
-                pixelcoords = random.choice(pixelpoints)
+                pixelcoords = random.choice(self.pixelpoints)
                 x_topleft = pixelcoords[1] 
                 y_topleft = pixelcoords[0] 
                 
@@ -347,6 +369,31 @@ class SurfSampler(tf.keras.utils.Sequence):
                                        'coords'     : coords,
                                        'mask'       : mask,
                                        'tumor'      : 1}))
+
+
+            # Remove past coordinates from possible pixelpoints
+            # Get index of row-wise intersection
+            del_row = np.where(np.all(np.isin(self.pixelpoints,pixelcoords),axis=1))
+            # Delete row from pixelpoints
+            self.pixelpoints = np.delete(self.pixelpoints,del_row,axis=0)
+        
+        print(f"\n\nTrain sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
+            
+        # If past all patches of contour, get next contour
+        if len(self.pixelpoints) <= self.batch_size:
+        # if 1: # for debugging
+            self.cnt +=1
+            self.pixelpoints = []
+            
+            if self.cnt == len(self.contours): 
+                self.wsi_idx +=1
+                self.cnt = 0
+                self.wsi.close()
+                if hasattr(self,'mask'):
+                    del self.mask
+                self.contours_train = []
+                self.contours_tumor = []
+
         try:
             Image.fromarray(save_image[..., :3]).save(os.path.join(self.log_image_path,
                                                                    self.cur_wsi_path[0].split('/')[-1].replace(
@@ -367,7 +414,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                 try:
                     if self.mode == 'validation' and not self.opts.evaluate:
                         if tumor_count < tumor_patches:
-                            bc = random.choice(self.contours_tumor)
+                            bc = self.contours_tumor[self.cnt]
                             tumor_count += 1
                         else:
                             bc = self.contours[self.cnt]
@@ -375,15 +422,25 @@ class SurfSampler(tf.keras.utils.Sequence):
                         bc = self.contours[self.cnt]
                 except:
                     print(f"WARNING: WSI {self.cur_wsi_path[0]} has no contours")
-                    continue                
+                    bc = self.contours[self.cnt]
                 
                 msk = np.zeros(self.rgb_image.shape,np.uint8)
                 x_topleft,y_topleft,width,height = cv2.boundingRect(bc)
                 cv2.drawContours(msk,[bc],-1,(255),-1)
                 # First gather all posssible pixelpoints, then, drop past_coords
                 if not len(self.pixelpoints):
+                    # get all non zero pixels, aka all pixels in contour
                     self.pixelpoints = np.transpose(np.nonzero(msk))
+                    # multiply coordinates by magnification factor
                     self.pixelpoints = self.pixelpoints[...,:2] * self.mag_factor
+                    # Shuffle coordinates
+                    np.random.shuffle(self.pixelpoints)
+                    # Get subset of coordinates based on argument, minimum two
+                    if self.mode == 'validation':
+                        part = max(2,int(self.opts.steps_per_epoch // len(self.valid_paths)))
+                    elif self.mode == 'test':
+                        part = max(2,int(self.opts.steps_per_epoch // len(self.test_paths)))
+                    self.pixelpoints = self.pixelpoints[:part,:]
                     
 
                 b_x_start = bc[...,0].min() * self.mag_factor
@@ -448,10 +505,10 @@ class SurfSampler(tf.keras.utils.Sequence):
             # Delete row from pixelpoints
             self.pixelpoints = np.delete(self.pixelpoints,del_row,axis=0)
         
-        print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
+        print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(bc)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
             
         # If past all patches of contour, get next contour
-        if len(self.pixelpoints) <= self.patch_size:
+        if len(self.pixelpoints) <= self.batch_size:
         # if 1: # for debugging
             self.cnt +=1
             self.pixelpoints = []
@@ -459,6 +516,13 @@ class SurfSampler(tf.keras.utils.Sequence):
             if self.cnt == len(self.contours): 
                 self.wsi_idx +=1
                 self.cnt = 0
+                self.wsi.close()
+                if hasattr(self,'mask'):
+                    del self.mask
+                self.contours_valid = []
+                self.contours_tumor = []
+                self.contours_test  = []
+                
 
         try:
             Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
@@ -538,177 +602,183 @@ class SurfSampler(tf.keras.utils.Sequence):
         # Every new iteration, new sample
         
         cnt = 0
-
-        if self.mode == 'train':
-            idx = random.randint(0,len(self.train_paths)-1)
-            while not self.contours_train or not self.contours_tumor:
-                try:
-                    if cnt > 5: idx = random.randint(0,len(self.train_paths)-1)
-                    self.cur_wsi_path = self.train_paths[idx]
-                    if hvd.rank() ==0  and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
-                    
-                    
-                    self.wsi  = OpenSlide(self.cur_wsi_path[0])
-                    
-                    if self.opts.label_format.find('xml') > -1:
-                        self.mask =  SurfSampler.parse_xml(self,label=self.cur_wsi_path[1])
-                    else:
-                        self.mask = OpenSlide(self.cur_wsi_path[1])
-                    
-                    self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                    self.rgb_image = np.array(self.rgb_image_pil)
-                    
-                    if self.opts.label_format.find('xml') > -1:
-                        self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
-                    else:
-                        self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                        self.mask_image = np.array(self.mask_pil)
-                        
-                    self.contours_train = self.get_bb()
-                    self.contours = self.contours_train
-                    
-                    # Get contours of tumor, if not tumor, patch is negative
-                    contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                    if contours:
-                        self.contours_tumor = contours
-                    else:
-                        self.contours_tumor = self.contours
-                        
-                    cnt += 1
-                except Exception as e:
-                    print(f"{e}, at {self.cur_wsi_path[0]}")
-                    cnt += 1
+        wsi_idx = -1
+        if self.wsi_idx != wsi_idx:
+            if self.wsi_idx == len(self.train_paths):
+                self.wsi_idx = 0 
+            wsi_idx = self.wsi_idx
+            if self.mode == 'train':
+                while not self.contours_train or not self.contours_tumor:
                     try:
-                        self.wsi.close()
-                        self.mask.close()
-                    except:
-                        pass
-                    pass
-                
-        elif self.mode == 'validation':
-            while not self.contours_valid or not self.contours_tumor:
-                try:
-                    if cnt > 5: idx +=1
-                    if idx < len(self.valid_paths):
-                        self.wsi_idx = idx
-                    else:
-                        continue
-                    # Drop past WSI's
-                    self.valid_paths_new = self.valid_paths[self.wsi_idx:]
-                    
-                    self.cur_wsi_path = self.valid_paths_new[0]
+                        if cnt > 5: wsi_idx += 1
+                        self.cur_wsi_path = self.train_paths[wsi_idx]
+                        if hvd.rank() ==0  and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
                         
-                    if hvd.rank() ==0  and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
-                    
-                    self.wsi  = OpenSlide(self.cur_wsi_path[0])
-                    if self.opts.label_format.find('xml') > -1:
-                        self.mask =  SurfSampler.parse_xml(self,label=self.cur_wsi_path[1])
-                    else:
-                        self.mask = OpenSlide(self.cur_wsi_path[1])
-                    
-                    self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                    self.rgb_image = np.array(self.rgb_image_pil)
-                    if self.opts.label_format.find('xml') > -1:
-                        self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
-                    else:
-                        self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                        self.mask_image = np.array(self.mask_pil)
-                    
-                    self.contours_valid = self.get_bb()
-                    if not self.contours_valid: self.valid_paths.remove(self.cur_wsi_path)
-                    self.contours = self.contours_valid
-                    
-                    # Get contours of tumor, if not tumor, patch is negative
-                    contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-                    if contours:
-                        self.contours_tumor = contours
-                    else:
-                        self.contours_tumor = self.contours
-                    cnt += 1
-                    
-                except Exception as e:
-                    print(f"{e}, at {self.cur_wsi_path[0]}")
-                    cnt += 1
-                    try:
-                        self.wsi.close()
-                        self.mask.close()
-                    except:
-                        pass
-                    pass
-                
-                    
-        else:
-            while not self.contours_test:
-                try:
-                    if cnt > 5: idx +=1
-                    if idx < len(self.test_paths):
-                        self.wsi_idx = idx
-                    else:
-                        continue
-                    
-                    # Drop past WSI's
-
-                    self.test_paths_new = self.test_paths[self.wsi_idx:]
-                    self.cur_wsi_path = [self.test_paths_new[0]]
-
-                    
-                    # If a validation tuple of (image,mask), get image
-                    if isinstance(self.cur_wsi_path[0],tuple):
-                        self.cur_wsi_path = self.cur_wsi_path[0]
+                        self.wsi  = OpenSlide(self.cur_wsi_path[0])
                         
-                    if hvd.rank() == 0 and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
-                    
-                    # OpenSlide and get contours of ROI
-                    self.wsi  = OpenSlide(self.cur_wsi_path[0])
-                    self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
-                    self.rgb_image = np.array(self.rgb_image_pil)
-                    self.contours_test = self.get_bb()
-                    if not self.contours_test: self.test_paths.remove(self.cur_wsi_path)
-                    self.contours = self.contours_test
-                    cnt += 1
-                except Exception as e:
-                    print(f"{e}, at {self.cur_wsi_path[0]}")
-                    cnt += 1
-                    try:
-                        self.wsi.close()
-                    except:
+                        if self.opts.label_format.find('xml') > -1:
+                            self.mask =  SurfSampler.parse_xml(self,label=self.cur_wsi_path[1])
+                        else:
+                            self.mask = OpenSlide(self.cur_wsi_path[1])
+                        
+                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                        self.rgb_image = np.array(self.rgb_image_pil)
+                        
+                        if self.opts.label_format.find('xml') > -1:
+                            self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
+                        else:
+                            self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                            self.mask_image = np.array(self.mask_pil)
+                            
+                        self.contours_train = self.get_bb()
+                        self.contours = self.contours_train
+                        
+                        # Get contours of tumor, if not tumor, patch is negative
+                        contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                        if contours:
+                            self.contours_tumor = contours
+                        else:
+                            self.contours_tumor = self.contours
+                            
+                        # Initialize contour index for trainer
+                        self.cnt = 0
+                        # Initialize contour index for trainer
+                        self.tumorcnt = 0
+                        cnt += 1
+                    except Exception as e:
+                        print(f"{e}, at {self.cur_wsi_path[0]}")
+                        cnt += 1
+                        try:
+                            self.wsi.close()
+                            self.mask.close()
+                        except:
+                            pass
                         pass
-                    pass
-                
-        
-        image = pyvips.Image.new_from_file(self.cur_wsi_path[0])
-        if not self.mode == 'test':
-            if self.opts.label_format.find('xml') > -1:
-                mask_image  = pyvips.Image.new_from_memory(self.mask,self.mask.shape[1],self.mask.shape[0],1,dtype_to_format[str(self.mask.dtype)])
+                    
+            elif self.mode == 'validation':
+                while not self.contours_valid or not self.contours_tumor:
+                    try:
+                        if cnt > 5: idx +=1
+                        if idx < len(self.valid_paths):
+                            self.wsi_idx = idx
+                        else:
+                            continue
+                        # Drop past WSI's
+                        self.valid_paths_new = self.valid_paths[self.wsi_idx:]
+                        
+                        self.cur_wsi_path = self.valid_paths_new[0]
+                            
+                        if hvd.rank() ==0  and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
+                        
+                        self.wsi  = OpenSlide(self.cur_wsi_path[0])
+                        if self.opts.label_format.find('xml') > -1:
+                            self.mask =  SurfSampler.parse_xml(self,label=self.cur_wsi_path[1])
+                        else:
+                            self.mask = OpenSlide(self.cur_wsi_path[1])
+                        
+                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                        self.rgb_image = np.array(self.rgb_image_pil)
+                        if self.opts.label_format.find('xml') > -1:
+                            self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
+                        else:
+                            self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                            self.mask_image = np.array(self.mask_pil)
+                        
+                        self.contours_valid = self.get_bb()
+                        if not self.contours_valid: self.valid_paths.remove(self.cur_wsi_path)
+                        self.contours = self.contours_valid
+                        
+                        # Get contours of tumor, if not tumor, patch is negative
+                        contours, _ = cv2.findContours(self.mask_image[...,0], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                        if contours:
+                            self.contours_tumor = contours
+                        else:
+                            self.contours_tumor = self.contours
+                        cnt += 1
+                        
+                    except Exception as e:
+                        print(f"{e}, at {self.cur_wsi_path[0]}")
+                        cnt += 1
+                        try:
+                            self.wsi.close()
+                            self.mask.close()
+                        except:
+                            pass
+                        pass
+                    
+                        
             else:
-                mask_image  = pyvips.Image.new_from_file(self.cur_wsi_path[1])
-            mask_reg = pyvips.Region.new(mask_image)
-        
-        img_reg = pyvips.Region.new(image)
-        
-        
-        numpy_batch_patch = []
-        numpy_batch_mask  = []
-        if os.path.isfile(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))):   
-            try:
-                save_image = np.array(Image.open(os.path.join(self.log_image_path,
-                                                              self.cur_wsi_path[0].split('/')[-1].replace(
-                                                                  self.slide_format, 'png'))))
-            except:
+                while not self.contours_test:
+                    try:
+                        if cnt > 5: idx +=1
+                        if idx < len(self.test_paths):
+                            self.wsi_idx = idx
+                        else:
+                            continue
+                        
+                        # Drop past WSI's
+    
+                        self.test_paths_new = self.test_paths[self.wsi_idx:]
+                        self.cur_wsi_path = [self.test_paths_new[0]]
+    
+                        
+                        # If a validation tuple of (image,mask), get image
+                        if isinstance(self.cur_wsi_path[0],tuple):
+                            self.cur_wsi_path = self.cur_wsi_path[0]
+                            
+                        if hvd.rank() == 0 and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
+                        
+                        # OpenSlide and get contours of ROI
+                        self.wsi  = OpenSlide(self.cur_wsi_path[0])
+                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                        self.rgb_image = np.array(self.rgb_image_pil)
+                        self.contours_test = self.get_bb()
+                        if not self.contours_test: self.test_paths.remove(self.cur_wsi_path)
+                        self.contours = self.contours_test
+                        cnt += 1
+                    except Exception as e:
+                        print(f"{e}, at {self.cur_wsi_path[0]}")
+                        cnt += 1
+                        try:
+                            self.wsi.close()
+                        except:
+                            pass
+                        pass
+                
+
+            image = pyvips.Image.new_from_file(self.cur_wsi_path[0])
+            if not self.mode == 'test':
+                if self.opts.label_format.find('xml') > -1:
+                    mask_image  = pyvips.Image.new_from_memory(self.mask,self.mask.shape[1],self.mask.shape[0],1,dtype_to_format[str(self.mask.dtype)])
+                else:
+                    mask_image  = pyvips.Image.new_from_file(self.cur_wsi_path[1])
+                mask_reg = pyvips.Region.new(mask_image)
+            
+            img_reg = pyvips.Region.new(image)
+            
+            
+            numpy_batch_patch = []
+            numpy_batch_mask  = []
+            if os.path.isfile(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))):   
                 try:
+                    save_image = np.array(Image.open(os.path.join(self.log_image_path,
+                                                                  self.cur_wsi_path[0].split('/')[-1].replace(
+                                                                      self.slide_format, 'png'))))
+                except:
+                    try:
+                        save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
+                    except:
+                        save_image = self.rgb_image.copy()[...,:3]
+            else:
+                try:
+                    # copy image and mark tumor in black
                     save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
                 except:
                     save_image = self.rgb_image.copy()[...,:3]
-        else:
-            try:
-                # copy image and mark tumor in black
-                save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
-            except:
-                save_image = self.rgb_image.copy()[...,:3]
-        
-        if self.mode == 'test':
-                mask_reg = None
-                mask_image = None
+            
+            if self.mode == 'test':
+                    mask_reg = None
+                    mask_image = None
         
 
         if self.mode == 'test' or self.mode == 'validation':
@@ -717,13 +787,13 @@ class SurfSampler(tf.keras.utils.Sequence):
             patches, masks = SurfSampler.trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
             self.save_data = []
     
-        self.wsi.close()
-        if hasattr(self,'mask'):
-            del self.mask
-        self.contours_train = []
-        self.contours_valid = []
-        self.contours_tumor = []
-        self.contours_test  = []
+        # self.wsi.close()
+        # if hasattr(self,'mask'):
+        #     del self.mask
+        # self.contours_train = []
+        # self.contours_valid = []
+        # self.contours_tumor = []
+        # self.contours_test  = []
         
         # def set_shapes(self,image, label):
         #     image,label = (image / 255), (label / 255) #(image / 255).astype('float32'), (label / 255).astype('float32')

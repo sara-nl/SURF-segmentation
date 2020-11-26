@@ -70,8 +70,8 @@ def get_metastase(wsi_name,data,test_sampler,config):
 
     Computes the pN staging of lymph node of patients
     Negative:           smaller than 0.2 mm = 200 microm
-    Micro-metastases:   200microm < ... < 2000 micromm
-    Macro-metastases:   > 2000 micromm
+    Micro-metastases:   200microm < ... < 2000 microm
+    Macro-metastases:   > 2000 microm ( > 2 mm)
     
     For PN - Staging:
         See make_csv.py
@@ -186,10 +186,10 @@ def evaluate(model,config,test_sampler):
                 mask = tf.cast(255 * mask, tf.uint8).numpy()
             
             # row    ,  columnn
-            x_topleft,y_topleft = test_sampler.save_data[patch_idx]['coords'][0]
+            y_topleft,x_topleft = test_sampler.save_data[patch_idx]['coords']#[0]
             
             # Append predicted data to save array
-            _array.append([x_topleft,y_topleft,mask.astype('uint8'),predictions.astype('uint8')])
+            _array.append([y_topleft,x_topleft,mask.astype('uint8'),predictions.astype('uint8')])
             
             # Make predictions fit on downsampled rgb-image
             x,y = x_topleft // 2**config.bb_downsample, y_topleft // 2**config.bb_downsample
@@ -201,7 +201,7 @@ def evaluate(model,config,test_sampler):
             
             try:
                 # Fill downsampled image with downsampled predictions
-                save_mask[x:x+len(mask_down),y:y+len(mask_down),:]=mask_down
+                save_mask[y:y+len(mask_down),x:x+len(mask_down),:]=mask_down
             except:
                 continue
             
@@ -329,7 +329,7 @@ def main(config):
                                                    end_epoch=config.num_epochs,
                                                    staircase=True,
                                                    momentum_correction=True,
-                                                   steps_per_epoch=config.steps_per_epoch,
+                                                   steps_per_epoch=config.steps_per_epoch // 2,
                                                    initial_lr=1)
     ]
     # Horovod: write logs on worker 0.
@@ -353,7 +353,7 @@ def main(config):
             
         print("Starting Evaluation...")
         
-    evaluate(model,config,test_sampler)
+    evaluate(model,config,valid_sampler)
     # if hvd.rank() == 0:
     #     print(f'Finished evaluation with exceptions:\n {test_sampler.exceptions}')
         

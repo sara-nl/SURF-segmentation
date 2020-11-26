@@ -172,12 +172,12 @@ def default_detection_configs():
   # For WSI Sampler
   h.batch_size = 4
   # String format gets appended to paths, so glob wild cards possible, like /path/to/data/folder_*/ (if you want folder 1-4 for example)
-  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_*/'
+  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_1/'
   h.label_path = '/nfs/managed_datasets/CAMELYON17/training'
   # h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
   # h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
-  h.valid_slide_path = None
-  h.valid_label_path = None
+  h.valid_slide_path = '/home/rubenh/SURF-segmentation/efficientdet/keras/testwsi'
+  h.valid_label_path = '/home/rubenh/SURF-segmentation/efficientdet/keras/testwsi'
   
   ## IF TEST PATHS is None, VALID_PATHS are evaluated 
   h.test_path = None #'/nfs/managed_datasets/CAMELYON17/testing/patients'
@@ -194,6 +194,7 @@ def default_detection_configs():
   h.steps_per_epoch = 500
   h.fp16_allreduce = True
   h.num_shards = hvd.size()
+  # h.sample_perc = 0.01
 
     
   # model name.
@@ -247,7 +248,7 @@ def default_detection_configs():
   h.momentum = 0.9
   h.optimizer = 'sgd'  # can be 'adam' or 'sgd'.
   h.learning_rate = 0.008  # 0.008 for adam.
-  h.lr_warmup_init = 0.008  # 0.0008 for adam.
+  h.lr_warmup_init = 0.00001  # 0.0008 for adam.
   h.lr_warmup_epoch = 1.0 # How many epochs to warm up for
   h.first_lr_drop_epoch = 30.0
   h.second_lr_drop_epoch = 60.0
@@ -355,7 +356,7 @@ efficientdet_model_param_dict = {
             backbone_name='efficientnet-b0',
             image_size=1024,
             fpn_num_filters=64,
-            fpn_cell_repeats=1,
+            fpn_cell_repeats=6,
             box_class_repeats=3,
         ),
     'efficientdet-d1':
