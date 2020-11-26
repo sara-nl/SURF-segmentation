@@ -181,20 +181,29 @@ def default_detection_configs():
   
   ## IF TEST PATHS is None, VALID_PATHS are evaluated 
   h.test_path = None #'/nfs/managed_datasets/CAMELYON17/testing/patients'
+  # The format of the Whole Slide Images
   h.slide_format = 'tif'
+  # The format of the Labels
   h.label_format = 'xml'
+  # 1- val_split will be used for validation
   h.val_split = 0.0
+  # This will be the downsample level for constructing the contours (0 = 40x)
   h.bb_downsample = 7
+  # int(batch_tumor_ratio * batch_size) will be sampled from tumor contours
+  # This is to avoid an imbalanced dataset.
   h.batch_tumor_ratio = 1 #hvd.rank() % 2 # odd workers have tumor, others dont
-  h.evaluate = True
+  # If only running evaluation
+  h.evaluate = False
+  # In this directory all the logging will be saved (checkpoints,summaries,images)
   h.log_dir = '/home/rubenh/EffDet/efficientdet/keras/delete'
+  # Verbosity of data Sampler
   h.verbose = 'debug' # ['info','debug']
-  h.test_cycles = 1
+  # The total number of epochs the model will be trained
   h.num_epochs = 100
+  # The steps per epoch, this will make sure (steps_per_epoch // number of WSI's) will be sampled per Whole Slide Image
   h.steps_per_epoch = 500
+  # Whether horovod should reduce in floating point 16 precision
   h.fp16_allreduce = True
-  h.num_shards = hvd.size()
-  # h.sample_perc = 0.01
 
     
   # model name.
@@ -205,8 +214,9 @@ def default_detection_configs():
   h.act_type = 'swish'
 
   # input preprocessing parameters
-  h.image_size = 1024  # An integer or a string WxH such as 640x320.
-  h.img_size = 1024
+  h.image_size = 1024  # An integer 
+
+  
   h.target_size = None
   h.input_rand_hflip = True
   h.jitter_min = 0.1
@@ -217,12 +227,12 @@ def default_detection_configs():
   h.augmix_params = [3, -1, 1]
   h.sample_image = True
 
-  # dataset specific parameters
   # TODO(tanmingxing): update this to be 91 for COCO, and 21 for pascal.
+  # This is only used for object detection
   h.num_classes = 90  # 1+ actual classes, 0 is reserved for background.
-  ""
+  # The number of classes for segmentation
   h.seg_num_classes = 2  # segmentation classes
-  ""
+  # The head of the network
   h.heads = ['segmentation']  # 'object_detection', 'segmentation'
 
   h.skip_crowd_during_training = True
@@ -231,63 +241,65 @@ def default_detection_configs():
   h.regenerate_source_id = False
 
   # model architecture
-  ""
+  # Minimum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.min_level = 1
-  ""
+  # Minimum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.max_level = 7
-  ""
+  # Number of scales in the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.num_scales = 3
   # ratio w/h: 2.0 means w=1.4, h=0.7. Can be computed with k-mean per dataset.
-  ""
   h.aspect_ratios = [1.0, 2.0, 0.5]
   h.anchor_scale = 4.0
-  # is batchnorm training mode
-  ""
+
   h.is_training_bn = True
-  # optimization
+  # Momentum of optimizer
   h.momentum = 0.9
+  # Optimizer name
   h.optimizer = 'sgd'  # can be 'adam' or 'sgd'.
+  # The initial learning rate
   h.learning_rate = 0.008  # 0.008 for adam.
+  # The initial warming up learning rate
   h.lr_warmup_init = 0.00001  # 0.0008 for adam.
+  # The amount of epochs to warmup for
   h.lr_warmup_epoch = 1.0 # How many epochs to warm up for
+  # The first drop epoch for the Stepwise learning rate schedule
   h.first_lr_drop_epoch = 30.0
+  # The second drop epoch for the Stepwise learning rate schedule
   h.second_lr_drop_epoch = 60.0
+  # The fpower of the decay polynomial for the Polynomial learning rate schedule
   h.poly_lr_power = 0.9
+  # If the gradients should be clipped
   h.clip_gradients_norm = 10.0
+  
   h.total_steps = 1 # will be overwritten by steps_per_epoch * num_epochs
-  ""
+  # The data format of the input data
   h.data_format = 'channels_last'
 
-  # classification loss
   h.label_smoothing = 0.0  # 0.1 is a good default
-  # Behold the focal loss parameters
   h.alpha = 0.25
   h.gamma = 1.5
 
-  # localization loss
-  h.delta = 0.1  # regularization parameter of huber loss.
-  # total loss = box_loss * box_loss_weight + iou_loss * iou_loss_weight
+  h.delta = 0.1  
   h.box_loss_weight = 50.0
   h.iou_loss_type = 'iou'
   h.iou_loss_weight = 1.0
 
   # regularization l2 loss.
   h.weight_decay = 4e-5
-  ""
+  # If using multiple gpus
   h.strategy = 'gpus'  # 'tpu', 'gpus', None
   h.mixed_precision = False  # If False, use float32.
 
-  # For detection.
-  ""
+
   h.box_class_repeats = 3
-  ""
+  # How many time to repeat the FPN for
   h.fpn_cell_repeats = 3
-  ""
+  # How many filters to put in the FPN
   h.fpn_num_filters = 88
-  ""
+  # Whether to use separable convolution
   h.separable_conv = True
   h.apply_bn_for_resampling = True
-  ""
+  # Whether to use convolution after the downsampling operation
   h.conv_after_downsample = False
   h.conv_bn_act_pattern = False
   h.drop_remainder = True  # drop remainder for the final batch eval.
@@ -302,26 +314,19 @@ def default_detection_configs():
       'max_output_size': 100,
   }
 
-  # version.
-  ""
   h.fpn_name = None
-  ""
   h.fpn_weight_method = None
-  ""
   h.fpn_config = None
 
-  # No stochastic depth in default.
-  ""
   h.survival_prob = None
   h.img_summary_steps = None
 
   h.lr_decay_method = 'cosine' #'polynomial'
   h.moving_average_decay = 0 #0.9998
   h.ckpt_var_scope = None  # ckpt variable scope.
-  # If true, skip loading pretrained weights if shape mismatches.
   h.skip_mismatch = True
 
-  ""
+  # The name of the efficientnet backbone
   h.backbone_name = 'efficientnet-b0'
   h.backbone_config = None
   h.var_freeze_expr = None
@@ -331,7 +336,6 @@ def default_detection_configs():
   h.dataset_type = None
   h.positives_momentum = None
 
-  # For device specific options.
   h.device = {
       # If true, apply gradient checkpointing to reduce memory usage.
       'grad_ckpting': False,

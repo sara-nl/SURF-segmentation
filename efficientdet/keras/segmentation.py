@@ -121,7 +121,7 @@ def get_metastase(wsi_name,data,test_sampler,config):
             column = patch[1]
             try:
                 # Fill in based on coordinates
-                pred[row:row+config.img_size,column:column+config.img_size] = patch[-1][0] # (1,config.img_size,config.img_size,1) -> (config.img_size,config.img_size,1))
+                pred[row:row+config.image_size,column:column+config.image_size] = patch[-1][0] # (1,config.image_size,config.image_size,1) -> (config.image_size,config.image_size,1))
                 if idx % 100 == 0: print(f" Worker {hvd.rank()}:Processed patch {idx + 1} / {len(data)}...")
             except:
                 print(f" Worker {hvd.rank()}:Skipping row {row} column {column} of patch {idx} (mask {pred.shape})")
@@ -167,10 +167,10 @@ def evaluate(model,config,test_sampler):
     done=0
     wsi_idx=0
     _array=[]
-    save_mask = np.zeros((config.img_size,config.img_size,3))
+    save_mask = np.zeros((config.image_size,config.image_size,3))
     patch_idx = 0
     
-    while not done == config.test_cycles:
+    while not done:
         # Get test batch (in orderly fashion; past WSI's / ROI's / FOV coordinates are dropped)
         patches, masks = test_sampler.__getitem__(wsi_idx)
         # Get patch, mask from test_sampler
@@ -193,7 +193,7 @@ def evaluate(model,config,test_sampler):
             
             # Make predictions fit on downsampled rgb-image
             x,y = x_topleft // 2**config.bb_downsample, y_topleft // 2**config.bb_downsample
-            dsize = config.img_size // 2**config.bb_downsample
+            dsize = config.image_size // 2**config.bb_downsample
             mask_down = cv2.resize(predictions[0,...],dsize=(dsize,dsize))[...,None]
             
             # Resize a mask to sizes of downsampled rgb_image
@@ -225,8 +225,8 @@ def evaluate(model,config,test_sampler):
             
             if test_sampler.mode == 'validation':
                 print(f" Worker {hvd.rank()}: Computing mIoU...")
-                mask = np.empty((1,config.img_size,config.img_size,1))
-                pred  = np.empty((1,config.img_size,config.img_size,1))
+                mask = np.empty((1,config.image_size,config.image_size,1))
+                pred  = np.empty((1,config.image_size,config.image_size,1))
                 mIoU = tf.keras.metrics.MeanIoU(num_classes=2)
                 
                 for x in tqdm(_array): 
@@ -241,7 +241,7 @@ def evaluate(model,config,test_sampler):
                     # Update confusion matrix of mIoU see https://www.tensorflow.org/api_docs/python/tf/keras/metrics/MeanIoU#update_state
                     mIoU.update_state(mask,pred)
 
-                print(f" Worker {hvd.rank()}: mIoU of {wsi_name} after {done+1} test_cycle(s) is {mIoU.result().numpy()}")
+                print(f" Worker {hvd.rank()}: mIoU of {wsi_name} is {mIoU.result().numpy()}")
                 print(f" Worker {hvd.rank()}: Evaluated {test_sampler.wsi_idx} / {len(test_sampler.valid_paths)} test WSI's.")
             else:
                 print(f" Worker {hvd.rank()}: Evaluated {test_sampler.wsi_idx} / {len(test_sampler.test_paths)} test WSI's.")
@@ -271,7 +271,7 @@ def evaluate(model,config,test_sampler):
 
 def main(config):
 
-    
+    assert isinstance(config.image_size,int),"WARNING: Please make sure that the config.image_size is an integer"
     train_sampler = SurfSampler(config,mode='train')
     valid_sampler = SurfSampler(config,mode='validation')
     valid_data    = valid_sampler.__getitem__(0)    

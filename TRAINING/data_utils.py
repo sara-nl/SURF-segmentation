@@ -198,7 +198,7 @@ class SurfSampler(tf.keras.utils.Sequence):
         self.save_data      = []
         self.level_used     = opts.bb_downsample
         self.mag_factor     = pow(2, self.level_used)
-        self.patch_size     = opts.img_size
+        self.patch_size     = opts.image_size
         self.tumor_ratio    = opts.batch_tumor_ratio
         self.log_image_path = opts.log_dir
         self.slide_format   = opts.slide_format
