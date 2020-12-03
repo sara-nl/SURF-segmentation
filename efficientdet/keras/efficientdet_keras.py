@@ -27,7 +27,7 @@ from keras import fpn_configs
 from keras import postprocess
 from keras import util_keras
 import pdb
-# pylint: disable=arguments-differ  # fo keras layers.
+# pylint: disable=arguments-differ  # for keras layers.
 
 
 class FNode(tf.keras.layers.Layer):
@@ -290,33 +290,34 @@ class ResampleFeatureMap(tf.keras.layers.Layer):
     return feat
 
   def call(self, feat, training, all_feats):
-    hwc_idx = (2, 3, 1) if self.data_format == 'channels_first' else (1, 2, 3)
-    height, width, num_channels = [feat.shape.as_list()[i] for i in hwc_idx]
-    if all_feats:
-      target_feat_shape = all_feats[self.feat_level].shape.as_list()
-      target_height, target_width, _ = [target_feat_shape[i] for i in hwc_idx]
-    else:
-      # Default to downsampling if all_feats is empty.
-      target_height, target_width = (height + 1) // 2, (width + 1) // 2
-
-    # If conv_after_downsample is True, when downsampling, apply 1x1 after
-    # downsampling for efficiency.
-    if height > target_height and width > target_width:
-      if not self.conv_after_downsample:
-        feat = self._maybe_apply_1x1(feat, training, num_channels)
-      feat = self._pool2d(feat, height, width, target_height, target_width)
-      if self.conv_after_downsample:
-        feat = self._maybe_apply_1x1(feat, training, num_channels)
-    elif height <= target_height and width <= target_width:
-      feat = self._maybe_apply_1x1(feat, training, num_channels)
-      if height < target_height or width < target_width:
-        feat = self._upsample2d(feat, target_height, target_width)
-    else:
-      raise ValueError(
-          'Incompatible Resampling : feat shape {}x{} target_shape: {}x{}'
-          .format(height, width, target_height, target_width))
-
-    return feat
+    with tf.device("/CPU:0"):
+        hwc_idx = (2, 3, 1) if self.data_format == 'channels_first' else (1, 2, 3)
+        height, width, num_channels = [feat.shape.as_list()[i] for i in hwc_idx]
+        if all_feats:
+          target_feat_shape = all_feats[self.feat_level].shape.as_list()
+          target_height, target_width, _ = [target_feat_shape[i] for i in hwc_idx]
+        else:
+          # Default to downsampling if all_feats is empty.
+          target_height, target_width = (height + 1) // 2, (width + 1) // 2
+    
+        # If conv_after_downsample is True, when downsampling, apply 1x1 after
+        # downsampling for efficiency.
+        if height > target_height and width > target_width:
+          if not self.conv_after_downsample:
+            feat = self._maybe_apply_1x1(feat, training, num_channels)
+          feat = self._pool2d(feat, height, width, target_height, target_width)
+          if self.conv_after_downsample:
+            feat = self._maybe_apply_1x1(feat, training, num_channels)
+        elif height <= target_height and width <= target_width:
+          feat = self._maybe_apply_1x1(feat, training, num_channels)
+          if height < target_height or width < target_width:
+            feat = self._upsample2d(feat, target_height, target_width)
+        else:
+          raise ValueError(
+              'Incompatible Resampling : feat shape {}x{} target_shape: {}x{}'
+              .format(height, width, target_height, target_width))
+    
+        return feat
 
 
 class ClassNet(tf.keras.layers.Layer):
@@ -593,6 +594,7 @@ class SegmentationHead(tf.keras.layers.Layer):
       **kwargs: other parameters.
     """
     super().__init__(**kwargs)
+    self.num_classes = num_classes
     self.act_type = act_type
     self.con2d_ts = []
     self.con2d_t_bns = []
@@ -627,7 +629,12 @@ class SegmentationHead(tf.keras.layers.Layer):
       x = tf.concat([x, skip], axis=-1)
 
     # This is the last layer of the model
-    return self.head_transpose(x)  # 64x64 -> 128x128
+    x = self.head_transpose(x)  # 64x64 -> 128x128
+    if self.num_classes == 1:
+        x = tf.math.sigmoid(x)
+        return x
+    elif self.num_classes > 1:
+        return tf.nn.softmax(x)
 
 
 class FPNCells(tf.keras.layers.Layer):
@@ -699,9 +706,10 @@ class FPNCell(tf.keras.layers.Layer):
       self.fnodes.append(fnode)
 
   def call(self, feats, training):
-    for fnode in self.fnodes:
-      feats = fnode(feats, training)
-    return feats
+    with tf.device("/CPU:0"):
+        for fnode in self.fnodes:
+          feats = fnode(feats, training)
+        return feats
 
 
 class EfficientDetNet(tf.keras.Model):
@@ -736,20 +744,22 @@ class EfficientDetNet(tf.keras.Model):
 
     # Feature network.
     self.resample_layers = []  # additional resampling layers.
-    for level in range(6, config.max_level + 1):
-      # Adds a coarser level by downsampling the last feature map.
-      self.resample_layers.append(
-          ResampleFeatureMap(
-              feat_level=(level - config.min_level),
-              target_num_channels=config.fpn_num_filters,
-              apply_bn=config.apply_bn_for_resampling,
-              is_training_bn=config.is_training_bn,
-              conv_after_downsample=config.conv_after_downsample,
-              strategy=config.strategy,
-              data_format=config.data_format,
-              name='resample_p%d' % level,
-          ))
-    self.fpn_cells = FPNCells(config)
+    device = '/GPU:3'
+    with tf.device(f"{device}"):
+        for level in range(6, config.max_level + 1):
+          # Adds a coarser level by downsampling the last feature map.
+          self.resample_layers.append(
+              ResampleFeatureMap(
+                  feat_level=(level - config.min_level),
+                  target_num_channels=config.fpn_num_filters,
+                  apply_bn=config.apply_bn_for_resampling,
+                  is_training_bn=config.is_training_bn,
+                  conv_after_downsample=config.conv_after_downsample,
+                  strategy=config.strategy,
+                  data_format=config.data_format,
+                  name='resample_p%d' % level,
+              ))
+        self.fpn_cells = FPNCells(config)
 
     # class/box output prediction network.
     num_anchors = len(config.aspect_ratios) * config.num_scales

@@ -28,8 +28,9 @@ import numpy as np
 import six
 from six.moves import xrange
 import tensorflow as tf
-
+import pdb
 import utils
+
 
 GlobalParams = collections.namedtuple('GlobalParams', [
     'batch_norm_momentum', 'batch_norm_epsilon', 'dropout_rate', 'data_format',
@@ -369,47 +370,49 @@ class MBConvBlock(tf.keras.layers.Layer):
     Returns:
       A output tensor.
     """
-    logging.info('Block %s input shape: %s', self.name, inputs.shape)
-    x = inputs
-    # creates conv 2x2 kernel
-    if self.super_pixel:
-      x = self.super_pixel(x, training)
-      logging.info('SuperPixel %s: %s', self.name, x.shape)
-
-    if self._block_args.fused_conv:
-      # If use fused mbconv, skip expansion and use regular conv.
-      x = self._relu_fn(self._bn1(self._fused_conv(x), training=training))
-      logging.info('Conv2D shape: %s', x.shape)
-    else:
-      # Otherwise, first apply expansion and then apply depthwise conv.
-      if self._block_args.expand_ratio != 1:
-        x = self._relu_fn(self._bn0(self._expand_conv(x), training=training))
-        logging.info('Expand shape: %s', x.shape)
-
-      x = self._relu_fn(self._bn1(self._depthwise_conv(x), training=training))
-      logging.info('DWConv shape: %s', x.shape)
-
-    if self._se:
-      x = self._se(x)
-
-    self.endpoints = {'expansion_output': x}
-
-    x = self._bn2(self._project_conv(x), training=training)
-    # Add identity so that quantization-aware training can insert quantization
-    # ops correctly.
-    x = tf.identity(x)
-    if self._clip_projection_output:
-      x = tf.clip_by_value(x, -6, 6)
-    if self._block_args.id_skip:
-      if all(
-          s == 1 for s in self._block_args.strides
-      ) and self._block_args.input_filters == self._block_args.output_filters:
-        # Apply only if skip connection presents.
-        if survival_prob:
-          x = utils.drop_connect(x, training, survival_prob)
-        x = tf.add(x, inputs)
-    logging.info('Project shape: %s', x.shape)
-    return x
+    device = '/GPU:3'
+    with tf.device(f"{device}"):
+        logging.info('Block %s input shape: %s', self.name, inputs.shape)
+        x = inputs
+        # creates conv 2x2 kernel
+        if self.super_pixel:
+          x = self.super_pixel(x, training)
+          logging.info('SuperPixel %s: %s', self.name, x.shape)
+    
+        if self._block_args.fused_conv:
+          # If use fused mbconv, skip expansion and use regular conv.
+          x = self._relu_fn(self._bn1(self._fused_conv(x), training=training))
+          logging.info('Conv2D shape: %s', x.shape)
+        else:
+          # Otherwise, first apply expansion and then apply depthwise conv.
+          if self._block_args.expand_ratio != 1:
+            x = self._relu_fn(self._bn0(self._expand_conv(x), training=training))
+            logging.info('Expand shape: %s', x.shape)
+    
+          x = self._relu_fn(self._bn1(self._depthwise_conv(x), training=training))
+          logging.info('DWConv shape: %s', x.shape)
+    
+        if self._se:
+          x = self._se(x)
+    
+        self.endpoints = {'expansion_output': x}
+    
+        x = self._bn2(self._project_conv(x), training=training)
+        # Add identity so that quantization-aware training can insert quantization
+        # ops correctly.
+        x = tf.identity(x)
+        if self._clip_projection_output:
+          x = tf.clip_by_value(x, -6, 6)
+        if self._block_args.id_skip:
+          if all(
+              s == 1 for s in self._block_args.strides
+          ) and self._block_args.input_filters == self._block_args.output_filters:
+            # Apply only if skip connection presents.
+            if survival_prob:
+              x = utils.drop_connect(x, training, survival_prob)
+            x = tf.add(x, inputs)
+        logging.info('Project shape: %s', x.shape)
+        return x
 
 
 class MBConvBlockWithoutDepthwise(MBConvBlock):
@@ -551,7 +554,9 @@ class Head(tf.keras.layers.Layer):
         [2, 3] if global_params.data_format == 'channels_first' else [1, 2])
 
   def call(self, inputs, training, pooled_features_only):
+      
     """Call the layer."""
+    
     outputs = self._relu_fn(
         self._bn(self._conv_head(inputs), training=training))
     self.endpoints['head_1x1'] = outputs
@@ -710,40 +715,45 @@ class Model(tf.keras.Model):
     outputs = None
     self.endpoints = {}
     reduction_idx = 0
-
-    # Calls Stem layers
-    outputs = self._stem(inputs, training)
-    logging.info('Built stem %s : %s', self._stem.name, outputs.shape)
-    self.endpoints['stem'] = outputs
+    device = '/GPU:3'
+    with tf.device(f"{device}"):
+        # Calls Stem layers
+        outputs = self._stem(inputs, training)
+        logging.info('Built stem %s : %s', self._stem.name, outputs.shape)
+        self.endpoints['stem'] = outputs
 
     # Calls blocks.
-    for idx, block in enumerate(self._blocks):
-      is_reduction = False  # reduction flag for blocks after the stem layer
-      # If the first block has super-pixel (space-to-depth) layer, then stem is
-      # the first reduction point.
-      if (block.block_args.super_pixel == 1 and idx == 0):
-        reduction_idx += 1
-        self.endpoints['reduction_%s' % reduction_idx] = outputs
-
-      elif ((idx == len(self._blocks) - 1) or
-            self._blocks[idx + 1].block_args.strides[0] > 1):
-        is_reduction = True
-        reduction_idx += 1
-
-      survival_prob = self._global_params.survival_prob
-      if survival_prob:
-        drop_rate = 1.0 - survival_prob
-        survival_prob = 1.0 - drop_rate * float(idx) / len(self._blocks)
-        logging.info('block_%s survival_prob: %s', idx, survival_prob)
-      outputs = block(outputs, training=training, survival_prob=survival_prob)
-      self.endpoints['block_%s' % idx] = outputs
-      if is_reduction:
-        self.endpoints['reduction_%s' % reduction_idx] = outputs
-      if block.endpoints:
-        for k, v in six.iteritems(block.endpoints):
-          self.endpoints['block_%s/%s' % (idx, k)] = v
+    device = '/GPU:1'
+    with tf.device(f"{device}"):
+        for idx, block in enumerate(self._blocks):
+          is_reduction = False  # reduction flag for blocks after the stem layer
+          # If the first block has super-pixel (space-to-depth) layer, then stem is
+          # the first reduction point.
+          if (block.block_args.super_pixel == 1 and idx == 0):
+            reduction_idx += 1
+            self.endpoints['reduction_%s' % reduction_idx] = outputs
+    
+          elif ((idx == len(self._blocks) - 1) or
+                self._blocks[idx + 1].block_args.strides[0] > 1):
+            is_reduction = True
+            reduction_idx += 1
+    
+          survival_prob = self._global_params.survival_prob
+          if survival_prob:
+            drop_rate = 1.0 - survival_prob
+            survival_prob = 1.0 - drop_rate * float(idx) / len(self._blocks)
+            logging.info('block_%s survival_prob: %s', idx, survival_prob)
+          outputs = block(outputs, training=training, survival_prob=survival_prob)
+          self.endpoints['block_%s' % idx] = outputs
           if is_reduction:
-            self.endpoints['reduction_%s/%s' % (reduction_idx, k)] = v
+            self.endpoints['reduction_%s' % reduction_idx] = outputs
+          if block.endpoints:
+            for k, v in six.iteritems(block.endpoints):
+              self.endpoints['block_%s/%s' % (idx, k)] = v
+              if is_reduction:
+                self.endpoints['reduction_%s/%s' % (reduction_idx, k)] = v
+    
+
     self.endpoints['features'] = outputs
 
     if not features_only:

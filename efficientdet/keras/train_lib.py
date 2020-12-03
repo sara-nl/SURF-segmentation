@@ -301,7 +301,8 @@ class DisplayCallback(tf.keras.callbacks.Callback):
             self.train_images = self.train_data[0]
             self.train_masks  = self.train_data[1]
             pred = self.train_model(self.train_images)[0]
-            pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
+
+            # pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
             with self.file_writer.as_default():
                 tf.summary.image(f' Worker {hvd.rank()}:Train images', tf.cast(self.train_images*255,tf.uint8), step=epoch,max_outputs=10)
                 tf.summary.image(f' Worker {hvd.rank()}:Train masks',  tf.cast(self.train_masks*255,tf.uint8), step=epoch,max_outputs=10)
@@ -320,8 +321,9 @@ class DisplayCallback(tf.keras.callbacks.Callback):
     # self.model.set_weights(self.train_model.get_weights())
     pred = self.inference()[0] # output is tuple so pred[0] = tf.Tensor((batchsize,imsize,imsize,num_classes)) (logits)
     if hvd.rank() == self.save_worker:
-        pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
-        self.mean_iou.update_state(self.valid_masks,pred)
+        # pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
+        predround = tf.round(pred)
+        self.mean_iou.update_state(self.valid_masks,predround)
         self.auc.update_state(self.valid_masks,pred)
         # length = valid_len[0]
         # image = inference.visualize_image(
@@ -336,10 +338,9 @@ class DisplayCallback(tf.keras.callbacks.Callback):
         with self.file_writer.as_default():
           tf.summary.image(f' Worker {hvd.rank()}:Valid images', tf.cast(self.valid_images*255,tf.uint8), step=epoch,max_outputs=10)
           tf.summary.image(f' Worker {hvd.rank()}:Valid masks',  tf.cast(self.valid_masks*255,tf.uint8), step=epoch,max_outputs=10)
-          tf.summary.image(f' Worker {hvd.rank()}:Valid preds',  tf.cast(pred*255,tf.uint8),step=epoch,max_outputs=10)
+          tf.summary.image(f' Worker {hvd.rank()}:Valid preds',  tf.cast(predround*255,tf.uint8),step=epoch,max_outputs=10)
           tf.summary.scalar(f' Worker {hvd.rank()}:Valid mIoU', self.mean_iou.result().numpy(), step=epoch)
           tf.summary.scalar(f' Worker {hvd.rank()}:Valid AUC',  self.auc.result().numpy(), step=epoch)
-          tf.summary.scalar(f' Worker {hvd.rank()}:Learning Rate', self.train_model.optimizer.get_config()['learning_rate'],step=epoch)
         print(f" Worker {hvd.rank()}: Finished writing summaries")
 
       

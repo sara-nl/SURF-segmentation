@@ -40,15 +40,17 @@ import json
 from sklearn.cluster import DBSCAN
 from effdet_options import get_options
 import util_keras
+import tensorflow_addons as tfa
 
-hvd.init()
+
 
 # Horovod: pin GPU to be used to process local rank (one GPU per process)
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 if gpus:
-    tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+    # tf.config.experimental.set_visible_devices(gpus[hvd.local_rank()], 'GPU')
+    tf.config.experimental.set_visible_devices(gpus, 'GPU')
 
 print(gpus)
 tf.debugging.set_log_device_placement(False)
@@ -164,6 +166,30 @@ def get_metastase(wsi_name,data,test_sampler,config):
 
 
 def evaluate(model,config,test_sampler):
+    """
+    
+    Parameters
+    ----------
+    model       : tensorflow.keras.Model checkpoint, trained model used for
+    evaluation.
+    config      : config.object configuration file ("config.object").
+    
+    test_sampler: tensorflow.keras.utils.sequence used for data sampling
+
+    - Evaluates the test data. If a validation sampler passed to this function,
+    it will evaluate the validation data.
+    - Every WSI, it will save an overlay, in which the tumor and non tumor is
+    annotated.
+    - In the case of validation data with labels, it will also compute the 
+    mIoU of the Whole Slide Images.
+    - Lastly, it will save a csv per whole slide image with the metastases of
+    the tumor cells, using the function method `get_metastase`.
+    
+    Returns
+    -------
+        -.
+
+    """
     done=0
     wsi_idx=0
     _array=[]
@@ -179,7 +205,7 @@ def evaluate(model,config,test_sampler):
             mask = mask[None,...]
             # Predict patch
             pred = model(patch)[0]
-            pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
+            # pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
             predictions = tf.cast(pred * 255, tf.uint8).numpy()
             # Make mask
             if test_sampler.mode == 'validation':
@@ -284,14 +310,20 @@ def main(config):
     # scaled_lr = 0.001 * hvd.size()
     # optimizer = tf.optimizers.Adam(scaled_lr)
     # Horovod: add Horovod DistributedOptimizer.
-    opt = hvd.DistributedOptimizer(optimizer,compression=compression)
+    opt = hvd.DistributedOptimizer(optimizer,
+                                       compression=compression,
+                                       device_dense='/GPU:0',
+                                       device_sparse='/GPU:1')
+                                       # backward_passes_per_step=1)
         
     model = efficientdet_keras.EfficientDetNet(config=config)
     if os.path.isfile(os.path.join(config.log_dir,'checkpoint')):
         print(f"Loading checkpoint from {os.path.join(config.log_dir,'checkpoint')} ...")
         model.compile(optimizer=opt,
-                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                      metrics=['accuracy'],
+                      # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
+                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True),
+                      # Also include background in metrics
+                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1+config.num_classes)],
                       experimental_run_tf_function=False)
         model.build((config.batch_size, config.image_size, config.image_size, 3))
         ckpt_path = tf.train.latest_checkpoint(config.log_dir)
@@ -299,8 +331,10 @@ def main(config):
     else:
         model.build((config.batch_size, config.image_size, config.image_size, 3))
         model.compile(optimizer=opt,
-                      loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                      metrics=['accuracy'],
+                      # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
+                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True),
+                      # Also include background in metrics
+                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1 + config.num_classes)],
                       experimental_run_tf_function=False,
                       run_eagerly=True)
    
@@ -339,6 +373,7 @@ def main(config):
         # if hvd.rank() == 0:
         cb_options = train_lib.get_callbacks(config, train_sampler, valid_sampler, profile=False)
         callbacks.extend(cb_options)
+        # with tf.device("/CPU:0"):
         model.fit(
             train_sampler,
             epochs=config.num_epochs,
@@ -360,11 +395,13 @@ def main(config):
     # get_pn_staging(config,test_sampler)
 
 if __name__ == '__main__':
+  hvd.init()
   logging.set_verbosity(logging.WARNING)
 
   config = hparams_config.get_efficientdet_config('efficientdet-d0')
   opts = get_options()
-
+  # Override config with command line args
   config.update(opts.__dict__)
+  
 
   main(config)

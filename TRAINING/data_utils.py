@@ -508,8 +508,8 @@ class SurfSampler(tf.keras.utils.Sequence):
         print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(bc)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
             
         # If past all patches of contour, get next contour
-        if len(self.pixelpoints) <= self.batch_size:
-        # if 1: # for debugging
+        # if len(self.pixelpoints) <= self.batch_size:
+        if 1: # for debugging
             self.cnt +=1
             self.pixelpoints = []
             

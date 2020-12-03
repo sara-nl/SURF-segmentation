@@ -168,11 +168,11 @@ class Config(object):
 def default_detection_configs():
   """Returns a default detection configs."""
   h = Config()
-  
+  hvd.init()
   # For WSI Sampler
   h.batch_size = 4
   # String format gets appended to paths, so glob wild cards possible, like /path/to/data/folder_*/ (if you want folder 1-4 for example)
-  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_1/'
+  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_*/'
   h.label_path = '/nfs/managed_datasets/CAMELYON17/training'
   # h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
   # h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
@@ -205,6 +205,7 @@ def default_detection_configs():
   # Whether horovod should reduce in floating point 16 precision
   h.fp16_allreduce = True
 
+
     
   # model name.
   h.name = 'efficientdet-d0'
@@ -231,7 +232,7 @@ def default_detection_configs():
   # This is only used for object detection
   h.num_classes = 90  # 1+ actual classes, 0 is reserved for background.
   # The number of classes for segmentation
-  h.seg_num_classes = 2  # segmentation classes
+  h.seg_num_classes = 1  # segmentation classes
   # The head of the network
   h.heads = ['segmentation']  # 'object_detection', 'segmentation'
 
@@ -367,7 +368,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d1',
             backbone_name='efficientnet-b1',
-            image_size=640,
+            image_size=2048,
             fpn_num_filters=88,
             fpn_cell_repeats=4,
             box_class_repeats=3,
@@ -376,7 +377,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d2',
             backbone_name='efficientnet-b2',
-            image_size=768,
+            image_size=2048,
             fpn_num_filters=112,
             fpn_cell_repeats=5,
             box_class_repeats=3,
@@ -394,7 +395,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d4',
             backbone_name='efficientnet-b4',
-            image_size=1024,
+            image_size=2048,
             fpn_num_filters=224,
             fpn_cell_repeats=3,
             box_class_repeats=4,

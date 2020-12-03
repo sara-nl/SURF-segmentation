@@ -24,6 +24,8 @@ from tensorflow.python.tpu import tpu_function  # pylint:disable=g-direct-tensor
 from horovod.tensorflow.mpi_ops import _allreduce
 from horovod.tensorflow.mpi_ops import size, rank
 from horovod.tensorflow.mpi_ops import Sum, Adasum, Average
+
+
 # pylint: disable=logging-format-interpolation
 
 
@@ -39,7 +41,9 @@ def srelu_fn(x):
 def activation_fn(features: tf.Tensor, act_type: Text):
   """Customized non-linear activation type."""
   if act_type in ('silu', 'swish'):
-    return tf.nn.swish(features)
+    device = '/GPU:1'       
+    with tf.device(f"{device}"):
+        return tf.nn.swish(features)
   elif act_type == 'swish_native':
     return features * tf.sigmoid(features)
   elif act_type == 'hswish':
@@ -218,6 +222,7 @@ class TF_SyncBatchNormalization(tf.keras.layers.BatchNormalization):
       return (shard_mean, shard_variance)
 
   def call(self, inputs, training=None):
+     
     outputs = super().call(inputs, training)
     # A temporary hack for tf1 compatibility with keras batch norm.
     for u in self.updates:
@@ -259,18 +264,19 @@ class SyncBatchNormalization(tf.keras.layers.BatchNormalization):
       return (worker_mean, worker_variance)
 
   def call(self, *args, **kwargs):
-
-    outputs = super(SyncBatchNormalization, self).call(*args, **kwargs)
-
-    try:
-      # A temporary hack for TF1 compatibility with Keras batch norm.
-      # Ops are added to tf.GraphKeys.UPDATE_OPS manually to mimic
-      # behavior of TF1 batch norm layer for use in control dependencies.
-      for u in self.updates:
-        tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, u)
-    except AttributeError:
-      pass
-    return outputs
+    device = '/GPU:2'
+    with tf.device(f"{device}"):
+        outputs = super(SyncBatchNormalization, self).call(*args, **kwargs)
+    
+        try:
+          # A temporary hack for TF1 compatibility with Keras batch norm.
+          # Ops are added to tf.GraphKeys.UPDATE_OPS manually to mimic
+          # behavior of TF1 batch norm layer for use in control dependencies.
+          for u in self.updates:
+            tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, u)
+        except AttributeError:
+          pass
+        return outputs
 
 
 class BatchNormalization(tf.keras.layers.BatchNormalization):
