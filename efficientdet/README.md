@@ -2,10 +2,10 @@
 - [x] Implement multi node framework (Horovod)
 - [ ] Provide Checkpoints
 - [x] Give overview of different Horovod autotune settings
-- [ ] Give explanation in README on testing Whole Slide Images in CAMELYON17
+- [x] Give explanation in README on testing Whole Slide Images in CAMELYON17
 
 
-# Extended FoV Semantic Segmentation using EfficientDet
+# Extended FoV Semantic Segmentation using Pipeline - Parallel EfficientDet*
 - EfficientDet ( https://arxiv.org/abs/1911.09070 )
 
 - The methods described here are based on the _tf.keras_ implementation
@@ -92,6 +92,12 @@ hosts="${hosts%?}"
 echo "HOSTS: $hosts"
 ```
 - This will output `r34n4:4` if running on node r34n4 with 4 GPU's
+
+* **!!IMPORTANT!!**
+- This is a pipeline parallel implementation of EfficientDet, **splitting the model across 4 GPU's** to optimize for memory constraints of large Field-of-View training. 
+- Current implementation can train at **2048x2048 pixels on efficientdet-d0** (~ 6 mln parameters).
+- **Layer Activation Maps will be > 180GB above 4096x4096 image size**
+- **Always run `--mpi-args="--map-by ppr:1:node"` (1 MPI process per node ( = 4 GPU's) ** 
 
 
 - Configurable command line arguments:
