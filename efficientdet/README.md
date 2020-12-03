@@ -185,3 +185,14 @@ python -u segmentation.py \
 --log_dir /home/rubenh/SURF-deeplab/efficientdet/keras/test \
 --steps_per_epoch 100 \
 --num_epochs 500
+
+#### Horovod Autotune
+- As said, setting the autotune flag `--autotune` in combination with the `--autotune_log_file` flag will log the horovod communication settings and optimize them. Please have a look at the documentation of <a href="https://horovod.readthedocs.io/en/stable/autotune_include.html">horovod autotune</a>, to monitor the appropriate variables.
+> This is recommended as it can greatly speed up training, looking at the table below:
+
+| hierarchical\_allreduce | hierarchical\_allgather | cache\_enabled | cycle\_time\_ms | tensor\_fusion\_threshold (MB) | **bytes (allreduce + allgathered) per ms** |
+| ----------------------- | ----------------------- | -------------- | --------------- | ------------------------------ | -------------------------------------- |
+| 1                       | 0                       | 0              | 5               | 4                              | 565.437                                |
+| 0                       | 0                       | 0              | 999.812         | 639.752                        | 0.485842                               |
+| 1                       | 0                       | 1              | 862.503         | 125.083                        | 994.484                                |
+| 0                       | 0                       | 0              | 945.245         | 260.056                        | 18.573                                 |
