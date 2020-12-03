@@ -129,7 +129,7 @@ To start a training run on LISA with the **CAMELYON17** dataset,
 
 - **image size 1024x1024**
 
-- **batch size 1**
+- **batch size 2**
 
 - **4 workers**
 
@@ -157,10 +157,10 @@ h.image_size = 1024
 horovodrun -np 4 \
 --autotune \
 --autotune_log_file autotune.csv \
---mpi-args="--map-by ppr:4:node" \
+--mpi-args="--map-by ppr:1:node" \
 --hosts $hosts \
 python -u segmentation.py \
---batch_size 1 \
+--batch_size 2 \
 --optimizer SGD \
 --lr_decay_method cosine \
 --name efficientdet-d0 \
@@ -180,10 +180,10 @@ python -u segmentation.py \
 horovodrun -np 4 \
 --autotune \
 --autotune_log_file autotune.csv \
---mpi-args="--map-by ppr:4:node" \
+--mpi-args="--map-by ppr:1:node" \
 --hosts $hosts \
 python -u segmentation.py \
---batch_size 1 \
+--batch_size 2 \
 --evaluate \
 --optimizer SGD \
 --lr_decay_method cosine \
