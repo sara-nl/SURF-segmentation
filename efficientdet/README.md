@@ -93,14 +93,14 @@ echo "HOSTS: $hosts"
 ```
 - This will output `r34n4:4` if running on node r34n4 with 4 GPU's
 
-# **!!IMPORTANT!!**
+# **!! IMPORTANT !!**
 - This is a pipeline parallel implementation of EfficientDet, **splitting the model across 4 GPU's** to optimize for memory constraints of large Field-of-View training. 
 - Current implementation can train at **2048x2048 pixels on efficientdet-d0** (~ 6 mln parameters).
 - **Layer Activation Maps will be > 180GB above 4096x4096 image size**
 - **Always run `--mpi-args="--map-by ppr:1:node"` (1 MPI process per node ( = 4 GPU's)** 
 
 
-- Configurable command line arguments:
+### Configurable command line arguments:
 ```
 python -u segmentation.py --help
 >>>>
