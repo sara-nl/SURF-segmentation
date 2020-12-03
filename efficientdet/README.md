@@ -224,7 +224,7 @@ patient_102.zip,pN0
 .
 ```
 
-#### Horovod Autotune
+### Horovod Autotune
 - As said, setting the autotune flag `--autotune` in combination with the `--autotune_log_file` flag will log the horovod communication settings and optimize them. Please have a look at the documentation of <a href="https://horovod.readthedocs.io/en/stable/autotune_include.html">horovod autotune</a>, to monitor the appropriate variables.
 > This is recommended as it can greatly speed up training, looking at the table below:
 
