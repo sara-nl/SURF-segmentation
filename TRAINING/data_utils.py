@@ -208,7 +208,7 @@ class SurfSampler(tf.keras.utils.Sequence):
         self.steps_per_epoch= opts.steps_per_epoch
         self.wsi_idx        = 0
     
-    
+        self.train_paths = self.train_paths * hvd.size()
         assert hvd.size() <= len(self.train_paths), f"WARNING: {hvd.size()} workers will share {len(self.train_paths)} train images"
         trainims     = len(self.train_paths)
         train_per_worker     = trainims // hvd.size()
@@ -378,9 +378,9 @@ class SurfSampler(tf.keras.utils.Sequence):
             self.pixelpoints = np.delete(self.pixelpoints,del_row,axis=0)
         
         print(f"\n\nTrain sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
-            
         # If past all patches of contour, get next contour
         if len(self.pixelpoints) <= self.batch_size:
+        
         # if 1: # for debugging
             self.cnt +=1
             self.pixelpoints = []
@@ -508,8 +508,8 @@ class SurfSampler(tf.keras.utils.Sequence):
         print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(bc)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
             
         # If past all patches of contour, get next contour
-        # if len(self.pixelpoints) <= self.batch_size:
-        if 1: # for debugging
+        if len(self.pixelpoints) <= self.batch_size:
+        # if 1: # for debugging
             self.cnt +=1
             self.pixelpoints = []
             
@@ -745,8 +745,9 @@ class SurfSampler(tf.keras.utils.Sequence):
                             pass
                         pass
                 
-
+            
             image = pyvips.Image.new_from_file(self.cur_wsi_path[0])
+
             if not self.mode == 'test':
                 if self.opts.label_format.find('xml') > -1:
                     mask_image  = pyvips.Image.new_from_memory(self.mask,self.mask.shape[1],self.mask.shape[0],1,dtype_to_format[str(self.mask.dtype)])
@@ -786,7 +787,9 @@ class SurfSampler(tf.keras.utils.Sequence):
         else:
             patches, masks = SurfSampler.trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
             self.save_data = []
-    
+        
+        # Make one - hot
+        masks = np.where(masks == 0,[255,0],[0,255])
         # self.wsi.close()
         # if hasattr(self,'mask'):
         #     del self.mask

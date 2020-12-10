@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -N 8
-#SBATCH -t 48:00:00
-#SBATCH -p gpu_titanrtx
-#SBATCH -o R-8nodes4096.out
-#SBATCH -e R-8nodes4096.err
+#SBATCH -N 1
+#SBATCH -t 1:00:00
+#SBATCH -p gpu_titanrtx_short
+#SBATCH -o R-pp.out
+#SBATCH -e R-pp.err
 #SBATCH -x r34n6
 ##r34n6 is broken
 
@@ -29,7 +29,6 @@ pip install tqdm
 pip install six
 pip install opencv-python
 pip install openslide-python
-pip install pyvips
 pip install pandas
 pip install numba
 export HOROVOD_CUDA_HOME=$CUDA_HOME
@@ -63,18 +62,19 @@ hosts="${hosts%?}"
 echo "HOSTS: $hosts"
 
 
-horovodrun -np 2 \
+horovodrun -np 1 \
 --autotune \
+--autotune-log-file autotune.csv \
 --mpi-args="--map-by ppr:1:node" \
 --hosts $hosts \
 python -u /home/rubenh/SURF-segmentation/efficientdet/keras/segmentation.py \
---batch_size 2 \
+--batch_size 1 \
 --optimizer SGD \
 --lr_decay_method cosine \
 --name efficientdet-d0 \
---log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/delete \
---steps_per_epoch 30 \
---num_epochs 100
+--log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/delete2048 \
+--steps_per_epoch 50 \
+--num_epochs 500
 
 exit
 

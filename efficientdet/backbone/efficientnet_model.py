@@ -721,7 +721,7 @@ class Model(tf.keras.Model):
         outputs = self._stem(inputs, training)
         logging.info('Built stem %s : %s', self._stem.name, outputs.shape)
         self.endpoints['stem'] = outputs
-
+    
     # Calls blocks.
     device = '/GPU:1'
     with tf.device(f"{device}"):
@@ -752,7 +752,7 @@ class Model(tf.keras.Model):
               self.endpoints['block_%s/%s' % (idx, k)] = v
               if is_reduction:
                 self.endpoints['reduction_%s/%s' % (reduction_idx, k)] = v
-    
+        
 
     self.endpoints['features'] = outputs
 

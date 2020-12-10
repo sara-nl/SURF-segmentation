@@ -253,7 +253,7 @@ def evaluate(model,config,test_sampler):
                 print(f" Worker {hvd.rank()}: Computing mIoU...")
                 mask = np.empty((1,config.image_size,config.image_size,1))
                 pred  = np.empty((1,config.image_size,config.image_size,1))
-                mIoU = tf.keras.metrics.MeanIoU(num_classes=2)
+                mIoU = tf.keras.metrics.MeanIoU(num_classes=1+config.seg_num_classes)
                 
                 for x in tqdm(_array): 
                     mask  = x[2]
@@ -312,19 +312,22 @@ def main(config):
     # Horovod: add Horovod DistributedOptimizer.
     opt = hvd.DistributedOptimizer(optimizer,
                                        compression=compression,
-                                       device_dense='/GPU:0',
-                                       device_sparse='/GPU:1')
-                                       # backward_passes_per_step=1)
+                                        device_dense='/GPU:0',
+                                        device_sparse='/GPU:1')
+                                       # backward_passes_per_step=3)
         
     model = efficientdet_keras.EfficientDetNet(config=config)
     if os.path.isfile(os.path.join(config.log_dir,'checkpoint')):
         print(f"Loading checkpoint from {os.path.join(config.log_dir,'checkpoint')} ...")
         model.compile(optimizer=opt,
                       # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
-                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True),
+                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
+                                                                  reduction=tf.keras.losses.Reduction.AUTO),
+                      # loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                       # Also include background in metrics
-                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1+config.num_classes)],
-                      experimental_run_tf_function=False)
+                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1+config.seg_num_classes)],
+                      experimental_run_tf_function=False,
+                      run_eagerly=True)
         model.build((config.batch_size, config.image_size, config.image_size, 3))
         ckpt_path = tf.train.latest_checkpoint(config.log_dir)
         util_keras.restore_ckpt(model, ckpt_path, config.moving_average_decay)
@@ -332,9 +335,11 @@ def main(config):
         model.build((config.batch_size, config.image_size, config.image_size, 3))
         model.compile(optimizer=opt,
                       # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
-                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True),
+                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
+                                                                 reduction=tf.keras.losses.Reduction.AUTO),
+                      # loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
                       # Also include background in metrics
-                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1 + config.num_classes)],
+                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1 + config.seg_num_classes)],
                       experimental_run_tf_function=False,
                       run_eagerly=True)
    

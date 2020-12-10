@@ -630,11 +630,12 @@ class SegmentationHead(tf.keras.layers.Layer):
 
     # This is the last layer of the model
     x = self.head_transpose(x)  # 64x64 -> 128x128
-    if self.num_classes == 1:
-        x = tf.math.sigmoid(x)
-        return x
-    elif self.num_classes > 1:
-        return tf.nn.softmax(x)
+    return x 
+    # if self.num_classes == 1:
+    #     x = tf.math.sigmoid(x)
+    #     return x
+    # elif self.num_classes > 1:
+    #     return tf.nn.softmax(x)
 
 
 class FPNCells(tf.keras.layers.Layer):
@@ -759,7 +760,7 @@ class EfficientDetNet(tf.keras.Model):
                   data_format=config.data_format,
                   name='resample_p%d' % level,
               ))
-        self.fpn_cells = FPNCells(config)
+    self.fpn_cells = FPNCells(config)
 
     # class/box output prediction network.
     num_anchors = len(config.aspect_ratios) * config.num_scales

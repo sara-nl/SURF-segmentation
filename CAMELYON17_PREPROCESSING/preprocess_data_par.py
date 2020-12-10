@@ -177,7 +177,16 @@ class WSI(object):
 
                 for x_left in range(b_x_start, b_x_end, PATCH_SIZE):
 
-                    patch = self.wsi_image.read_region((x_left, y_left), self.level_output, (PATCH_SIZE, PATCH_SIZE))
+                    wsi_path=0
+                    self.patch_size = 0
+                    zoomlevel = 0
+                    x_topleft=0
+                    y_topleft=0
+                    
+                    self.wsi_image = OpenSlide(wsi_path)
+                    patch = self.wsi_image.read_region((x_topleft, y_topleft), zoomlevel, (self.patch_size, self.patch_size))
+                    
+                    
                     mask = self.mask_image.read_region((x_left, y_left), 0, (PATCH_SIZE, PATCH_SIZE))
 
                     _std = ImageStat.Stat(patch).stddev

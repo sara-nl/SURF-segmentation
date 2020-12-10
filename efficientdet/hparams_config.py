@@ -172,8 +172,8 @@ def default_detection_configs():
   # For WSI Sampler
   h.batch_size = 4
   # String format gets appended to paths, so glob wild cards possible, like /path/to/data/folder_*/ (if you want folder 1-4 for example)
-  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_*/'
-  h.label_path = '/nfs/managed_datasets/CAMELYON17/training'
+  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_*/' #'/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi' 
+  h.label_path = '/nfs/managed_datasets/CAMELYON17/training/' #'/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'
   # h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
   # h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
   h.valid_slide_path = '/home/rubenh/SURF-segmentation/efficientdet/keras/testwsi'
@@ -231,8 +231,8 @@ def default_detection_configs():
   # TODO(tanmingxing): update this to be 91 for COCO, and 21 for pascal.
   # This is only used for object detection
   h.num_classes = 90  # 1+ actual classes, 0 is reserved for background.
-  # The number of classes for segmentation
-  h.seg_num_classes = 1  # segmentation classes
+  # The number of classes for segmentation, excluding background so binary is 1 class
+  h.seg_num_classes = 2  # segmentation classes including background
   # The head of the network
   h.heads = ['segmentation']  # 'object_detection', 'segmentation'
 
@@ -258,11 +258,11 @@ def default_detection_configs():
   # Optimizer name
   h.optimizer = 'sgd'  # can be 'adam' or 'sgd'.
   # The initial learning rate
-  h.learning_rate = 0.008  # 0.008 for adam.
+  h.learning_rate = 0.001  # 
   # The initial warming up learning rate
-  h.lr_warmup_init = 0.00001  # 0.0008 for adam.
+  h.lr_warmup_init = 0.01  #
   # The amount of epochs to warmup for
-  h.lr_warmup_epoch = 1.0 # How many epochs to warm up for
+  h.lr_warmup_epoch = 50.0 # How many epochs to warm up for
   # The first drop epoch for the Stepwise learning rate schedule
   h.first_lr_drop_epoch = 30.0
   # The second drop epoch for the Stepwise learning rate schedule
@@ -270,7 +270,7 @@ def default_detection_configs():
   # The fpower of the decay polynomial for the Polynomial learning rate schedule
   h.poly_lr_power = 0.9
   # If the gradients should be clipped
-  h.clip_gradients_norm = 10.0
+  h.clip_gradients_norm = 10000.0
   
   h.total_steps = 1 # will be overwritten by steps_per_epoch * num_epochs
   # The data format of the input data
@@ -359,7 +359,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d0',
             backbone_name='efficientnet-b0',
-            image_size=1024,
+            image_size=2048,
             fpn_num_filters=64,
             fpn_cell_repeats=6,
             box_class_repeats=3,

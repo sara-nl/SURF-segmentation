@@ -246,6 +246,8 @@ class SyncBatchNormalization(tf.keras.layers.BatchNormalization):
     worker_mean, worker_variance = super(SyncBatchNormalization, self)._moments(
       inputs, reduction_axes, keep_dims=keep_dims)
     
+    # print(worker_mean)
+    # print(worker_variance)
     if size() > 1:
       # Compute variance using: Var[X] = E[X^2] - E[X]^2.
       worker_square_of_mean = tf.math.square(worker_mean)
@@ -253,12 +255,11 @@ class SyncBatchNormalization(tf.keras.layers.BatchNormalization):
 
       # Average stats across all workers
       worker_stack = tf.stack([worker_mean, worker_mean_of_square])
-      group_stack = _allreduce(worker_stack, op=Sum)
+      group_stack = _allreduce(worker_stack, op=Average)
       group_stack /= size()
       group_mean, group_mean_of_square = tf.unstack(group_stack)
 
       group_variance = group_mean_of_square - tf.math.square(group_mean)
-
       return (group_mean, group_variance)
     else:
       return (worker_mean, worker_variance)
@@ -288,6 +289,7 @@ class BatchNormalization(tf.keras.layers.BatchNormalization):
     super().__init__(**kwargs)
 
   def call(self, inputs, training=None):
+
     outputs = super().call(inputs, training)
     # A temporary hack for tf1 compatibility with keras batch norm.
     for u in self.updates:
