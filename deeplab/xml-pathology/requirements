@@ -1,9 +1,0 @@
-shapely
-GitPython
-psutil
-matplotlib
-numpy
-scipy
-opencv-python
-pyyaml
-tensorflow-gpu==2.0
