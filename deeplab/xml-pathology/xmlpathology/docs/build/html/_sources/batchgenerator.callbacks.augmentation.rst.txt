@@ -1,0 +1,18 @@
+batchgenerator.callbacks.augmentation package
+=============================================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   batchgenerator.callbacks.augmentation.augmenters
+
+Module contents
+---------------
+
+.. automodule:: batchgenerator.callbacks.augmentation
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,1042 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/3fdf28bc/
+0	.vscode/settings.json	/^        "--disable=relative-beyond-top-level",$/;"	s	array:python.linting.pylintArgs
+0	.vscode/settings.json	/^        "--ignore = E501"$/;"	s	array:python.linting.flake8Args
+1	.vscode/settings.json	/^        "--extension-pkg-whitelist=cv2"$/;"	s	array:python.linting.pylintArgs
+AdditiveGaussianNoiseAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^class AdditiveGaussianNoiseAugmenter(dptnoiseaugmenterbase.NoiseAugmenterBase):$/;"	c
+AllZeroCategoryRatiosError	xmlpathology/errors/labelerrors.py	/^class AllZeroCategoryRatiosError(DigitalPathologyLabelError):$/;"	c
+AllZeroLabelCountsError	xmlpathology/errors/labelerrors.py	/^class AllZeroLabelCountsError(DigitalPathologyLabelError):$/;"	c
+AllZeroLabelRatiosError	xmlpathology/errors/labelerrors.py	/^class AllZeroLabelRatiosError(DigitalPathologyLabelError):$/;"	c
+AnnotationOpenError	xmlpathology/errors/imageerrors.py	/^class AnnotationOpenError(DigitalPathologyImageError):$/;"	c
+AnnotationParser	xmlpathology/io/annotationparser.py	/^class AnnotationParser:$/;"	c
+Apply	xmlpathology/experiment/experiment/apply.py	/^class Apply:$/;"	c
+ArrayShapeMismatch	xmlpathology/errors/processingerrors.py	/^class ArrayShapeMismatch(DigitalPathologyProcessingError):$/;"	c
+AsymmetricZoomFactorError	xmlpathology/errors/processingerrors.py	/^class AsymmetricZoomFactorError(DigitalPathologyProcessingError):$/;"	c
+AugmentationGroupAlreadyExistsError	xmlpathology/errors/augmentationerrors.py	/^class AugmentationGroupAlreadyExistsError(DigitalPathologyAugmentationError):$/;"	c
+AugmentationPoolRandomizationBeforeDistribution	xmlpathology/errors/augmentationerrors.py	/^class AugmentationPoolRandomizationBeforeDistribution(DigitalPathologyAugmentationError):$/;"	c
+Augmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenter.py	/^class Augmenter(Batch_Callback):$/;"	c
+AugmenterBase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^class AugmenterBase(object):$/;"	c
+AugmenterPool	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^class AugmenterPool(object):$/;"	c
+BalancedIndexController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class BalancedIndexController(IndexController):$/;"	c
+BalancedLabelController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class BalancedLabelController(LabelController):$/;"	c
+BatchCroppingError	xmlpathology/errors/augmentationerrors.py	/^class BatchCroppingError(DigitalPathologyAugmentationError):$/;"	c
+BatchProcessor	xmlpathology/xmlbatchgenerator/core/processors.py	/^class BatchProcessor(Process):$/;"	c
+BatchSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class BatchSampler():$/;"	c
+BatchSizeLargerThanCacheError	xmlpathology/errors/buffererrors.py	/^class BatchSizeLargerThanCacheError(DigitalPathologyBufferError):$/;"	c
+BatchSizeOutOfBoundsError	xmlpathology/errors/configerrors.py	/^class BatchSizeOutOfBoundsError(DigitalPathologyConfigError):$/;"	c
+Batch_Callback	xmlpathology/xmlbatchgenerator/callbacks/callbacks.py	/^class Batch_Callback:$/;"	c
+BufferOverflowError	xmlpathology/errors/buffererrors.py	/^class BufferOverflowError(DigitalPathologyBufferError):$/;"	c
+CategoryRatioListMismatchError	xmlpathology/errors/labelerrors.py	/^class CategoryRatioListMismatchError(DigitalPathologyLabelError):$/;"	c
+ColorAugmenterBase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/coloraugmenterbase.py	/^class ColorAugmenterBase(dptaugmenterbase.AugmenterBase):$/;"	c
+ContentDimensionsMismatchError	xmlpathology/errors/imageerrors.py	/^class ContentDimensionsMismatchError(DigitalPathologyImageError):$/;"	c
+ContentShapeMismatchError	xmlpathology/errors/imageerrors.py	/^class ContentShapeMismatchError(DigitalPathologyImageError):$/;"	c
+ContrastAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^class ContrastAugmenter(dptcoloraugmenterbase.ColorAugmenterBase):$/;"	c
+Controller	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class Controller:$/;"	c
+ControllerDeamon	xmlpathology/xmlbatchgenerator/core/processors.py	/^class ControllerDeamon(Process):$/;"	c
+DataLevelMismatchError	xmlpathology/errors/modelerrors.py	/^class DataLevelMismatchError(DigitalPathologyModelError):$/;"	c
+DataSet	xmlpathology/io/dataset.py	/^class DataSet:$/;"	c
+DataTypeMismatchError	xmlpathology/errors/imageerrors.py	/^class DataTypeMismatchError(DigitalPathologyImageError):$/;"	c
+DefaultAnnotationParser	xmlpathology/io/annotationparser.py	/^class DefaultAnnotationParser:$/;"	c
+DefaultIndexController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class DefaultIndexController(Controller):$/;"	c
+DefaultLabelController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class DefaultLabelController(Controller):$/;"	c
+DefaultLabelSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class DefaultLabelSampler(LabelSampler):$/;"	c
+DefaultPatchSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class DefaultPatchSampler:$/;"	c
+DefaultPointSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class DefaultPointSampler(PointSampler):$/;"	c
+DigitalPathologyAugmentationError	xmlpathology/errors/augmentationerrors.py	/^class DigitalPathologyAugmentationError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyBufferError	xmlpathology/errors/buffererrors.py	/^class DigitalPathologyBufferError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyConfigError	xmlpathology/errors/configerrors.py	/^class DigitalPathologyConfigError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyDataError	xmlpathology/errors/dataerrors.py	/^class DigitalPathologyDataError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyError	xmlpathology/errors/errorbase.py	/^class DigitalPathologyError(Exception):$/;"	c
+DigitalPathologyImageError	xmlpathology/errors/imageerrors.py	/^class DigitalPathologyImageError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyLabelError	xmlpathology/errors/labelerrors.py	/^class DigitalPathologyLabelError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyModelError	xmlpathology/errors/modelerrors.py	/^class DigitalPathologyModelError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyNormalizationError	xmlpathology/errors/normalizationerrors.py	/^class DigitalPathologyNormalizationError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyProcessError	xmlpathology/errors/processerrors.py	/^class DigitalPathologyProcessError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyProcessingError	xmlpathology/errors/processingerrors.py	/^class DigitalPathologyProcessingError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyStatError	xmlpathology/errors/staterrors.py	/^class DigitalPathologyStatError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologySystemError	xmlpathology/errors/systemerrors.py	/^class DigitalPathologySystemError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyTrainingError	xmlpathology/errors/trainingerrors.py	/^class DigitalPathologyTrainingError(dpterrorbase.DigitalPathologyError):$/;"	c
+DigitalPathologyWeightMappingError	xmlpathology/errors/weighterrors.py	/^class DigitalPathologyWeightMappingError(dpterrorbase.DigitalPathologyError):$/;"	c
+DimensionOrderMismatchError	xmlpathology/errors/trainingerrors.py	/^class DimensionOrderMismatchError(DigitalPathologyTrainingError):$/;"	c
+DuplicateChannelError	xmlpathology/errors/configerrors.py	/^class DuplicateChannelError(DigitalPathologyConfigError):$/;"	c
+ET	xmlpathology/io/annotationparser.py	/^import xml.etree.ElementTree as ET$/;"	I
+ElasticAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^class ElasticAugmenter(dptspatialaugmenterbase.SpatialAugmenterBase):$/;"	c
+EmptyAnnotationGroupsError	xmlpathology/errors/processingerrors.py	/^class EmptyAnnotationGroupsError(DigitalPathologyProcessingError):$/;"	c
+EmptyAugmentationGroupError	xmlpathology/errors/augmentationerrors.py	/^class EmptyAugmentationGroupError(DigitalPathologyAugmentationError):$/;"	c
+EmptyAugmentationGroupListError	xmlpathology/errors/augmentationerrors.py	/^class EmptyAugmentationGroupListError(DigitalPathologyAugmentationError):$/;"	c
+EmptyChannelListError	xmlpathology/errors/configerrors.py	/^class EmptyChannelListError(DigitalPathologyConfigError):$/;"	c
+EmptyDataSetsError	xmlpathology/errors/dataerrors.py	/^class EmptyDataSetsError(DigitalPathologyDataError):$/;"	c
+EmptyImageLevelListError	xmlpathology/errors/imageerrors.py	/^class EmptyImageLevelListError(DigitalPathologyImageError):$/;"	c
+EmptyLabelListError	xmlpathology/errors/labelerrors.py	/^class EmptyLabelListError(DigitalPathologyLabelError):$/;"	c
+EmptyLabelMapError	xmlpathology/errors/labelerrors.py	/^class EmptyLabelMapError(DigitalPathologyLabelError):$/;"	c
+EmptyPatchSourceError	xmlpathology/errors/dataerrors.py	/^class EmptyPatchSourceError(DigitalPathologyDataError):$/;"	c
+EmptyPixelSpacingListError	xmlpathology/errors/configerrors.py	/^class EmptyPixelSpacingListError(DigitalPathologyConfigError):$/;"	c
+ErrorThreadResponseError	xmlpathology/errors/processerrors.py	/^class ErrorThreadResponseError(DigitalPathologyProcessError):$/;"	c
+ErrorsNotInModelOutputError	xmlpathology/errors/trainingerrors.py	/^class ErrorsNotInModelOutputError(DigitalPathologyTrainingError):$/;"	c
+Evaluator	xmlpathology/experiment/experiment/evaluator.py	/^class Evaluator:$/;"	c
+FailedSourceSelectionError	xmlpathology/errors/dataerrors.py	/^class FailedSourceSelectionError(DigitalPathologyDataError):$/;"	c
+FitData	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitdecoder.py	/^class FitData:$/;"	c
+FitHookNet	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fithooknet.py	/^class FitHookNet():$/;"	c
+FitSiamese	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitsiamese.py	/^class FitSiamese():$/;"	c
+FitYolo	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fityolo.py	/^class FitYolo():$/;"	c
+FlipAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^class FlipAugmenter(dptspatialaugmenterbase.SpatialAugmenterBase):$/;"	c
+GaussianBlurAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^class GaussianBlurAugmenter(dptnoiseaugmenterbase.NoiseAugmenterBase):$/;"	c
+HedColorAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^class HedColorAugmenter(dptcoloraugmenterbase.ColorAugmenterBase):$/;"	c
+Hooknet	xmlpathology/experiment/models/hooknet.py	/^class Hooknet():$/;"	c
+HsbColorAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^class HsbColorAugmenter(dptcoloraugmenterbase.ColorAugmenterBase):$/;"	c
+ImageAlreadyClosedError	xmlpathology/errors/imageerrors.py	/^class ImageAlreadyClosedError(DigitalPathologyImageError):$/;"	c
+ImageAnnotation	xmlpathology/io/imageannotation.py	/^class ImageAnnotation:$/;"	c
+ImageChannelIndexError	xmlpathology/errors/imageerrors.py	/^class ImageChannelIndexError(DigitalPathologyImageError):$/;"	c
+ImageFormatError	xmlpathology/errors/imageerrors.py	/^class ImageFormatError(DigitalPathologyImageError):$/;"	c
+ImageLevelConfigurationError	xmlpathology/errors/imageerrors.py	/^class ImageLevelConfigurationError(DigitalPathologyImageError):$/;"	c
+ImageOpenError	xmlpathology/errors/imageerrors.py	/^class ImageOpenError(DigitalPathologyImageError):$/;"	c
+ImageReader	xmlpathology/io/imagereader.py	/^class ImageReader(object):$/;"	c
+ImageShapeMismatchError	xmlpathology/errors/imageerrors.py	/^class ImageShapeMismatchError(DigitalPathologyImageError):$/;"	c
+ImageShapeMismatchError	xmlpathology/errors/processingerrors.py	/^class ImageShapeMismatchError(DigitalPathologyProcessingError):$/;"	c
+ImageWriter	xmlpathology/io/imagewriter.py	/^class ImageWriter(object):$/;"	c
+InconsistentDataError	xmlpathology/errors/staterrors.py	/^class InconsistentDataError(DigitalPathologyStatError):$/;"	c
+IndexController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class IndexController(Controller):$/;"	c
+InputDimensionsMismatchError	xmlpathology/errors/modelerrors.py	/^class InputDimensionsMismatchError(DigitalPathologyModelError):$/;"	c
+InvalidAdditiveGaussianNoiseSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidAdditiveGaussianNoiseSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidAnnotationColorError	xmlpathology/errors/imageerrors.py	/^class InvalidAnnotationColorError(DigitalPathologyImageError):$/;"	c
+InvalidAnnotationCoordinateListError	xmlpathology/errors/imageerrors.py	/^class InvalidAnnotationCoordinateListError(DigitalPathologyImageError):$/;"	c
+InvalidAnnotationIndexError	xmlpathology/errors/imageerrors.py	/^class InvalidAnnotationIndexError(DigitalPathologyImageError):$/;"	c
+InvalidAnnotationPathError	xmlpathology/errors/imageerrors.py	/^class InvalidAnnotationPathError(DigitalPathologyImageError):$/;"	c
+InvalidAugmentationRatioError	xmlpathology/errors/augmentationerrors.py	/^class InvalidAugmentationRatioError(DigitalPathologyAugmentationError):$/;"	c
+InvalidAveragingLengthError	xmlpathology/errors/trainingerrors.py	/^class InvalidAveragingLengthError(DigitalPathologyTrainingError):$/;"	c
+InvalidBatchGeneratorError	xmlpathology/errors/trainingerrors.py	/^class InvalidBatchGeneratorError(DigitalPathologyTrainingError):$/;"	c
+InvalidBatchSizeError	xmlpathology/errors/configerrors.py	/^class InvalidBatchSizeError(DigitalPathologyConfigError):$/;"	c
+InvalidBlurSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidBlurSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidBranchingFactorError	xmlpathology/errors/modelerrors.py	/^class InvalidBranchingFactorError(DigitalPathologyModelError):$/;"	c
+InvalidBrightnessSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidBrightnessSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidBufferChunkSizeError	xmlpathology/errors/buffererrors.py	/^class InvalidBufferChunkSizeError(DigitalPathologyBufferError):$/;"	c
+InvalidBufferConfigurationError	xmlpathology/errors/trainingerrors.py	/^class InvalidBufferConfigurationError(DigitalPathologyTrainingError):$/;"	c
+InvalidCacheSizeError	xmlpathology/errors/buffererrors.py	/^class InvalidCacheSizeError(DigitalPathologyBufferError):$/;"	c
+InvalidClassificationErrorError	xmlpathology/errors/buffererrors.py	/^class InvalidClassificationErrorError(DigitalPathologyBufferError):$/;"	c
+InvalidClippingRangeError	xmlpathology/errors/weighterrors.py	/^class InvalidClippingRangeError(DigitalPathologyWeightMappingError):$/;"	c
+InvalidColorPaletteError	xmlpathology/errors/processingerrors.py	/^class InvalidColorPaletteError(DigitalPathologyProcessingError):$/;"	c
+InvalidColorTypeError	xmlpathology/errors/imageerrors.py	/^class InvalidColorTypeError(DigitalPathologyImageError):$/;"	c
+InvalidCompressionMethodError	xmlpathology/errors/imageerrors.py	/^class InvalidCompressionMethodError(DigitalPathologyImageError):$/;"	c
+InvalidConfigurationError	xmlpathology/errors/processingerrors.py	/^class InvalidConfigurationError(DigitalPathologyProcessingError):$/;"	c
+InvalidContrastSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidContrastSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidCoordinateListError	xmlpathology/errors/imageerrors.py	/^class InvalidCoordinateListError(DigitalPathologyImageError):$/;"	c
+InvalidCutoffRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidCutoffRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidDabBiasRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidDabBiasRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidDabSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidDabSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidDataFileExtensionError	xmlpathology/errors/configerrors.py	/^class InvalidDataFileExtensionError(DigitalPathologyConfigError):$/;"	c
+InvalidDataSourceTypeError	xmlpathology/errors/dataerrors.py	/^class InvalidDataSourceTypeError(DigitalPathologyDataError):$/;"	c
+InvalidDataTypeError	xmlpathology/errors/imageerrors.py	/^class InvalidDataTypeError(DigitalPathologyImageError):$/;"	c
+InvalidDifficultThreshold	xmlpathology/errors/trainingerrors.py	/^class InvalidDifficultThreshold(DigitalPathologyTrainingError):$/;"	c
+InvalidDifficultUpdateRatio	xmlpathology/errors/trainingerrors.py	/^class InvalidDifficultUpdateRatio(DigitalPathologyTrainingError):$/;"	c
+InvalidDilationDistanceError	xmlpathology/errors/processingerrors.py	/^class InvalidDilationDistanceError(DigitalPathologyProcessingError):$/;"	c
+InvalidDimensionOrderError	xmlpathology/errors/configerrors.py	/^class InvalidDimensionOrderError(DigitalPathologyConfigError):$/;"	c
+InvalidDropoutLayerCountError	xmlpathology/errors/modelerrors.py	/^class InvalidDropoutLayerCountError(DigitalPathologyModelError):$/;"	c
+InvalidDropoutProbabilityError	xmlpathology/errors/modelerrors.py	/^class InvalidDropoutProbabilityError(DigitalPathologyModelError):$/;"	c
+InvalidElasticAlphaIntervalError	xmlpathology/errors/augmentationerrors.py	/^class InvalidElasticAlphaIntervalError(DigitalPathologyAugmentationError):$/;"	c
+InvalidElasticInterpolationOrderError	xmlpathology/errors/augmentationerrors.py	/^class InvalidElasticInterpolationOrderError(DigitalPathologyAugmentationError):$/;"	c
+InvalidElasticMapCountError	xmlpathology/errors/augmentationerrors.py	/^class InvalidElasticMapCountError(DigitalPathologyAugmentationError):$/;"	c
+InvalidElasticSigmaIntervalError	xmlpathology/errors/augmentationerrors.py	/^class InvalidElasticSigmaIntervalError(DigitalPathologyAugmentationError):$/;"	c
+InvalidEosinBiasRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidEosinBiasRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidEosinSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidEosinSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidEpochCountError	xmlpathology/errors/trainingerrors.py	/^class InvalidEpochCountError(DigitalPathologyTrainingError):$/;"	c
+InvalidFileInvalidAnnotationCoordinateListError	xmlpathology/errors/imageerrors.py	/^class InvalidFileInvalidAnnotationCoordinateListError(DigitalPathologyImageError):$/;"	c
+InvalidFileMissingAnnotationGroupError	xmlpathology/errors/imageerrors.py	/^class InvalidFileMissingAnnotationGroupError(DigitalPathologyImageError):$/;"	c
+InvalidFileUnknownAnnotationTypeError	xmlpathology/errors/imageerrors.py	/^class InvalidFileUnknownAnnotationTypeError(DigitalPathologyImageError):$/;"	c
+InvalidFlipListError	xmlpathology/errors/augmentationerrors.py	/^class InvalidFlipListError(DigitalPathologyAugmentationError):$/;"	c
+InvalidFlipMode	xmlpathology/errors/augmentationerrors.py	/^class InvalidFlipMode(DigitalPathologyAugmentationError):$/;"	c
+InvalidHaematoxylinBiasRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidHaematoxylinBiasRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidHaematoxylinSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidHaematoxylinSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidHueSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidHueSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidImageLevel	xmlpathology/errors/modelerrors.py	/^class InvalidImageLevel(DigitalPathologyModelError):$/;"	c
+InvalidImageShapeError	xmlpathology/errors/imageerrors.py	/^class InvalidImageShapeError(DigitalPathologyImageError):$/;"	c
+InvalidInputRangeError	xmlpathology/errors/modelerrors.py	/^class InvalidInputRangeError(DigitalPathologyModelError):$/;"	c
+InvalidInputShapeError	xmlpathology/errors/modelerrors.py	/^class InvalidInputShapeError(DigitalPathologyModelError):$/;"	c
+InvalidInterpolationMethodError	xmlpathology/errors/imageerrors.py	/^class InvalidInterpolationMethodError(DigitalPathologyImageError):$/;"	c
+InvalidInterpolationOrderError	xmlpathology/errors/processingerrors.py	/^class InvalidInterpolationOrderError(DigitalPathologyProcessingError):$/;"	c
+InvalidIterationCountError	xmlpathology/errors/trainingerrors.py	/^class InvalidIterationCountError(DigitalPathologyTrainingError):$/;"	c
+InvalidIterationLogPercentError	xmlpathology/errors/trainingerrors.py	/^class InvalidIterationLogPercentError(DigitalPathologyTrainingError):$/;"	c
+InvalidJpegQualityError	xmlpathology/errors/imageerrors.py	/^class InvalidJpegQualityError(DigitalPathologyImageError):$/;"	c
+InvalidKeyLabelError	xmlpathology/errors/labelerrors.py	/^class InvalidKeyLabelError(DigitalPathologyLabelError):$/;"	c
+InvalidLabelDistributionWithoutMappingError	xmlpathology/errors/labelerrors.py	/^class InvalidLabelDistributionWithoutMappingError(DigitalPathologyLabelError):$/;"	c
+InvalidLabelValueError	xmlpathology/errors/labelerrors.py	/^class InvalidLabelValueError(DigitalPathologyLabelError):$/;"	c
+InvalidLearningRateError	xmlpathology/errors/trainingerrors.py	/^class InvalidLearningRateError(DigitalPathologyTrainingError):$/;"	c
+InvalidMaskImagePathError	xmlpathology/errors/imageerrors.py	/^class InvalidMaskImagePathError(DigitalPathologyImageError):$/;"	c
+InvalidMessageError	xmlpathology/errors/processerrors.py	/^class InvalidMessageError(DigitalPathologyProcessError):$/;"	c
+InvalidModelClassCountError	xmlpathology/errors/modelerrors.py	/^class InvalidModelClassCountError(DigitalPathologyModelError):$/;"	c
+InvalidModelDataFormatError	xmlpathology/errors/modelerrors.py	/^class InvalidModelDataFormatError(dpterrorbase.DigitalPathologyError):$/;"	c
+InvalidModelDepthError	xmlpathology/errors/modelerrors.py	/^class InvalidModelDepthError(DigitalPathologyModelError):$/;"	c
+InvalidModelSavePathError	xmlpathology/errors/trainingerrors.py	/^class InvalidModelSavePathError(DigitalPathologyTrainingError):$/;"	c
+InvalidNetworkObjectError	xmlpathology/errors/trainingerrors.py	/^class InvalidNetworkObjectError(DigitalPathologyTrainingError):$/;"	c
+InvalidNormalizationRangeError	xmlpathology/errors/normalizationerrors.py	/^class InvalidNormalizationRangeError(DigitalPathologyNormalizationError):$/;"	c
+InvalidPatchShapeError	xmlpathology/errors/configerrors.py	/^class InvalidPatchShapeError(DigitalPathologyConfigError):$/;"	c
+InvalidPixelSpacingError	xmlpathology/errors/imageerrors.py	/^class InvalidPixelSpacingError(DigitalPathologyImageError):$/;"	c
+InvalidPixelSpacingInPatchShapesError	xmlpathology/errors/configerrors.py	/^class InvalidPixelSpacingInPatchShapesError(DigitalPathologyConfigError):$/;"	c
+InvalidPixelSpacingToleranceError	xmlpathology/errors/configerrors.py	/^class InvalidPixelSpacingToleranceError(DigitalPathologyConfigError):$/;"	c
+InvalidPixelSpacingValueError	xmlpathology/errors/processingerrors.py	/^class InvalidPixelSpacingValueError(DigitalPathologyProcessingError):$/;"	c
+InvalidPoolSizeError	xmlpathology/errors/processerrors.py	/^class InvalidPoolSizeError(DigitalPathologyProcessError):$/;"	c
+InvalidProcessCountError	xmlpathology/errors/processerrors.py	/^class InvalidProcessCountError(DigitalPathologyProcessError):$/;"	c
+InvalidReconstructionInformationError	xmlpathology/errors/modelerrors.py	/^class InvalidReconstructionInformationError(DigitalPathologyModelError):$/;"	c
+InvalidRepetitionCountError	xmlpathology/errors/trainingerrors.py	/^class InvalidRepetitionCountError(DigitalPathologyTrainingError):$/;"	c
+InvalidRotationRepetitionListError	xmlpathology/errors/augmentationerrors.py	/^class InvalidRotationRepetitionListError(DigitalPathologyAugmentationError):$/;"	c
+InvalidSamplerChunkSizeError	xmlpathology/errors/processerrors.py	/^class InvalidSamplerChunkSizeError(DigitalPathologyProcessError):$/;"	c
+InvalidSaturationSigmaRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidSaturationSigmaRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidScalingInterpolationOrderError	xmlpathology/errors/augmentationerrors.py	/^class InvalidScalingInterpolationOrderError(DigitalPathologyAugmentationError):$/;"	c
+InvalidScalingRangeError	xmlpathology/errors/augmentationerrors.py	/^class InvalidScalingRangeError(DigitalPathologyAugmentationError):$/;"	c
+InvalidStateSavePathError	xmlpathology/errors/trainingerrors.py	/^class InvalidStateSavePathError(DigitalPathologyTrainingError):$/;"	c
+InvalidStatsHandlerError	xmlpathology/errors/trainingerrors.py	/^class InvalidStatsHandlerError(DigitalPathologyTrainingError):$/;"	c
+InvalidTileAddressError	xmlpathology/errors/imageerrors.py	/^class InvalidTileAddressError(DigitalPathologyImageError):$/;"	c
+InvalidTileShapeError	xmlpathology/errors/imageerrors.py	/^class InvalidTileShapeError(DigitalPathologyImageError):$/;"	c
+InvalidTileSizeError	xmlpathology/errors/imageerrors.py	/^class InvalidTileSizeError(DigitalPathologyImageError):$/;"	c
+InvalidTimeoutError	xmlpathology/errors/processerrors.py	/^class InvalidTimeoutError(DigitalPathologyProcessError):$/;"	c
+InvalidZoomFactorError	xmlpathology/errors/modelerrors.py	/^class InvalidZoomFactorError(DigitalPathologyModelError):$/;"	c
+InvalidZoomFactorError	xmlpathology/errors/processingerrors.py	/^class InvalidZoomFactorError(DigitalPathologyProcessingError):$/;"	c
+InvalidZoomTargetShapeError	xmlpathology/errors/processingerrors.py	/^class InvalidZoomTargetShapeError(DigitalPathologyProcessingError):$/;"	c
+K	xmlpathology/experiment/experiment/log.py	/^import keras.backend as K$/;"	I
+LabelController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class LabelController(Controller):$/;"	c
+LabelCountMismatchError	xmlpathology/errors/buffererrors.py	/^class LabelCountMismatchError(DigitalPathologyBufferError):$/;"	c
+LabelCountProbabilityMismatchError	xmlpathology/errors/labelerrors.py	/^class LabelCountProbabilityMismatchError(DigitalPathologyLabelError):$/;"	c
+LabelDistributionAndMappingMismatchError	xmlpathology/errors/labelerrors.py	/^class LabelDistributionAndMappingMismatchError(DigitalPathologyLabelError):$/;"	c
+LabelListMismatchError	xmlpathology/errors/labelerrors.py	/^class LabelListMismatchError(DigitalPathologyLabelError):$/;"	c
+LabelListMismatchError	xmlpathology/errors/staterrors.py	/^class LabelListMismatchError(DigitalPathologyStatError):$/;"	c
+LabelMapConversionOrderMismatchError	xmlpathology/errors/imageerrors.py	/^class LabelMapConversionOrderMismatchError(DigitalPathologyImageError):$/;"	c
+LabelSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class LabelSampler:$/;"	c
+LabelSourceConfigurationError	xmlpathology/errors/labelerrors.py	/^class LabelSourceConfigurationError(DigitalPathologyLabelError):$/;"	c
+LabelValueMappingError	xmlpathology/errors/labelerrors.py	/^class LabelValueMappingError(DigitalPathologyLabelError):$/;"	c
+Loader	xmlpathology/argconfigparser/argconfigparser.py	/^class Loader(yaml.Loader):$/;"	c
+Log	xmlpathology/experiment/experiment/log.py	/^class Log:$/;"	c
+MaskLabelListMismatchError	xmlpathology/errors/dataerrors.py	/^class MaskLabelListMismatchError(DigitalPathologyDataError):$/;"	c
+MaskPixelSpacingMismatchError	xmlpathology/errors/staterrors.py	/^class MaskPixelSpacingMismatchError(DigitalPathologyStatError):$/;"	c
+MaskWeights	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^class MaskWeights:$/;"	c
+MissingAugmentationRandomizationError	xmlpathology/errors/augmentationerrors.py	/^class MissingAugmentationRandomizationError(DigitalPathologyAugmentationError):$/;"	c
+MissingDataKeyError	xmlpathology/errors/modelerrors.py	/^class MissingDataKeyError(DigitalPathologyModelError):$/;"	c
+MissingDataKeyError	xmlpathology/errors/staterrors.py	/^class MissingDataKeyError(DigitalPathologyStatError):$/;"	c
+MissingFunctionError	xmlpathology/errors/modelerrors.py	/^class MissingFunctionError(DigitalPathologyModelError):$/;"	c
+MissingImageFileError	xmlpathology/errors/dataerrors.py	/^class MissingImageFileError(DigitalPathologyDataError):$/;"	c
+MissingInitParameterError	xmlpathology/errors/modelerrors.py	/^class MissingInitParameterError(DigitalPathologyModelError):$/;"	c
+MissingLabelMapperForWeightMapperError	xmlpathology/errors/weighterrors.py	/^class MissingLabelMapperForWeightMapperError(DigitalPathologyWeightMappingError):$/;"	c
+MissingLearnableParameterError	xmlpathology/errors/modelerrors.py	/^class MissingLearnableParameterError(DigitalPathologyModelError):$/;"	c
+MissingMaskAndStatFilesError	xmlpathology/errors/dataerrors.py	/^class MissingMaskAndStatFilesError(DigitalPathologyDataError):$/;"	c
+MissingMaskImageError	xmlpathology/errors/configerrors.py	/^class MissingMaskImageError(DigitalPathologyConfigError):$/;"	c
+MissingModelError	xmlpathology/errors/modelerrors.py	/^class MissingModelError(DigitalPathologyModelError):$/;"	c
+MissingModelFileError	xmlpathology/errors/processingerrors.py	/^class MissingModelFileError(DigitalPathologyProcessingError):$/;"	c
+MissingNetworkError	xmlpathology/errors/modelerrors.py	/^class MissingNetworkError(DigitalPathologyModelError):$/;"	c
+MissingPatchMapperWithBatchMapper	xmlpathology/errors/weighterrors.py	/^class MissingPatchMapperWithBatchMapper(DigitalPathologyWeightMappingError):$/;"	c
+MissingPatchSamplersError	xmlpathology/errors/dataerrors.py	/^class MissingPatchSamplersError(DigitalPathologyDataError):$/;"	c
+MissingStatInputPathError	xmlpathology/errors/staterrors.py	/^class MissingStatInputPathError(DigitalPathologyStatError):$/;"	c
+MissingTargetShapeForLevelError	xmlpathology/errors/augmentationerrors.py	/^class MissingTargetShapeForLevelError(DigitalPathologyAugmentationError):$/;"	c
+MissingWeightsError	xmlpathology/errors/buffererrors.py	/^class MissingWeightsError(DigitalPathologyBufferError):$/;"	c
+ModelClassError	xmlpathology/errors/modelerrors.py	/^class ModelClassError(DigitalPathologyModelError):$/;"	c
+ModelHashMismatchError	xmlpathology/errors/trainingerrors.py	/^class ModelHashMismatchError(DigitalPathologyTrainingError):$/;"	c
+ModelNotCompiledError	xmlpathology/errors/modelerrors.py	/^class ModelNotCompiledError(DigitalPathologyModelError):$/;"	c
+NegativeCategoryRatioError	xmlpathology/errors/labelerrors.py	/^class NegativeCategoryRatioError(DigitalPathologyLabelError):$/;"	c
+NegativeLabelRatioError	xmlpathology/errors/labelerrors.py	/^class NegativeLabelRatioError(DigitalPathologyLabelError):$/;"	c
+NegativeLabeledItemCountError	xmlpathology/errors/labelerrors.py	/^class NegativeLabeledItemCountError(DigitalPathologyLabelError):$/;"	c
+NoMatchingLevelInMaskImageError	xmlpathology/errors/processingerrors.py	/^class NoMatchingLevelInMaskImageError(DigitalPathologyProcessingError):$/;"	c
+NoMatchingLevelInTileImageError	xmlpathology/errors/processingerrors.py	/^class NoMatchingLevelInTileImageError(DigitalPathologyProcessingError):$/;"	c
+NoiseAugmenterBase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/noiseaugmenterbase.py	/^class NoiseAugmenterBase(dptaugmenterbase.AugmenterBase):$/;"	c
+NonContinuousLabelListError	xmlpathology/errors/labelerrors.py	/^class NonContinuousLabelListError(DigitalPathologyLabelError):$/;"	c
+NonIntegralImageDataTypeError	xmlpathology/errors/processingerrors.py	/^class NonIntegralImageDataTypeError(DigitalPathologyProcessingError):$/;"	c
+NonIsotropicPixelSpacingError	xmlpathology/errors/imageerrors.py	/^class NonIsotropicPixelSpacingError(DigitalPathologyImageError):$/;"	c
+NonLabelImageTypeError	xmlpathology/errors/imageerrors.py	/^class NonLabelImageTypeError(DigitalPathologyImageError):$/;"	c
+NonMonochromeInputImageError	xmlpathology/errors/processingerrors.py	/^class NonMonochromeInputImageError(DigitalPathologyProcessingError):$/;"	c
+NotSupportedChannelOrder	xmlpathology/errors/modelerrors.py	/^class NotSupportedChannelOrder(DigitalPathologyModelError):$/;"	c
+NotSupportedLayerConfigurationError	xmlpathology/errors/modelerrors.py	/^class NotSupportedLayerConfigurationError(DigitalPathologyModelError):$/;"	c
+NotSupportedLayerError	xmlpathology/errors/modelerrors.py	/^class NotSupportedLayerError(DigitalPathologyModelError):$/;"	c
+NotSupportedPaddingError	xmlpathology/errors/modelerrors.py	/^class NotSupportedPaddingError(DigitalPathologyModelError):$/;"	c
+PassThroughAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/passthroughaugmenter.py	/^class PassThroughAugmenter(dptaugmenterbase.AugmenterBase):$/;"	c
+PatchCroppingError	xmlpathology/errors/augmentationerrors.py	/^class PatchCroppingError(DigitalPathologyAugmentationError):$/;"	c
+PatchSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class PatchSampler:$/;"	c
+PixelSpacingLevelError	xmlpathology/errors/imageerrors.py	/^class PixelSpacingLevelError(DigitalPathologyImageError):$/;"	c
+Point	xmlpathology/io/annotationparser.py	/^class Point(geometry.Point):$/;"	c
+PointSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class PointSampler():$/;"	c
+Polygon	xmlpathology/io/annotationparser.py	/^class Polygon(geometry.Polygon):$/;"	c
+ProcessKilledError	xmlpathology/errors/systemerrors.py	/^class ProcessKilledError(DigitalPathologySystemError):$/;"	c
+ProcessPollTimeoutError	xmlpathology/errors/processerrors.py	/^class ProcessPollTimeoutError(DigitalPathologyProcessError):$/;"	c
+ProcessResponseTimeoutError	xmlpathology/errors/processerrors.py	/^class ProcessResponseTimeoutError(DigitalPathologyProcessError):$/;"	c
+ProcessTerminatedError	xmlpathology/errors/processerrors.py	/^class ProcessTerminatedError(DigitalPathologyProcessError):$/;"	c
+PurposeListAndRatioMismatchError	xmlpathology/errors/configerrors.py	/^class PurposeListAndRatioMismatchError(DigitalPathologyConfigError):$/;"	c
+RandomLabelController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class RandomLabelController(LabelController):$/;"	c
+RandomPointSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class RandomPointSampler(PointSampler):$/;"	c
+ReferenceTemplateImageShapeMismatchError	xmlpathology/errors/processingerrors.py	/^class ReferenceTemplateImageShapeMismatchError(DigitalPathologyProcessingError):$/;"	c
+Rotate90Augmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^class Rotate90Augmenter(dptspatialaugmenterbase.SpatialAugmenterBase):$/;"	c
+SampleController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class SampleController:$/;"	c
+Sample_Callback	xmlpathology/xmlbatchgenerator/callbacks/callbacks.py	/^class Sample_Callback:$/;"	c
+Sampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class Sampler():$/;"	c
+ScalingAugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^class ScalingAugmenter(dptspatialaugmenterbase.SpatialAugmenterBase):$/;"	c
+SegmentationLabelSampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^class SegmentationLabelSampler(LabelSampler):$/;"	c
+SpacingMismatchError	xmlpathology/errors/buffererrors.py	/^class SpacingMismatchError(DigitalPathologyBufferError):$/;"	c
+SpatialAugmenterBase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/spatialaugmenterbase.py	/^class SpatialAugmenterBase(dptaugmenterbase.AugmenterBase):$/;"	c
+StatHashMismatchError	xmlpathology/errors/dataerrors.py	/^class StatHashMismatchError(DigitalPathologyDataError):$/;"	c
+StatShapeMismatchError	xmlpathology/errors/imageerrors.py	/^class StatShapeMismatchError(DigitalPathologyImageError):$/;"	c
+StatSpacingMismatchError	xmlpathology/errors/imageerrors.py	/^class StatSpacingMismatchError(DigitalPathologyImageError):$/;"	c
+StrictLabelController	xmlpathology/xmlbatchgenerator/core/controllers.py	/^class StrictLabelController(LabelController):$/;"	c
+TensorShapeMismatchError	xmlpathology/errors/modelerrors.py	/^class TensorShapeMismatchError(DigitalPathologyModelError):$/;"	c
+ThreadJobTimeoutError	xmlpathology/errors/processerrors.py	/^class ThreadJobTimeoutError(DigitalPathologyProcessError):$/;"	c
+ThreadTerminatedError	xmlpathology/errors/processerrors.py	/^class ThreadTerminatedError(DigitalPathologyProcessError):$/;"	c
+ThresholdDimensionImageChannelCountMismatchError	xmlpathology/errors/processingerrors.py	/^class ThresholdDimensionImageChannelCountMismatchError(DigitalPathologyProcessingError):$/;"	c
+Trainer	xmlpathology/experiment/experiment/trainer.py	/^class Trainer:$/;"	c
+UnexpectedProcessResponseError	xmlpathology/errors/processerrors.py	/^class UnexpectedProcessResponseError(DigitalPathologyProcessError):$/;"	c
+UnfixableImageSpacingError	xmlpathology/errors/imageerrors.py	/^class UnfixableImageSpacingError(DigitalPathologyImageError):$/;"	c
+UnknownAnnotationGroupError	xmlpathology/errors/imageerrors.py	/^class UnknownAnnotationGroupError(DigitalPathologyImageError):$/;"	c
+UnknownAnnotationGroupsError	xmlpathology/errors/processingerrors.py	/^class UnknownAnnotationGroupsError(DigitalPathologyProcessingError):$/;"	c
+UnknownAnnotationTypeError	xmlpathology/errors/imageerrors.py	/^class UnknownAnnotationTypeError(DigitalPathologyImageError):$/;"	c
+UnknownAugmentationGroupError	xmlpathology/errors/augmentationerrors.py	/^class UnknownAugmentationGroupError(DigitalPathologyAugmentationError):$/;"	c
+UnknownImageArithmeticOperandError	xmlpathology/errors/processingerrors.py	/^class UnknownImageArithmeticOperandError(DigitalPathologyProcessingError):$/;"	c
+UnknownImageColorTypeError	xmlpathology/errors/imageerrors.py	/^class UnknownImageColorTypeError(DigitalPathologyImageError):$/;"	c
+UnknownImageDataTypeError	xmlpathology/errors/imageerrors.py	/^class UnknownImageDataTypeError(DigitalPathologyImageError):$/;"	c
+UnknownImageNormalizationModeError	xmlpathology/errors/processingerrors.py	/^class UnknownImageNormalizationModeError(DigitalPathologyProcessingError):$/;"	c
+UnknownLabelError	xmlpathology/errors/labelerrors.py	/^class UnknownLabelError(DigitalPathologyLabelError):$/;"	c
+UnknownLabelModeError	xmlpathology/errors/configerrors.py	/^class UnknownLabelModeError(DigitalPathologyConfigError):$/;"	c
+UnknownMaskInputFormatError	xmlpathology/errors/staterrors.py	/^class UnknownMaskInputFormatError(DigitalPathologyStatError):$/;"	c
+UnknownMetricNameError	xmlpathology/errors/trainingerrors.py	/^class UnknownMetricNameError(DigitalPathologyTrainingError):$/;"	c
+UnknownThreadResponseError	xmlpathology/errors/processerrors.py	/^class UnknownThreadResponseError(DigitalPathologyProcessError):$/;"	c
+WeightMapperLabelMapperClassesMismatchError	xmlpathology/errors/weighterrors.py	/^class WeightMapperLabelMapperClassesMismatchError(DigitalPathologyWeightMappingError):$/;"	c
+WeightMappingConfigurationError	xmlpathology/errors/weighterrors.py	/^class WeightMappingConfigurationError(DigitalPathologyWeightMappingError):$/;"	c
+XmlBatchGenerator	xmlpathology/xmlbatchgenerator/core/generators.py	/^class XmlBatchGenerator():$/;"	c
+XmlBatchGeneratorMultiCore	xmlpathology/xmlbatchgenerator/core/generators.py	/^class XmlBatchGeneratorMultiCore():$/;"	c
+__calculateranges	xmlpathology/io/imagereader.py	/^    def __calculateranges(self):$/;"	m	class:ImageReader	file:
+__call__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenter.py	/^    def __call__(self, mode, x_batch, y_batch, w_batch):$/;"	m	class:Augmenter
+__call__	xmlpathology/xmlbatchgenerator/callbacks/callbacks.py	/^    def __call__(self, x_batch, y_batch, w_batch=None):$/;"	m	class:Batch_Callback
+__call__	xmlpathology/xmlbatchgenerator/callbacks/callbacks.py	/^    def __call__(self, x_patch, y_patch, w_patch=None):$/;"	m	class:Sample_Callback
+__call__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitdecoder.py	/^    def __call__(self, patch, mask):$/;"	m	class:FitData
+__call__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fithooknet.py	/^    def __call__(self, x_batch, y_batch):$/;"	m	class:FitHookNet
+__call__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitsiamese.py	/^    def __call__(self, x_batch, y_batch):$/;"	m	class:FitSiamese
+__call__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fityolo.py	/^    def __call__(self, patch_img, patch_label):$/;"	m	class:FitYolo
+__call__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^    def __call__(self, patch, mask):$/;"	m	class:MaskWeights
+__cofiguredeformationmaps	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^    def __cofiguredeformationmaps(self, sigma_interval, alpha_interval, map_count, interpolation/;"	m	class:ElasticAugmenter	file:
+__configureemptytile	xmlpathology/io/imagewriter.py	/^    def __configureemptytile(self, empty_value, skip_empty):$/;"	m	class:ImageWriter	file:
+__createdeformationmaps	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^    def __createdeformationmaps(self, image_shape):$/;"	m	class:ElasticAugmenter	file:
+__cropbatch	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def __cropbatch(self, patches, labels, shape):$/;"	m	class:AugmenterPool	file:
+__del__	xmlpathology/io/imagereader.py	/^    def __del__(self):$/;"	m	class:ImageReader
+__del__	xmlpathology/io/imagewriter.py	/^    def __del__(self):$/;"	m	class:ImageWriter
+__init__	xmlpathology/argconfigparser/argconfigparser.py	/^    def __init__(self, stream):$/;"	m	class:Loader
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self):$/;"	m	class:AugmentationPoolRandomizationBeforeDistribution
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self):$/;"	m	class:EmptyAugmentationGroupListError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self):$/;"	m	class:MissingAugmentationRandomizationError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyAugmentationError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, alpha_interval):$/;"	m	class:InvalidElasticAlphaIntervalError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, augmentation_groups):$/;"	m	class:EmptyAugmentationGroupError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, batch_levels, crop_levels):$/;"	m	class:MissingTargetShapeForLevelError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, batch_shape, target_shape):$/;"	m	class:BatchCroppingError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, bias_range):$/;"	m	class:InvalidDabBiasRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, bias_range):$/;"	m	class:InvalidEosinBiasRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, bias_range):$/;"	m	class:InvalidHaematoxylinBiasRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, cutoff_range):$/;"	m	class:InvalidCutoffRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, f_list):$/;"	m	class:InvalidFlipListError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, f_mode):$/;"	m	class:InvalidFlipMode
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, group_id):$/;"	m	class:AugmentationGroupAlreadyExistsError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, group_id):$/;"	m	class:UnknownAugmentationGroupError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, interpolation_order):$/;"	m	class:InvalidElasticInterpolationOrderError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, interpolation_order):$/;"	m	class:InvalidScalingInterpolationOrderError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, k_list):$/;"	m	class:InvalidRotationRepetitionListError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, map_count):$/;"	m	class:InvalidElasticMapCountError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, patch_shape, target_shape):$/;"	m	class:PatchCroppingError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, ratio):$/;"	m	class:InvalidAugmentationRatioError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, scaling_range):$/;"	m	class:InvalidScalingRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_interval):$/;"	m	class:InvalidElasticSigmaIntervalError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidAdditiveGaussianNoiseSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidBlurSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidBrightnessSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidContrastSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidDabSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidEosinSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidHaematoxylinSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidHueSigmaRangeError
+__init__	xmlpathology/errors/augmentationerrors.py	/^    def __init__(self, sigma_range):$/;"	m	class:InvalidSaturationSigmaRangeError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyBufferError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, batch_size, cache_size):$/;"	m	class:BatchSizeLargerThanCacheError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, cache_size):$/;"	m	class:InvalidCacheSizeError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, chunk_size):$/;"	m	class:InvalidBufferChunkSizeError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, error):$/;"	m	class:InvalidClassificationErrorError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, pushed_spacings, buffered_spacings):$/;"	m	class:SpacingMismatchError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, spacing):$/;"	m	class:MissingWeightsError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, spacing, buffer_size, batch_size):$/;"	m	class:BufferOverflowError
+__init__	xmlpathology/errors/buffererrors.py	/^    def __init__(self, spacing, patch_count, label_count):$/;"	m	class:LabelCountMismatchError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self):$/;"	m	class:EmptyChannelListError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self):$/;"	m	class:EmptyPixelSpacingListError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self):$/;"	m	class:MissingMaskImageError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyConfigError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, batch_size):$/;"	m	class:InvalidBatchSizeError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, batch_size, batch_size_bounds):$/;"	m	class:BatchSizeOutOfBoundsError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, dimension_order):$/;"	m	class:InvalidDimensionOrderError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, file_path):$/;"	m	class:InvalidDataFileExtensionError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, input_channels):$/;"	m	class:DuplicateChannelError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, mode):$/;"	m	class:UnknownLabelModeError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, patch_shapes):$/;"	m	class:InvalidPatchShapeError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, patch_shapes):$/;"	m	class:InvalidPixelSpacingInPatchShapesError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, purpose_distribution, available_purposes):$/;"	m	class:PurposeListAndRatioMismatchError
+__init__	xmlpathology/errors/configerrors.py	/^    def __init__(self, tolerance):$/;"	m	class:InvalidPixelSpacingToleranceError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self):$/;"	m	class:EmptyDataSetsError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self):$/;"	m	class:EmptyPatchSourceError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self):$/;"	m	class:MissingPatchSamplersError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyDataError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, file_path, file_labels, config_labels):$/;"	m	class:MaskLabelListMismatchError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, image_file_path):$/;"	m	class:MissingImageFileError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, labels, sources):$/;"	m	class:FailedSourceSelectionError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, mask_file_path, stat_file_path):$/;"	m	class:MissingMaskAndStatFilesError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, mask_path, mask_hash, stat_path, stat_hash):$/;"	m	class:StatHashMismatchError
+__init__	xmlpathology/errors/dataerrors.py	/^    def __init__(self, type_id):$/;"	m	class:InvalidDataSourceTypeError
+__init__	xmlpathology/errors/errorbase.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyImageError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_color):$/;"	m	class:InvalidAnnotationColorError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_path):$/;"	m	class:AnnotationOpenError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_path):$/;"	m	class:InvalidAnnotationPathError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_path, annotation_type):$/;"	m	class:InvalidFileUnknownAnnotationTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_path, available_groups, missing_group):$/;"	m	class:InvalidFileMissingAnnotationGroupError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_path, configured_groups, configured_conversion_order):$/;"	m	class:LabelMapConversionOrderMismatchError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, annotation_type):$/;"	m	class:UnknownAnnotationTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, available_annotations, annotation_index):$/;"	m	class:InvalidAnnotationIndexError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, available_groups, group_name):$/;"	m	class:UnknownAnnotationGroupError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, content_shape, color_coding):$/;"	m	class:ContentDimensionsMismatchError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, content_shape, image_shape):$/;"	m	class:ContentShapeMismatchError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, coordinate_count, annotation_type):$/;"	m	class:InvalidAnnotationCoordinateListError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, coordinate_count, annotation_type, annotation_path):$/;"	m	class:InvalidFileInvalidAnnotationCoordinateListError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, coordinate_list):$/;"	m	class:InvalidCoordinateListError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_dtype, image_coding, image_path):$/;"	m	class:NonLabelImageTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path):$/;"	m	class:EmptyImageLevelListError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path):$/;"	m	class:ImageAlreadyClosedError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path):$/;"	m	class:ImageFormatError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path):$/;"	m	class:InvalidMaskImagePathError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, color_type):$/;"	m	class:InvalidColorTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, color_type_value):$/;"	m	class:UnknownImageColorTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, compression_method):$/;"	m	class:InvalidCompressionMethodError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, data_type):$/;"	m	class:InvalidDataTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, data_type_value):$/;"	m	class:UnknownImageDataTypeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, image_data_type, tile_data_type):$/;"	m	class:DataTypeMismatchError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, image_level):$/;"	m	class:ImageLevelConfigurationError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, image_shape):$/;"	m	class:InvalidImageShapeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, input_channels, available_channels):$/;"	m	class:ImageChannelIndexError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, interpolation_method):$/;"	m	class:InvalidInterpolationMethodError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, jpeg_quality):$/;"	m	class:InvalidJpegQualityError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, open_mode):$/;"	m	class:ImageOpenError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, pixel_spacing):$/;"	m	class:InvalidPixelSpacingError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, pixel_spacing):$/;"	m	class:NonIsotropicPixelSpacingError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, pixel_spacing, spacing_tolerance):$/;"	m	class:PixelSpacingLevelError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, tile_shape):$/;"	m	class:InvalidTileShapeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, image_path, tile_size):$/;"	m	class:InvalidTileSizeError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, reference_image_path, reference_image_shapes, reference_image_spacings, t/;"	m	class:ImageShapeMismatchError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, reference_image_path, reference_image_shapes, template_image_path, templa/;"	m	class:UnfixableImageSpacingError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, row, col):$/;"	m	class:InvalidTileAddressError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, stat_path, stat_shape, mask_path, mask_shape, mask_spacing):$/;"	m	class:StatShapeMismatchError
+__init__	xmlpathology/errors/imageerrors.py	/^    def __init__(self, stat_path, stat_spacing, mask_path, mask_spacings, spacing_tolerance):$/;"	m	class:StatSpacingMismatchError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self):$/;"	m	class:AllZeroLabelCountsError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self):$/;"	m	class:EmptyLabelListError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self):$/;"	m	class:EmptyLabelMapError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyLabelError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, available_labels, requested_labels):$/;"	m	class:LabelListMismatchError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, category_dist):$/;"	m	class:AllZeroCategoryRatiosError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, category_dist):$/;"	m	class:NegativeCategoryRatioError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, category_list, category_dist):$/;"	m	class:CategoryRatioListMismatchError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label, label_list):$/;"	m	class:UnknownLabelError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_counts, label_errors):$/;"	m	class:LabelCountProbabilityMismatchError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_dictionary):$/;"	m	class:InvalidKeyLabelError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_dictionary):$/;"	m	class:NonContinuousLabelListError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_dist):$/;"	m	class:AllZeroLabelRatiosError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_dist):$/;"	m	class:InvalidLabelDistributionWithoutMappingError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_dist):$/;"	m	class:NegativeLabelRatioError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_dist, label_map):$/;"	m	class:LabelDistributionAndMappingMismatchError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_list):$/;"	m	class:InvalidLabelValueError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, label_list, label_map):$/;"	m	class:LabelValueMappingError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, labels, sources):$/;"	m	class:LabelSourceConfigurationError
+__init__	xmlpathology/errors/labelerrors.py	/^    def __init__(self, pixel_counts):$/;"	m	class:NegativeLabeledItemCountError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self):$/;"	m	class:InvalidModelDataFormatError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self):$/;"	m	class:MissingModelError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self):$/;"	m	class:MissingNetworkError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self):$/;"	m	class:ModelNotCompiledError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyModelError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, branching_factor):$/;"	m	class:InvalidBranchingFactorError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, channel_order):$/;"	m	class:NotSupportedChannelOrder
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, class_name, param_name):$/;"	m	class:MissingInitParameterError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, class_name, param_name):$/;"	m	class:MissingLearnableParameterError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, classes):$/;"	m	class:InvalidModelClassCountError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, depth):$/;"	m	class:InvalidModelDepthError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, dropout_count):$/;"	m	class:InvalidDropoutLayerCountError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, dropout_prob):$/;"	m	class:InvalidDropoutProbabilityError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, expected_levels, available_levels):$/;"	m	class:DataLevelMismatchError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, function_purpose):$/;"	m	class:MissingFunctionError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, image_levels):$/;"	m	class:InvalidImageLevel
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, input_range):$/;"	m	class:InvalidInputRangeError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, input_shape):$/;"	m	class:InvalidInputShapeError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, keys):$/;"	m	class:MissingDataKeyError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, layer):$/;"	m	class:NotSupportedLayerError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, layer, in_shape, out_shape, recon_shape, lost_this_layer, stride):$/;"	m	class:InvalidReconstructionInformationError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, layer_name, tensor_name, shape, unbind):$/;"	m	class:InputDimensionsMismatchError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, padding, layer):$/;"	m	class:NotSupportedPaddingError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, self_type, class_list):$/;"	m	class:ModelClassError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, setting, value, layer):$/;"	m	class:NotSupportedLayerConfigurationError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, tensor_name, input_shape_0, input_shape_1):$/;"	m	class:TensorShapeMismatchError
+__init__	xmlpathology/errors/modelerrors.py	/^    def __init__(self, zoom):$/;"	m	class:InvalidZoomFactorError
+__init__	xmlpathology/errors/normalizationerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyNormalizationError
+__init__	xmlpathology/errors/normalizationerrors.py	/^    def __init__(self, range_purpose, normalization_range):$/;"	m	class:InvalidNormalizationRangeError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyProcessError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, chunk_size):$/;"	m	class:InvalidSamplerChunkSizeError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, message):$/;"	m	class:InvalidMessageError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, pool_size):$/;"	m	class:InvalidPoolSizeError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, process_count):$/;"	m	class:InvalidProcessCountError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, process_id):$/;"	m	class:ProcessTerminatedError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, process_pid, message, response):$/;"	m	class:UnexpectedProcessResponseError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, thread_id):$/;"	m	class:ThreadTerminatedError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, thread_id, message, response):$/;"	m	class:ErrorThreadResponseError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, thread_tid, response):$/;"	m	class:UnknownThreadResponseError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, timeout_purpose, timeout_secs):$/;"	m	class:InvalidTimeoutError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, timeout_secs):$/;"	m	class:ProcessPollTimeoutError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, timeout_secs, queue_error):$/;"	m	class:ProcessResponseTimeoutError
+__init__	xmlpathology/errors/processerrors.py	/^    def __init__(self, timeout_secs, thread_tid, queue_error):$/;"	m	class:ThreadJobTimeoutError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self):$/;"	m	class:InvalidPixelSpacingValueError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyProcessingError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, comparison_mode):$/;"	m	class:UnknownImageNormalizationModeError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, dilation_distance):$/;"	m	class:InvalidDilationDistanceError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, group_names):$/;"	m	class:EmptyAnnotationGroupsError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, group_names):$/;"	m	class:UnknownAnnotationGroupsError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, height_factor, width_factor):$/;"	m	class:AsymmetricZoomFactorError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, image_path, image_coding):$/;"	m	class:NonMonochromeInputImageError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, image_path, image_dtype):$/;"	m	class:NonIntegralImageDataTypeError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, interpolation_order):$/;"	m	class:InvalidInterpolationOrderError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, left_path, left_shape, right_path, right_shape):$/;"	m	class:ImageShapeMismatchError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, left_shape, right_shape):$/;"	m	class:ArrayShapeMismatch
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, mask_path, image_path, image_level):$/;"	m	class:NoMatchingLevelInMaskImageError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, model_path):$/;"	m	class:MissingModelFileError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, operand):$/;"	m	class:UnknownImageArithmeticOperandError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, palette):$/;"	m	class:InvalidColorPaletteError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, reference_path, reference_shape, template_path, template_shape):$/;"	m	class:ReferenceTemplateImageShapeMismatchError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, steps):$/;"	m	class:InvalidConfigurationError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, target_shape):$/;"	m	class:InvalidZoomTargetShapeError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, threshold_dimensions, image_channels):$/;"	m	class:ThresholdDimensionImageChannelCountMismatchError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, tile_path, mask_path):$/;"	m	class:NoMatchingLevelInTileImageError
+__init__	xmlpathology/errors/processingerrors.py	/^    def __init__(self, zoom_factor):$/;"	m	class:InvalidZoomFactorError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self):$/;"	m	class:MissingStatInputPathError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self):$/;"	m	class:UnknownMaskInputFormatError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyStatError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self, loaded_keys, necessary_keys):$/;"	m	class:MissingDataKeyError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self, loaded_label_list, configured_label_list):$/;"	m	class:LabelListMismatchError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self, loaded_mask_spacing, configured_mask_spacing):$/;"	m	class:MaskPixelSpacingMismatchError
+__init__	xmlpathology/errors/staterrors.py	/^    def __init__(self, stat_path):$/;"	m	class:InconsistentDataError
+__init__	xmlpathology/errors/systemerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologySystemError
+__init__	xmlpathology/errors/systemerrors.py	/^    def __init__(self, signal_id, signal_name):$/;"	m	class:ProcessKilledError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self):$/;"	m	class:ErrorsNotInModelOutputError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self):$/;"	m	class:InvalidNetworkObjectError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self):$/;"	m	class:InvalidStatsHandlerError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self,  metric_name, available_metrics):$/;"	m	class:UnknownMetricNameError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self,  purpose, repetition_count):$/;"	m	class:InvalidRepetitionCountError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyTrainingError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, averaging_length):$/;"	m	class:InvalidAveragingLengthError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, buffer_mode_switch):$/;"	m	class:InvalidBufferConfigurationError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, difficult_threshold):$/;"	m	class:InvalidDifficultThreshold
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, epoch_count):$/;"	m	class:InvalidEpochCountError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, generator_purpose):$/;"	m	class:InvalidBatchGeneratorError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, iter_log_percent):$/;"	m	class:InvalidIterationLogPercentError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, learning_rate):$/;"	m	class:InvalidLearningRateError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, model_dim_order, generator_dim_order, generator_purpose):$/;"	m	class:DimensionOrderMismatchError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, purpose, iter_count):$/;"	m	class:InvalidIterationCountError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, role):$/;"	m	class:InvalidModelSavePathError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, role):$/;"	m	class:InvalidStateSavePathError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, state_hash, model_hash):$/;"	m	class:ModelHashMismatchError
+__init__	xmlpathology/errors/trainingerrors.py	/^    def __init__(self, update_ratio):$/;"	m	class:InvalidDifficultUpdateRatio
+__init__	xmlpathology/errors/weighterrors.py	/^    def __init__(self):$/;"	m	class:MissingLabelMapperForWeightMapperError
+__init__	xmlpathology/errors/weighterrors.py	/^    def __init__(self):$/;"	m	class:MissingPatchMapperWithBatchMapper
+__init__	xmlpathology/errors/weighterrors.py	/^    def __init__(self, *args):$/;"	m	class:DigitalPathologyWeightMappingError
+__init__	xmlpathology/errors/weighterrors.py	/^    def __init__(self, clip_min, clip_max):$/;"	m	class:InvalidClippingRangeError
+__init__	xmlpathology/errors/weighterrors.py	/^    def __init__(self, label_mode):$/;"	m	class:WeightMappingConfigurationError
+__init__	xmlpathology/errors/weighterrors.py	/^    def __init__(self, weight_mapper_classes, label_mapper_classes):$/;"	m	class:WeightMapperLabelMapperClassesMismatchError
+__init__	xmlpathology/experiment/experiment/apply.py	/^    def __init__(self,$/;"	m	class:Apply
+__init__	xmlpathology/experiment/experiment/evaluator.py	/^    def __init__(self,$/;"	m	class:Evaluator
+__init__	xmlpathology/experiment/experiment/log.py	/^    def __init__(self, experiment_directory, metrics, nept, types, learning_rate, debug):$/;"	m	class:Log
+__init__	xmlpathology/experiment/experiment/trainer.py	/^    def __init__(self, batchgenerator, model, epochs, steps, log, seed):$/;"	m	class:Trainer
+__init__	xmlpathology/experiment/models/hooknet.py	/^    def __init__(self, $/;"	m	class:Hooknet
+__init__	xmlpathology/io/annotationparser.py	/^    def __init__(self):$/;"	m	class:DefaultAnnotationParser
+__init__	xmlpathology/io/annotationparser.py	/^    def __init__(self,  xml_path, index, label_name, label_value, coordinates, holes=[]):$/;"	m	class:Polygon
+__init__	xmlpathology/io/annotationparser.py	/^    def __init__(self, label_map, annotation_format='asap'):$/;"	m	class:AnnotationParser
+__init__	xmlpathology/io/annotationparser.py	/^    def __init__(self, xml_path, index, label_name, label_value, coordinates):$/;"	m	class:Point
+__init__	xmlpathology/io/dataset.py	/^    def __init__(self,$/;"	m	class:DataSet
+__init__	xmlpathology/io/imageannotation.py	/^    def __init__(self,$/;"	m	class:ImageAnnotation
+__init__	xmlpathology/io/imagereader.py	/^    def __init__(self, image_path, spacing_tolerance, input_channels=None):$/;"	m	class:ImageReader
+__init__	xmlpathology/io/imagewriter.py	/^    def __init__(self, image_path, shape, spacing, dtype, coding, compression=None, interpolatio/;"	m	class:ImageWriter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenter.py	/^    def __init__(self, augmentation_config):$/;"	m	class:Augmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^    def __init__(self, keyword):$/;"	m	class:AugmenterBase
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def __init__(self):$/;"	m	class:AugmenterPool
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/coloraugmenterbase.py	/^    def __init__(self, keyword):$/;"	m	class:ColorAugmenterBase
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^    def __init__(self, sigma_range):$/;"	m	class:ContrastAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^    def __init__(self, haematoxylin_sigma_range, haematoxylin_bias_range, eosin_sigma_range, eos/;"	m	class:HedColorAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^    def __init__(self, hue_sigma_range, saturation_sigma_range, brightness_sigma_range):$/;"	m	class:HsbColorAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^    def __init__(self, sigma_range):$/;"	m	class:AdditiveGaussianNoiseAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^    def __init__(self, sigma_range):$/;"	m	class:GaussianBlurAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/noiseaugmenterbase.py	/^    def __init__(self, keyword):$/;"	m	class:NoiseAugmenterBase
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/passthroughaugmenter.py	/^    def __init__(self):$/;"	m	class:PassThroughAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^    def __init__(self, sigma_interval, alpha_interval, map_count, interpolation_order=1):$/;"	m	class:ElasticAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^    def __init__(self, flip_list):$/;"	m	class:FlipAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^    def __init__(self, k_list):$/;"	m	class:Rotate90Augmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^    def __init__(self, scaling_range, interpolation_order=1):$/;"	m	class:ScalingAugmenter
+__init__	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/spatialaugmenterbase.py	/^    def __init__(self, keyword):$/;"	m	class:SpatialAugmenterBase
+__init__	xmlpathology/xmlbatchgenerator/callbacks/callbacks.py	/^    def __init__(self):$/;"	m	class:Batch_Callback
+__init__	xmlpathology/xmlbatchgenerator/callbacks/callbacks.py	/^    def __init__(self):$/;"	m	class:Sample_Callback
+__init__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitdecoder.py	/^    def __init__(self, output_shape):$/;"	m	class:FitData
+__init__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fithooknet.py	/^    def __init__(self):$/;"	m	class:FitHookNet
+__init__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitsiamese.py	/^    def __init__(self, batch_size):$/;"	m	class:FitSiamese
+__init__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fityolo.py	/^    def __init__(self,$/;"	m	class:FitYolo
+__init__	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^    def __init__(self, weight_type, output_shape):$/;"	m	class:MaskWeights
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, label_counts, seed=123):$/;"	m	class:BalancedIndexController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, label_counts, seed=123):$/;"	m	class:IndexController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, labels, seed=123):$/;"	m	class:BalancedLabelController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, labels, seed=123):$/;"	m	class:LabelController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, labels, seed=123):$/;"	m	class:RandomLabelController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, labels, seed=123):$/;"	m	class:StrictLabelController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, seed=123):$/;"	m	class:Controller
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, seed=123):$/;"	m	class:DefaultIndexController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self, seed=123):$/;"	m	class:DefaultLabelController
+__init__	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def __init__(self,$/;"	m	class:SampleController
+__init__	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def __init__(self,$/;"	m	class:XmlBatchGenerator
+__init__	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def __init__(self,$/;"	m	class:XmlBatchGeneratorMultiCore
+__init__	xmlpathology/xmlbatchgenerator/core/processors.py	/^    def __init__(self,$/;"	m	class:BatchProcessor
+__init__	xmlpathology/xmlbatchgenerator/core/processors.py	/^    def __init__(self,$/;"	m	class:ControllerDeamon
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self):$/;"	m	class:DefaultLabelSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self):$/;"	m	class:DefaultPatchSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self, dataset):$/;"	m	class:LabelSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self, dataset):$/;"	m	class:PatchSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self, dataset):$/;"	m	class:SegmentationLabelSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self, seed=123):$/;"	m	class:DefaultPointSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self, strict_point_sampling=False, seed=123):$/;"	m	class:PointSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self, strict_point_sampling=False, seed=123):$/;"	m	class:RandomPointSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self,$/;"	m	class:BatchSampler
+__init__	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def __init__(self,$/;"	m	class:Sampler
+__open	xmlpathology/io/imagewriter.py	/^    def __open(self, image_path):$/;"	m	class:ImageWriter	file:
+__openimage	xmlpathology/io/imagereader.py	/^    def __openimage(self, image_path, input_channels):$/;"	m	class:ImageReader	file:
+__reduce__	xmlpathology/io/annotationparser.py	/^    def __reduce__(self):$/;"	m	class:Point
+__reduce__	xmlpathology/io/annotationparser.py	/^    def __reduce__(self):$/;"	m	class:Polygon
+__rightbottompad	xmlpathology/io/imagereader.py	/^    def __rightbottompad(self, patch, height, width):$/;"	m	class:ImageReader	file:
+__rightbottompad	xmlpathology/io/imagewriter.py	/^    def __rightbottompad(self, tile):$/;"	m	class:ImageWriter	file:
+__setbiasranges	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^    def __setbiasranges(self, haematoxylin_bias_range, eosin_bias_range, dab_bias_range):$/;"	m	class:HedColorAugmenter	file:
+__setcutoffrange	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^    def __setcutoffrange(self, cutoff_range):$/;"	m	class:HedColorAugmenter	file:
+__setdimensions	xmlpathology/io/imagewriter.py	/^    def __setdimensions(self, shape, spacing):$/;"	m	class:ImageWriter	file:
+__setfliplist	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^    def __setfliplist(self, flip_list):$/;"	m	class:FlipAugmenter	file:
+__setklist	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^    def __setklist(self, k_list):$/;"	m	class:Rotate90Augmenter	file:
+__setparameters	xmlpathology/io/imagewriter.py	/^    def __setparameters(self, dtype, coding, compression, interpolation, tile_size, jpeg_quality/;"	m	class:ImageWriter	file:
+__setscalingrange	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^    def __setscalingrange(self, scaling_range, interpolation_order):$/;"	m	class:ScalingAugmenter	file:
+__setsigmarange	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^    def __setsigmarange(self, sigma_range):$/;"	m	class:ContrastAugmenter	file:
+__setsigmarange	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^    def __setsigmarange(self, sigma_range):$/;"	m	class:AdditiveGaussianNoiseAugmenter	file:
+__setsigmarange	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^    def __setsigmarange(self, sigma_range):$/;"	m	class:GaussianBlurAugmenter	file:
+__setsigmaranges	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^    def __setsigmaranges(self, haematoxylin_sigma_range, eosin_sigma_range, dab_sigma_range):$/;"	m	class:HedColorAugmenter	file:
+__setsigmaranges	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^    def __setsigmaranges(self, hue_sigma_range, saturation_sigma_range, brightness_sigma_range):$/;"	m	class:HsbColorAugmenter	file:
+__setspacings	xmlpathology/io/imagereader.py	/^    def __setspacings(self, spacing_tolerance):$/;"	m	class:ImageReader	file:
+_augment	xmlpathology/xmlbatchgenerator/callbacks/augmentation/__init__.py	/^def _augment(self, patch, mask=None):$/;"	f
+_batch_weights	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^    def _batch_weights(self, masks):$/;"	m	class:MaskWeights
+_clean_weights	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^    def _clean_weights(self, masks):$/;"	m	class:MaskWeights
+_concatenator	xmlpathology/experiment/models/hooknet.py	/^    def _concatenator(self, net, item):$/;"	m	class:Hooknet
+_construct_model	xmlpathology/experiment/models/hooknet.py	/^    def _construct_model(self, model_name):$/;"	m	class:Hooknet
+_construct_net	xmlpathology/experiment/models/hooknet.py	/^    def _construct_net(self, input, inhooks={}):$/;"	m	class:Hooknet
+_conv_block	xmlpathology/experiment/models/hooknet.py	/^    def _conv_block(self, net, n_filters, kernel_size=3):$/;"	m	class:Hooknet
+_create_dense_map	xmlpathology/io/annotationparser.py	/^    def _create_dense_map(self, annotations, center_x, center_y, width, height, downsampling_rat/;"	m	class:Polygon
+_create_model	xmlpathology/experiment/models/hooknet.py	/^    def _create_model(self, inputs, outputs):$/;"	m	class:Hooknet
+_decode_path	xmlpathology/experiment/models/hooknet.py	/^    def _decode_path(self, net, residuals, inhooks={}):$/;"	m	class:Hooknet
+_downsample	xmlpathology/experiment/models/hooknet.py	/^    def _downsample(self, net):$/;"	m	class:Hooknet
+_encode_path	xmlpathology/experiment/models/hooknet.py	/^    def _encode_path(self, net):$/;"	m	class:Hooknet
+_gu_cropandupsample	xmlpathology/experiment/models/hooknet.py	/^    def _gu_cropandupsample(self, residuals, ratio, up):$/;"	m	class:Hooknet
+_init_samples	xmlpathology/io/dataset.py	/^    def _init_samples(self):$/;"	m	class:DataSet
+_open_image_annotations	xmlpathology/io/dataset.py	/^    def _open_image_annotations(self):$/;"	m	class:DataSet
+_open_images	xmlpathology/io/dataset.py	/^    def _open_images(self):$/;"	m	class:DataSet
+_post_process	xmlpathology/experiment/experiment/apply.py	/^    def _post_process(self, predictions):$/;"	m	class:Apply
+_reset_label	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def _reset_label(self, label):$/;"	m	class:BalancedIndexController
+_set_densities	xmlpathology/io/imageannotation.py	/^    def _set_densities(self):$/;"	m	class:ImageAnnotation
+_set_label_map	xmlpathology/io/imageannotation.py	/^    def _set_label_map(self, label_map):$/;"	m	class:ImageAnnotation
+_set_overlapping_annotations	xmlpathology/io/imageannotation.py	/^    def _set_overlapping_annotations(self):$/;"	m	class:ImageAnnotation
+_set_ratios	xmlpathology/io/dataset.py	/^    def _set_ratios(self):$/;"	m	class:DataSet
+_test_on_epoch	xmlpathology/experiment/experiment/evaluator.py	/^    def _test_on_epoch(self, epoch):$/;"	m	class:Evaluator
+_test_on_wsi	xmlpathology/experiment/experiment/apply.py	/^    def _test_on_wsi(self):$/;"	m	class:Apply
+_train_on_epoch	xmlpathology/experiment/experiment/trainer.py	/^    def _train_on_epoch(self, epoch):$/;"	m	class:Trainer
+_transfer	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def _transfer(self):$/;"	m	class:XmlBatchGeneratorMultiCore
+_upsample	xmlpathology/experiment/models/hooknet.py	/^    def _upsample(self, net, n_filters):$/;"	m	class:Hooknet
+_validate_on_epoch	xmlpathology/experiment/experiment/trainer.py	/^    def _validate_on_epoch(self, epoch):$/;"	m	class:Trainer
+add_arguments	xmlpathology/argconfigparser/argconfigparser.py	/^def add_arguments(parser, config, rekey=None):$/;"	f
+add_overlapping_annotations	xmlpathology/io/annotationparser.py	/^    def add_overlapping_annotations(self, overlap_annotations):$/;"	m	class:Polygon
+annotation_parser	xmlpathology/io/dataset.py	/^    def annotation_parser(self):$/;"	m	class:DataSet
+annotation_path	xmlpathology/io/imageannotation.py	/^    def annotation_path(self):$/;"	m	class:ImageAnnotation
+annotations	xmlpathology/io/imageannotation.py	/^    def annotations(self):$/;"	m	class:ImageAnnotation
+appendaugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def appendaugmenter(self, augmenter, group, ratio=0.0):$/;"	m	class:AugmenterPool
+appendgroup	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def appendgroup(self, group, randomized):$/;"	m	class:AugmenterPool
+apply	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^apply = Apply(wsi_path,$/;"	v
+apply	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^    apply = Apply(wsi_path,$/;"	v
+batch	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def batch(self, mode):$/;"	m	class:XmlBatchGenerator
+batch	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def batch(self, mode):$/;"	m	class:XmlBatchGeneratorMultiCore
+batch	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def batch(self, batch_data):$/;"	m	class:BatchSampler
+batch_norm	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^batch_norm = True$/;"	v
+batch_norm	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^batch_norm = True$/;"	v
+batch_norm	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^batch_norm = True$/;"	v
+batch_size	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^batch_size = 1$/;"	v
+batch_size	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^batch_size = 1$/;"	v
+batch_size	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^batch_size = 1$/;"	v
+batchgenerator	xmlpathology/experiment/scripts/python/executebachtraining.py	/^batchgenerator = XmlBatchGenerator(data_sources,$/;"	v
+batchgenerator	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^batchgenerator = XmlBatchGenerator(data_sources,$/;"	v
+center	xmlpathology/io/annotationparser.py	/^    def center(self):$/;"	m	class:Polygon
+centroid	xmlpathology/io/annotationparser.py	/^    def centroid(self):$/;"	m	class:Polygon
+channels	xmlpathology/io/imagereader.py	/^    def channels(self):$/;"	m	class:ImageReader
+clean_weights	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^def clean_weights(masks):$/;"	f
+close	xmlpathology/io/imagereader.py	/^    def close(self):$/;"	m	class:ImageReader
+close	xmlpathology/io/imagewriter.py	/^    def close(self):$/;"	m	class:ImageWriter
+close_images	xmlpathology/io/dataset.py	/^    def close_images(self):$/;"	m	class:DataSet
+coding	xmlpathology/io/imagereader.py	/^    def coding(self):$/;"	m	class:ImageReader
+coding	xmlpathology/io/imagewriter.py	/^    def coding(self):$/;"	m	class:ImageWriter
+compression	xmlpathology/io/imagewriter.py	/^    def compression(self):$/;"	m	class:ImageWriter
+compute_error	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def compute_error(self, y, prediction, weights):$/;"	f
+config	xmlpathology/experiment/scripts/python/executebachtraining.py	/^config = parse('\/home\/user\/hooknet\/config\/parameters.yml', notebook=True)$/;"	v
+config	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^config = parse('\/home\/user\/hooknet\/config\/parameters.yml', notebook=True)$/;"	v
+construct_fcnn	xmlpathology/experiment/models/hooknet.py	/^    def construct_fcnn(self):$/;"	m	class:Hooknet
+construct_gu	xmlpathology/experiment/models/hooknet.py	/^    def construct_gu(self): # n_filters 53 ~ 50M parameters$/;"	m	class:Hooknet
+construct_gu_2	xmlpathology/experiment/models/hooknet.py	/^    def construct_gu_2(self):$/;"	m	class:Hooknet
+construct_hooknet	xmlpathology/experiment/models/hooknet.py	/^    def construct_hooknet(self):$/;"	m	class:Hooknet
+construct_unet	xmlpathology/experiment/models/hooknet.py	/^    def construct_unet(self):$/;"	m	class:Hooknet
+constructaugmenters	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^def constructaugmenters(augmentation_config):$/;"	f
+contains	xmlpathology/io/annotationparser.py	/^    def contains(self, _annotation):$/;"	m	class:Polygon
+content	xmlpathology/io/imagereader.py	/^    def content(self, spacing):$/;"	m	class:ImageReader
+coordinates	xmlpathology/io/annotationparser.py	/^    def coordinates(self):$/;"	m	class:Point
+coordinates	xmlpathology/io/annotationparser.py	/^    def coordinates(self):$/;"	m	class:Polygon
+correct	xmlpathology/io/imagereader.py	/^    def correct(self, spacing, level):$/;"	m	class:ImageReader
+count_per_class	xmlpathology/io/imageannotation.py	/^    def count_per_class(self):$/;"	m	class:ImageAnnotation
+counts	xmlpathology/io/dataset.py	/^    def counts(self):$/;"	m	class:DataSet
+counts	xmlpathology/io/imageannotation.py	/^    def counts(self):$/;"	m	class:ImageAnnotation
+counts_per_label	xmlpathology/io/dataset.py	/^    def counts_per_label(self):$/;"	m	class:DataSet
+cpus	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^cpus = 6$/;"	v
+cpus	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^cpus = 6$/;"	v
+cpus	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^cpus = 6$/;"	v
+create_annotation	xmlpathology/io/annotationparser.py	/^def create_annotation(xml_path, annotation_type, index, label_name, label_value, coordinates, ho/;"	f
+create_new_datasets	xmlpathology/io/dataset.py	/^def create_new_datasets(datasets):$/;"	f
+crop	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def crop(self, patch, shape):$/;"	m	class:AugmenterPool
+data_source	xmlpathology/io/dataset.py	/^    def data_source(self):$/;"	m	class:DataSet
+data_source_id	xmlpathology/io/imageannotation.py	/^    def data_source_id(self):$/;"	m	class:ImageAnnotation
+data_sources	xmlpathology/experiment/scripts/python/executebachtraining.py	/^data_sources = load_data_source(config['data']['datasource'], source='server')$/;"	v
+data_sources	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^data_sources = load_data_source(config['data']['datasource'], source='server')$/;"	v
+depth	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^depth = 4$/;"	v
+depth	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^depth = 4$/;"	v
+depth	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^depth = 4$/;"	v
+distribute	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def distribute(self):$/;"	m	class:AugmenterPool
+downsamplings	xmlpathology/io/imagereader.py	/^    def downsamplings(self):$/;"	m	class:ImageReader
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^from .....errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^from .....errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmentationerrors	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^from ......errors import augmentationerrors as dptaugmentationerrors$/;"	x
+dptaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^from . import augmenterbase as dptaugmenterbase$/;"	x
+dptaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/coloraugmenterbase.py	/^from .. import augmenterbase as dptaugmenterbase$/;"	x
+dptaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/noiseaugmenterbase.py	/^from .. import augmenterbase as dptaugmenterbase$/;"	x
+dptaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/passthroughaugmenter.py	/^from . import augmenterbase as dptaugmenterbase$/;"	x
+dptaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/spatialaugmenterbase.py	/^from .. import augmenterbase as dptaugmenterbase$/;"	x
+dptaugmenterpool	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from . import augmenterpool as dptaugmenterpool$/;"	x
+dptcoloraugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^from . import coloraugmenterbase as dptcoloraugmenterbase$/;"	x
+dptcoloraugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^from . import coloraugmenterbase as dptcoloraugmenterbase$/;"	x
+dptcoloraugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^from . import coloraugmenterbase as dptcoloraugmenterbase$/;"	x
+dptconfigerrors	xmlpathology/io/imagereader.py	/^from ..errors import configerrors as dptconfigerrors$/;"	x
+dptcontrastaugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .color import contrastaugmenter as dptcontrastaugmenter$/;"	x
+dptelasticagumenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .spatial import elasticagumenter as dptelasticagumenter$/;"	x
+dpterrorbase	xmlpathology/errors/augmentationerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/buffererrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/configerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/dataerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/imageerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/labelerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/modelerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/normalizationerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/processerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/processingerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/staterrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/systemerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/trainingerrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dpterrorbase	xmlpathology/errors/weighterrors.py	/^from . import errorbase as dpterrorbase$/;"	x
+dptflipaugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .spatial import flipaugmenter as dptflipaugmenter$/;"	x
+dptgaussianbluraugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .noise import gaussianbluraugmenter as dptgaussianbluraugmenter$/;"	x
+dpthedcoloraugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .color import hedcoloraugmenter as dpthedcoloraugmenter$/;"	x
+dpthsbcoloraugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .color import hsbcoloraugmenter as dpthsbcoloraugmenter$/;"	x
+dptimageerrors	xmlpathology/io/imagereader.py	/^from ..errors import imageerrors as dptimageerrors$/;"	x
+dptimageerrors	xmlpathology/io/imagewriter.py	/^from ..errors import imageerrors as dptimageerrors$/;"	x
+dptnoiseaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^from . import noiseaugmenterbase as dptnoiseaugmenterbase$/;"	x
+dptnoiseaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^from . import noiseaugmenterbase as dptnoiseaugmenterbase$/;"	x
+dptpassthroughaugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from . import passthroughaugmenter as dptpassthroughaugmenter$/;"	x
+dptrotate90augmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .spatial import rotate90augmenter as dptrotate90augmenter$/;"	x
+dptscalingaugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .spatial import scalingaugmenter as dptscalingaugmenter$/;"	x
+dptspatialaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^from .spatial import spatialaugmenterbase as dptspatialaugmenterbase$/;"	x
+dptspatialaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^from . import spatialaugmenterbase as dptspatialaugmenterbase$/;"	x
+dptspatialaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^from . import spatialaugmenterbase as dptspatialaugmenterbase$/;"	x
+dptspatialaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^from . import spatialaugmenterbase as dptspatialaugmenterbase$/;"	x
+dptspatialaugmenterbase	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^from . import spatialaugmenterbase as dptspatialaugmenterbase$/;"	x
+dtpadditiveguassiannoiseaugmenter	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenters_utils.py	/^from .noise import additiveguassiannoiseaugmenter as dtpadditiveguassiannoiseaugmenter$/;"	x
+dtype	xmlpathology/io/imagereader.py	/^    def dtype(self):$/;"	m	class:ImageReader
+dtype	xmlpathology/io/imagewriter.py	/^    def dtype(self):$/;"	m	class:ImageWriter
+emptyvalue	xmlpathology/io/imagewriter.py	/^    def emptyvalue(self):$/;"	m	class:ImageWriter
+extractFile	xmlpathology/argconfigparser/argconfigparser.py	/^    def extractFile(self, filename):$/;"	m	class:Loader
+files.trimTrailingWhitespace	.vscode/settings.json	/^    "files.trimTrailingWhitespace": true$/;"	b
+fill	xmlpathology/io/imagewriter.py	/^    def fill(self, content):$/;"	m	class:ImageWriter
+fit_data	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def fit_data(data, output_size):$/;"	f
+fitdecoder	xmlpathology/experiment/scripts/python/executebachtraining.py	/^fitdecoder = FitData(config['model']['output_shape'])$/;"	v
+fithooknet	xmlpathology/experiment/scripts/python/executebachtraining.py	/^fithooknet = FitHookNet()$/;"	v
+fyolo	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^fyolo = [FitYolo([128,128],[8,8], 1, 24, ['lymphocytes'])]$/;"	v
+get_image_path	xmlpathology/io/dataset.py	/^    def get_image_path(self, data_source_id):$/;"	m	class:DataSet
+hash	xmlpathology/io/imagereader.py	/^    def hash(self):$/;"	m	class:ImageReader
+holes	xmlpathology/io/annotationparser.py	/^    def holes(self):$/;"	m	class:Polygon
+hook_indexes	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^hook_indexes = [3, 3]$/;"	v
+hook_indexes	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^hook_indexes = [3, 3]$/;"	v
+hook_indexes	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^hook_indexes = [3, 3]$/;"	v
+hooknet	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^hooknet = Hooknet(model_name,$/;"	v
+hooknet	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^hooknet = Hooknet(model_name,$/;"	v
+hooknet	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^hooknet = Hooknet(model_name,$/;"	v
+image	xmlpathology/io/imagereader.py	/^    def image(self):$/;"	m	class:ImageReader
+image_annotations	xmlpathology/io/dataset.py	/^    def image_annotations(self):$/;"	m	class:DataSet
+image_name	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^    image_name = os.path.splitext(os.path.basename(wsi_path))[0]$/;"	v
+image_name	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^    image_name = os.path.splitext(os.path.basename(wsi_path))[0]$/;"	v
+images	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^images = []$/;"	v
+images	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^images = []$/;"	v
+images	xmlpathology/io/dataset.py	/^    def images(self):$/;"	m	class:DataSet
+include	xmlpathology/argconfigparser/argconfigparser.py	/^    def include(self, node):$/;"	m	class:Loader
+index	xmlpathology/io/annotationparser.py	/^    def index(self):$/;"	m	class:Point
+index	xmlpathology/io/annotationparser.py	/^    def index(self):$/;"	m	class:Polygon
+input_shape	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^input_shape = [1244,1244,3]$/;"	v
+input_shape	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^input_shape = [1244,1244,3]$/;"	v
+input_shape	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^input_shape = [1244,1244,3]$/;"	v
+interpolation	xmlpathology/io/imagewriter.py	/^    def interpolation(self):$/;"	m	class:ImageWriter
+io	xmlpathology/experiment/models/hooknet.py	/^import skimage.io as io$/;"	I
+keras	xmlpathology/experiment/models/hooknet.py	/^from keras import backend as keras, regularizers$/;"	x
+keyword	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^    def keyword(self):$/;"	m	class:AugmenterBase
+l2_lambda	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^l2_lambda = 0.001$/;"	v
+l2_lambda	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^l2_lambda = 0.001$/;"	v
+l2_lambda	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^l2_lambda = 0.001$/;"	v
+label_map	xmlpathology/io/dataset.py	/^    def label_map(self):$/;"	m	class:DataSet
+label_map	xmlpathology/io/imageannotation.py	/^    def label_map(self):$/;"	m	class:ImageAnnotation
+label_name	xmlpathology/io/annotationparser.py	/^    def label_name(self):$/;"	m	class:Point
+label_name	xmlpathology/io/annotationparser.py	/^    def label_name(self):$/;"	m	class:Polygon
+label_value	xmlpathology/io/annotationparser.py	/^    def label_value(self):$/;"	m	class:Point
+label_value	xmlpathology/io/annotationparser.py	/^    def label_value(self):$/;"	m	class:Polygon
+labels	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^labels = ['DCIS', 'IDC', 'ILC', 'Normal', 'Fat', 'Benign']$/;"	v
+labels	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^labels = ['DCIS', 'IDC', 'ILC', 'Normal', 'Fat', 'Benign']$/;"	v
+labels	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^labels = ['DCIS', 'IDC', 'ILC', 'Normal', 'Fat', 'Benign']$/;"	v
+labels	xmlpathology/io/dataset.py	/^    def labels(self):$/;"	m	class:DataSet
+learning_rate	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^learning_rate = 0.05$/;"	v
+learning_rate	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^learning_rate = 0.05$/;"	v
+learning_rate	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^learning_rate = 0.05$/;"	v
+level	xmlpathology/io/imagereader.py	/^    def level(self, spacing):$/;"	m	class:ImageReader
+levels	xmlpathology/io/imagereader.py	/^    def levels(self):$/;"	m	class:ImageReader
+load_annotation_parser	xmlpathology/io/annotationparser.py	/^def load_annotation_parser(annotation_parser, label_map):$/;"	f
+load_density	xmlpathology/io/annotationparser.py	/^    def load_density(self, downsampling_ratio=8, gauss_sigma=(10, 10)):$/;"	m	class:Polygon
+load_index_controller	xmlpathology/xmlbatchgenerator/core/controllers.py	/^def load_index_controller(dataset, index_controller, seed=123):$/;"	f
+load_label_controller	xmlpathology/xmlbatchgenerator/core/controllers.py	/^def load_label_controller(dataset, label_controller, seed=123):$/;"	f
+load_label_sampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^def load_label_sampler(dataset, label_sampler):$/;"	f
+load_patch_sampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^def load_patch_sampler(dataset, patch_sampler):$/;"	f
+load_point_sampler	xmlpathology/xmlbatchgenerator/core/samplers.py	/^def load_point_sampler(point_sampler, seed=123):$/;"	f
+log	xmlpathology/experiment/scripts/python/executebachtraining.py	/^log = Log(config['experiment']['experiment_directory'],$/;"	v
+log	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^log = Log(config['experiment']['experiment_directory'],$/;"	v
+mask_path	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^mask_path= None$/;"	v
+mask_path	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^    mask_path = [mask for mask in masks if image_name in mask][0]$/;"	v
+mask_path	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^        mask_path = paired_masks[0]$/;"	v
+masks	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^masks = []$/;"	v
+masks	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^masks = []$/;"	v
+metricnames	xmlpathology/experiment/models/hooknet.py	/^    def metricnames(self):$/;"	m	class:Hooknet
+mir	xmlpathology/io/imagereader.py	/^import multiresolutionimageinterface as mir$/;"	I
+mir	xmlpathology/io/imagewriter.py	/^import multiresolutionimageinterface as mir$/;"	I
+mode	xmlpathology/io/dataset.py	/^    def mode(self):$/;"	m	class:DataSet
+mode	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def mode(self):$/;"	m	class:SampleController
+model	xmlpathology/experiment/scripts/python/executebachtraining.py	/^model = Hooknet('hooknet',$/;"	v
+model	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^model = Yolo()$/;"	v
+model_name	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^model_name = 'hooknet'$/;"	v
+model_name	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^model_name = 'hooknet'$/;"	v
+model_name	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^model_name = 'hooknet'$/;"	v
+mpatches	xmlpathology/xmlbatchgenerator/utils/utils.py	/^import matplotlib.patches as mpatches$/;"	I
+multi_loss	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^multi_loss = False$/;"	v
+multi_loss	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^multi_loss = False$/;"	v
+multi_loss	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^multi_loss = False$/;"	v
+n_filters	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^n_filters = 64$/;"	v
+n_filters	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^n_filters = 64$/;"	v
+n_filters	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^n_filters = 64$/;"	v
+ndi	xmlpathology/io/annotationparser.py	/^import scipy.ndimage as ndi$/;"	I
+neptune_experiment	xmlpathology/experiment/scripts/python/executebachtraining.py	/^    neptune_experiment = neptune_project.create_experiment(name=config['experiment']['experiment/;"	v
+neptune_experiment	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^    neptune_experiment = neptune_project.create_experiment(name=config['experiment']['experiment/;"	v
+neptune_project	xmlpathology/experiment/scripts/python/executebachtraining.py	/^    neptune_project = neptune.init(project_qualified_name='martvanrijthoven\/yollo')$/;"	v
+neptune_project	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^    neptune_project = neptune.init(project_qualified_name='martvanrijthoven\/yollo')$/;"	v
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self):$/;"	m	class:BalancedLabelController
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self):$/;"	m	class:Controller
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self):$/;"	m	class:IndexController
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self):$/;"	m	class:LabelController
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self):$/;"	m	class:RandomLabelController
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self):$/;"	m	class:StrictLabelController
+next	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def next(self, label):$/;"	m	class:BalancedIndexController
+normalize	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def normalize(input):$/;"	f
+np	xmlpathology/experiment/experiment/apply.py	/^import numpy as np$/;"	I
+np	xmlpathology/experiment/experiment/evaluator.py	/^import numpy as np$/;"	I
+np	xmlpathology/experiment/experiment/log.py	/^import numpy as np$/;"	I
+np	xmlpathology/experiment/experiment/trainer.py	/^import numpy as np$/;"	I
+np	xmlpathology/experiment/models/hooknet.py	/^import numpy as np$/;"	I
+np	xmlpathology/experiment/scripts/python/executebachtraining.py	/^import numpy as np$/;"	I
+np	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^import numpy as np$/;"	I
+np	xmlpathology/io/annotationparser.py	/^import numpy as np$/;"	I
+np	xmlpathology/io/dataset.py	/^import numpy as np$/;"	I
+np	xmlpathology/io/imagereader.py	/^import numpy as np$/;"	I
+np	xmlpathology/io/imagewriter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fitsiamese.py	/^import numpy as np $/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/fityolo.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/callbacks/preprocessing/weights.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/core/controllers.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/core/samplers.py	/^import numpy as np$/;"	I
+np	xmlpathology/xmlbatchgenerator/utils/utils.py	/^import numpy as np$/;"	I
+one_hot_decoding	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def one_hot_decoding(mask, base=-1):$/;"	f
+one_hot_encoding	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def one_hot_encoding(mask, label_map):$/;"	f
+open_images_ahead	xmlpathology/io/dataset.py	/^    def open_images_ahead(self):$/;"	m	class:DataSet
+opt	xmlpathology/experiment/models/hooknet.py	/^    def opt(self):$/;"	m	class:Hooknet
+opt_name	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^opt_name = 'adam'$/;"	v
+opt_name	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^opt_name = 'adam'$/;"	v
+opt_name	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^opt_name = 'adam'$/;"	v
+output_path	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^output_path = '\/home\/user\/T12-28105-I4-1_hooknet.tif'$/;"	v
+output_path	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^    output_path = os.path.join('\/home\/user\/prediction_files', image_name + '_hooknet_predicti/;"	v
+output_path	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^    output_path = os.path.join('\/home\/user\/output_files', image_name + '_hooknet_prediction.t/;"	v
+output_shape	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^output_shape = [1030,1030,4]$/;"	v
+output_shape	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^output_shape = [1030,1030,4]$/;"	v
+output_shape	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^output_shape = [1030,1030,4]$/;"	v
+overlapping_annotations	xmlpathology/io/annotationparser.py	/^    def overlapping_annotations(self):$/;"	m	class:Polygon
+padding	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^padding = 'valid'$/;"	v
+padding	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^padding = 'valid'$/;"	v
+padding	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^padding = 'valid'$/;"	v
+paired_masks	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^    paired_masks = [mask for mask in masks if image_name in mask]$/;"	v
+parse	xmlpathology/argconfigparser/argconfigparser.py	/^def parse(config_file_path, notebook=False):$/;"	f
+parse	xmlpathology/io/annotationparser.py	/^    def parse(self, xml_path):$/;"	m	class:AnnotationParser
+patch_shape	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^patch_shape= [1244, 1244, 3]$/;"	v
+patch_shape	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^patch_shape= [1244, 1244, 3]$/;"	v
+patch_shape	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^patch_shape= [1244, 1244, 3]$/;"	v
+path	xmlpathology/io/imagereader.py	/^    def path(self):$/;"	m	class:ImageReader
+path	xmlpathology/io/imagewriter.py	/^    def path(self):$/;"	m	class:ImageWriter
+plot_annotations	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def plot_annotations(annotations, axes=None):$/;"	f
+plot_mask	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def plot_mask(mask,$/;"	f
+plot_one_hot	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def plot_one_hot(mask, output_shape):$/;"	f
+plot_patch	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def plot_patch(patch,$/;"	f
+plt	xmlpathology/experiment/scripts/python/executebachtraining.py	/^from matplotlib import pyplot as plt$/;"	x
+plt	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^from matplotlib import pyplot as plt$/;"	x
+plt	xmlpathology/xmlbatchgenerator/utils/utils.py	/^import matplotlib.pyplot as plt$/;"	I
+process	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def process(self, patches, shapes=None, randomize=True):$/;"	m	class:AugmenterPool
+python.jediEnabled	.vim/coc-settings.json	/^  "python.jediEnabled": false$/;"	b
+python.linting.flake8Args	.vscode/settings.json	/^    "python.linting.flake8Args": [$/;"	a
+python.linting.flake8Enabled	.vscode/settings.json	/^    "python.linting.flake8Enabled": true,$/;"	b
+python.linting.pylintArgs	.vscode/settings.json	/^    "python.linting.pylintArgs": [$/;"	a
+python.linting.pylintEnabled	.vscode/settings.json	/^    "python.linting.pylintEnabled": true,$/;"	b
+python.pythonPath	.vscode/settings.json	/^    "python.pythonPath": "\/home\/mart\/anaconda3\/bin\/python",$/;"	s
+quality	xmlpathology/io/imagewriter.py	/^    def quality(self):$/;"	m	class:ImageWriter
+queue_size	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^queue_size=10$/;"	v
+queue_size	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^queue_size=10$/;"	v
+queue_size	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^queue_size=10$/;"	v
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^    def randomize(self):$/;"	m	class:AugmenterBase
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def randomize(self):$/;"	m	class:AugmenterPool
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^    def randomize(self):$/;"	m	class:ContrastAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^    def randomize(self):$/;"	m	class:HedColorAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^    def randomize(self):$/;"	m	class:HsbColorAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^    def randomize(self):$/;"	m	class:AdditiveGaussianNoiseAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^    def randomize(self):$/;"	m	class:GaussianBlurAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^    def randomize(self):$/;"	m	class:ElasticAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^    def randomize(self):$/;"	m	class:FlipAugmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^    def randomize(self):$/;"	m	class:Rotate90Augmenter
+randomize	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^    def randomize(self):$/;"	m	class:ScalingAugmenter
+ratios	xmlpathology/io/dataset.py	/^    def ratios(self):$/;"	m	class:DataSet
+read	xmlpathology/io/imagereader.py	/^    def read(self, spacing, row, col, height, width):$/;"	m	class:ImageReader
+read_asap	xmlpathology/io/annotationparser.py	/^def read_asap(xml_path, label_map):$/;"	f
+read_center	xmlpathology/io/imagereader.py	/^    def read_center(self, center_x, center_y, width, height, spacing):$/;"	m	class:ImageReader
+read_virtum	xmlpathology/io/annotationparser.py	/^def read_virtum(filename, label_map):$/;"	f
+refine	xmlpathology/io/imagereader.py	/^    def refine(self, spacing):$/;"	m	class:ImageReader
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:BalancedIndexController
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:BalancedLabelController
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:Controller
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:IndexController
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:LabelController
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:RandomLabelController
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:SampleController
+reset	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def reset(self):$/;"	m	class:StrictLabelController
+reset	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def reset(self, mode):$/;"	m	class:XmlBatchGenerator
+reset	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def reset(self, mode):$/;"	m	class:XmlBatchGeneratorMultiCore
+reset	xmlpathology/xmlbatchgenerator/core/processors.py	/^    def reset(self, mode):$/;"	m	class:BatchProcessor
+reset	xmlpathology/xmlbatchgenerator/core/processors.py	/^    def reset(self, mode):$/;"	m	class:ControllerDeamon
+reset	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def reset(self):$/;"	m	class:BatchSampler
+reset	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def reset(self):$/;"	m	class:Sampler
+resolutions	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^resolutions = [0.5, 8.0]$/;"	v
+resolutions	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^resolutions = [0.5, 8.0]$/;"	v
+resolutions	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^resolutions = [0.5, 8.0]$/;"	v
+run	xmlpathology/xmlbatchgenerator/core/processors.py	/^    def run(self):$/;"	m	class:BatchProcessor
+run	xmlpathology/xmlbatchgenerator/core/processors.py	/^    def run(self):$/;"	m	class:ControllerDeamon
+sample	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def sample(self, batch_size):$/;"	m	class:SampleController
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, image_annotation, center_x, center_y, width, height, pixel_spacing):$/;"	m	class:DefaultLabelSampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, image_annotation, center_x, center_y, width, height, pixel_spacing):$/;"	m	class:LabelSampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, image_annotation, center_x, center_y, width, height, pixel_spacing):$/;"	m	class:SegmentationLabelSampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, image_annotation_index, annotation_index):$/;"	m	class:Sampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, image_path, center_x, center_y, width, height, pixel_spacing):$/;"	m	class:PatchSampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, polygon, width, height):$/;"	m	class:DefaultPointSampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, polygon, width, height):$/;"	m	class:PointSampler
+sample	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def sample(self, polygon, width, height):$/;"	m	class:RandomPointSampler
+samples	xmlpathology/io/dataset.py	/^    def samples(self):$/;"	m	class:DataSet
+save	xmlpathology/experiment/experiment/log.py	/^    def save(self, epoch, model):$/;"	m	class:Log
+select_annotations	xmlpathology/io/imageannotation.py	/^    def select_annotations(self, center_x, center_y, width, height, stree=None):$/;"	m	class:ImageAnnotation
+set_arguments	xmlpathology/argconfigparser/argconfigparser.py	/^def set_arguments(config, args, rekey=None):$/;"	f
+set_seed	xmlpathology/xmlbatchgenerator/core/controllers.py	/^    def set_seed(self, seed):$/;"	m	class:Controller
+set_seed	xmlpathology/xmlbatchgenerator/core/samplers.py	/^    def set_seed(self, seed):$/;"	m	class:PointSampler
+shape	xmlpathology/io/imagewriter.py	/^    def shape(self):$/;"	m	class:ImageWriter
+shapes	xmlpathology/io/imagereader.py	/^    def shapes(self):$/;"	m	class:ImageReader
+shapes	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^    def shapes(self, target_shapes):$/;"	m	class:AugmenterBase
+shapes	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def shapes(self, target_shapes):$/;"	m	class:AugmenterPool
+shapes	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^    def shapes(self, target_shapes):$/;"	m	class:ScalingAugmenter
+shift_coordinates	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def shift_coordinates(coordinates, center_x, center_y, width, height, ratio):$/;"	f
+size	xmlpathology/io/annotationparser.py	/^    def size(self):$/;"	m	class:Polygon
+skipempty	xmlpathology/io/imagewriter.py	/^    def skipempty(self):$/;"	m	class:ImageWriter
+sort_annotations_by	xmlpathology/io/dataset.py	/^    def sort_annotations_by(self):$/;"	m	class:DataSet
+spacing	xmlpathology/io/imagewriter.py	/^    def spacing(self):$/;"	m	class:ImageWriter
+spacings	xmlpathology/io/imagereader.py	/^    def spacings(self):$/;"	m	class:ImageReader
+start	xmlpathology/experiment/experiment/apply.py	/^    def start(self):$/;"	m	class:Apply
+start	xmlpathology/experiment/experiment/evaluator.py	/^    def start(self):$/;"	m	class:Evaluator
+start	xmlpathology/experiment/experiment/trainer.py	/^    def start(self):$/;"	m	class:Trainer
+start	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def start(self):$/;"	m	class:XmlBatchGeneratorMultiCore
+stop	xmlpathology/experiment/experiment/apply.py	/^    def stop(self):$/;"	m	class:Apply
+stop	xmlpathology/experiment/experiment/evaluator.py	/^    def stop(self):$/;"	m	class:Evaluator
+stop	xmlpathology/experiment/experiment/trainer.py	/^    def stop(self):$/;"	m	class:Trainer
+stop	xmlpathology/xmlbatchgenerator/core/generators.py	/^    def stop(self):$/;"	m	class:XmlBatchGeneratorMultiCore
+str2bool	xmlpathology/argconfigparser/argconfigparser.py	/^def str2bool(v):$/;"	f
+test	xmlpathology/io/imagereader.py	/^    def test(self, spacing):$/;"	m	class:ImageReader
+tf	xmlpathology/experiment/experiment/apply.py	/^import tensorflow as tf$/;"	I
+tf	xmlpathology/experiment/experiment/evaluator.py	/^import tensorflow as tf$/;"	I
+tf	xmlpathology/experiment/experiment/trainer.py	/^import tensorflow as tf$/;"	I
+tileshape	xmlpathology/io/imagewriter.py	/^    def tileshape(self):$/;"	m	class:ImageWriter
+tilesize	xmlpathology/io/imagewriter.py	/^    def tilesize(self):$/;"	m	class:ImageWriter
+timed	xmlpathology/xmlbatchgenerator/utils/utils.py	/^    def timed(*args, **kw):$/;"	f	function:timeit	file:
+timeit	xmlpathology/xmlbatchgenerator/utils/utils.py	/^def timeit(method):$/;"	f
+trainer	xmlpathology/experiment/scripts/python/executebachtraining.py	/^trainer = Trainer(batchgenerator,$/;"	v
+trainer	xmlpathology/experiment/scripts/python/executeyolotraining.py	/^trainer = Trainer(batchgenerator,$/;"	v
+trans	xmlpathology/experiment/models/hooknet.py	/^import skimage.transform as trans$/;"	I
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterbase.py	/^    def transform(self, patch):$/;"	m	class:AugmenterBase
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/augmenterpool.py	/^    def transform(self, patch, label=None):$/;"	m	class:AugmenterPool
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/contrastaugmenter.py	/^    def transform(self, patch):$/;"	m	class:ContrastAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hedcoloraugmenter.py	/^    def transform(self, patch):$/;"	m	class:HedColorAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/color/hsbcoloraugmenter.py	/^    def transform(self, patch):$/;"	m	class:HsbColorAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/additiveguassiannoiseaugmenter.py	/^    def transform(self, patch):$/;"	m	class:AdditiveGaussianNoiseAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/noise/gaussianbluraugmenter.py	/^    def transform(self, patch):$/;"	m	class:GaussianBlurAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/passthroughaugmenter.py	/^    def transform(self, patch):$/;"	m	class:PassThroughAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/elasticagumenter.py	/^    def transform(self, patch):$/;"	m	class:ElasticAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/flipaugmenter.py	/^    def transform(self, patch):$/;"	m	class:FlipAugmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/rotate90augmenter.py	/^    def transform(self, patch):$/;"	m	class:Rotate90Augmenter
+transform	xmlpathology/xmlbatchgenerator/callbacks/augmentation/augmenters/spatial/scalingaugmenter.py	/^    def transform(self, patch):$/;"	m	class:ScalingAugmenter
+type	xmlpathology/io/annotationparser.py	/^    def type(self):$/;"	m	class:Point
+type	xmlpathology/io/annotationparser.py	/^    def type(self):$/;"	m	class:Polygon
+update_cr	xmlpathology/experiment/experiment/log.py	/^    def update_cr(self, epoch, cr):$/;"	m	class:Log
+update_data	xmlpathology/experiment/experiment/log.py	/^    def update_data(self, _type, epoch, data):$/;"	m	class:Log
+update_metrics	xmlpathology/experiment/experiment/log.py	/^    def update_metrics(self, _type, epoch, metric_values):$/;"	m	class:Log
+weights	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^weights = '\/home\/user\/model.h5'$/;"	v
+weights	xmlpathology/experiment/scripts/python/applyhooknetbreastdir.py	/^weights = '\/\/mnt\/netcache\/pathology\/projects\/pathology-multires-segmentation\/paperexperim/;"	v
+weigths	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^    weigths = '\/output\/model.h5'$/;"	v
+weigths	xmlpathology/experiment/scripts/python/applyhooknetbreast.py	/^    weigths = '\/output\/weights.h5'$/;"	v
+write	xmlpathology/io/imagewriter.py	/^    def write(self, tile, row, col):$/;"	m	class:ImageWriter
+wsi_path	xmlpathology/experiment/scripts/python/applyhooknetbach.py	/^wsi_path = '\/home\/user\/T12-28105-I4-1.tif'$/;"	v

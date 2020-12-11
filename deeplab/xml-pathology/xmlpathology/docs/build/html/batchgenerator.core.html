@@ -1,0 +1,535 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>batchgenerator.core package &#8212; batchgenerator 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="batchgenerator-core-package">
+<h1>batchgenerator.core package<a class="headerlink" href="#batchgenerator-core-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-batchgenerator.core.controllers">
+<span id="batchgenerator-core-controllers-module"></span><h2>batchgenerator.core.controllers module<a class="headerlink" href="#module-batchgenerator.core.controllers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.BalancedIndexController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">BalancedIndexController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_counts</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.BalancedIndexController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.IndexController" title="batchgenerator.core.controllers.IndexController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.IndexController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.BalancedIndexController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.BalancedIndexController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.BalancedIndexController.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.BalancedIndexController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.BalancedLabelController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">BalancedLabelController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.BalancedLabelController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.LabelController" title="batchgenerator.core.controllers.LabelController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.LabelController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.BalancedLabelController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.BalancedLabelController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.BalancedLabelController.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.BalancedLabelController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.Controller">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">Controller</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.Controller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.Controller.reset">
+<em class="property">abstract </em><code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.Controller.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.Controller.set_seed">
+<code class="sig-name descname">set_seed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.Controller.set_seed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.FslRandomIndexController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">FslRandomIndexController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_counts</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.FslRandomIndexController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.IndexController" title="batchgenerator.core.controllers.IndexController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.IndexController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.FslRandomIndexController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em>, <em class="sig-param"><span class="n">counts</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.FslRandomIndexController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.FslRandomLabelController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">FslRandomLabelController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.FslRandomLabelController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.LabelController" title="batchgenerator.core.controllers.LabelController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.LabelController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.FslRandomLabelController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n_way</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.FslRandomLabelController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.FslSamplerController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">FslSamplerController</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">n_shots=1</em>, <em class="sig-param">n_way=5</em>, <em class="sig-param">n_queries=4</em>, <em class="sig-param">label_controller_loader=&lt;batchgenerator.core.controllers.LabelControllerLoader object&gt;</em>, <em class="sig-param">index_controller_loader=&lt;batchgenerator.core.controllers.IndexControllerLoader object&gt;</em>, <em class="sig-param">seed=123</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.FslSamplerController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.SamplerController" title="batchgenerator.core.controllers.SamplerController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.SamplerController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.FslSamplerController.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.FslSamplerController.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.IndexController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">IndexController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">counts_per_label</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.IndexController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.Controller" title="batchgenerator.core.controllers.Controller"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.Controller</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.IndexController.next">
+<em class="property">abstract </em><code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.IndexController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.IndexController.reset">
+<em class="property">abstract </em><code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.IndexController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.IndexControllerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">IndexControllerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.IndexControllerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.LabelController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">LabelController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.LabelController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.Controller" title="batchgenerator.core.controllers.Controller"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.Controller</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.LabelController.next">
+<em class="property">abstract </em><code class="sig-name descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.LabelController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.LabelController.reset">
+<em class="property">abstract </em><code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.LabelController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.LabelControllerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">LabelControllerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.LabelControllerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>LabelController loader</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.OrderedIndexController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">OrderedIndexController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_counts</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.OrderedIndexController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.IndexController" title="batchgenerator.core.controllers.IndexController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.IndexController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.OrderedIndexController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.OrderedIndexController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.OrderedIndexController.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.OrderedIndexController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.RandomLabelController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">RandomLabelController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.RandomLabelController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.LabelController" title="batchgenerator.core.controllers.LabelController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.LabelController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.RandomLabelController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.RandomLabelController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.RandomLabelController.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.RandomLabelController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.SamplerController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">SamplerController</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">label_controller_loader=&lt;batchgenerator.core.controllers.LabelControllerLoader object&gt;</em>, <em class="sig-param">index_controller_loader=&lt;batchgenerator.core.controllers.IndexControllerLoader object&gt;</em>, <em class="sig-param">seed=123</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.SamplerController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.SamplerController.mode">
+<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#batchgenerator.core.controllers.SamplerController.mode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.SamplerController.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.SamplerController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.SamplerController.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.SamplerController.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.SamplerControllerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">SamplerControllerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.SamplerControllerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.controllers.StrictLabelController">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.controllers.</code><code class="sig-name descname">StrictLabelController</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.StrictLabelController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.controllers.LabelController" title="batchgenerator.core.controllers.LabelController"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.controllers.LabelController</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.StrictLabelController.next">
+<code class="sig-name descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.StrictLabelController.next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.controllers.StrictLabelController.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.controllers.StrictLabelController.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-batchgenerator.core.managers">
+<span id="batchgenerator-core-managers-module"></span><h2>batchgenerator.core.managers module<a class="headerlink" href="#module-batchgenerator.core.managers" title="Permalink to this headline">¶</a></h2>
+<p>This file defines the BatchMangers and a function to get batch manager.
+All definitions in this file should not be used by end users and are only used in the XmlBatchGenerator class</p>
+</div>
+<div class="section" id="module-batchgenerator.core.processors">
+<span id="batchgenerator-core-processors-module"></span><h2>batchgenerator.core.processors module<a class="headerlink" href="#module-batchgenerator.core.processors" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchgenerator.core.processors.BatchProcess">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.processors.</code><code class="sig-name descname">BatchProcess</code><span class="sig-paren">(</span><em class="sig-param">datasets</em>, <em class="sig-param">controller_queue</em>, <em class="sig-param">cpu_queues</em>, <em class="sig-param">batch_size=1</em>, <em class="sig-param">sampler_loader=&lt;batchgenerator.core.samplers.SamplerLoader object&gt;</em>, <em class="sig-param">batch_sampler_loader=&lt;batchgenerator.core.samplers.BatchSamplerLoader object&gt;</em>, <em class="sig-param">patch_sampler_loader=&lt;batchgenerator.core.samplers.PatchSamplerLoader object&gt;</em>, <em class="sig-param">label_sampler_loader=&lt;batchgenerator.core.samplers.LabelSamplerLoader object&gt;</em>, <em class="sig-param">point_sampler_loader=&lt;batchgenerator.core.samplers.PointSamplerLoader object&gt;</em>, <em class="sig-param">batch_callbacks=None</em>, <em class="sig-param">sample_callbacks=None</em>, <em class="sig-param">seed=123</em>, <em class="sig-param">logging=&lt;batchgenerator.utils.log.Logger object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.processors.BatchProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.context.Process</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.processors.BatchProcess.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.processors.BatchProcess.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.processors.BatchProcess.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.processors.BatchProcess.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.processors.ControllerProcess">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.processors.</code><code class="sig-name descname">ControllerProcess</code><span class="sig-paren">(</span><em class="sig-param">datasets</em>, <em class="sig-param">command_queue</em>, <em class="sig-param">controller_queues</em>, <em class="sig-param">batch_size=1</em>, <em class="sig-param">sampler_controller_loader=&lt;batchgenerator.core.controllers.SamplerControllerLoader object&gt;</em>, <em class="sig-param">label_controller_loader=&lt;batchgenerator.core.controllers.LabelControllerLoader object&gt;</em>, <em class="sig-param">index_controller_loader=&lt;batchgenerator.core.controllers.IndexControllerLoader object&gt;</em>, <em class="sig-param">seed=123</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.processors.ControllerProcess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.context.Process</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.processors.ControllerProcess.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.processors.ControllerProcess.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.processors.ControllerProcess.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.processors.ControllerProcess.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-batchgenerator.core.samplers">
+<span id="batchgenerator-core-samplers-module"></span><h2>batchgenerator.core.samplers module<a class="headerlink" href="#module-batchgenerator.core.samplers" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.BatchSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">BatchSampler</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">sampler_loader=&lt;batchgenerator.core.samplers.SamplerLoader object&gt;</em>, <em class="sig-param">patch_sampler_loader=&lt;batchgenerator.core.samplers.PatchSamplerLoader object&gt;</em>, <em class="sig-param">label_sampler_loader=&lt;batchgenerator.core.samplers.LabelSamplerLoader object&gt;</em>, <em class="sig-param">point_sampler_loader=&lt;batchgenerator.core.samplers.PointSamplerLoader object&gt;</em>, <em class="sig-param">batch_callbacks=None</em>, <em class="sig-param">sample_callbacks=None</em>, <em class="sig-param">seed=123</em>, <em class="sig-param">logging=&lt;batchgenerator.utils.log.Logger object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.BatchSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.BatchSampler.batch">
+<code class="sig-name descname">batch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">batch_data</span></em>, <em class="sig-param"><span class="n">i</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.BatchSampler.batch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.BatchSampler.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.BatchSampler.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.BatchSamplerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">BatchSamplerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.BatchSamplerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.CenterPointSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">CenterPointSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.CenterPointSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.samplers.PointSampler" title="batchgenerator.core.samplers.PointSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.samplers.PointSampler</span></code></a></p>
+<p>samples center point</p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.CenterPointSampler.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.CenterPointSampler.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.CenterPointSampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">annotation</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">ratio</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.CenterPointSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.ClassificationLabelSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">ClassificationLabelSampler</code><a class="headerlink" href="#batchgenerator.core.samplers.ClassificationLabelSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.samplers.LabelSampler" title="batchgenerator.core.samplers.LabelSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.samplers.LabelSampler</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.ClassificationLabelSampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_annotation</span></em>, <em class="sig-param"><span class="n">annotation</span></em>, <em class="sig-param"><span class="n">center_x</span></em>, <em class="sig-param"><span class="n">center_y</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">pixel_spacing</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.ClassificationLabelSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.DensityPointSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">DensityPointSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inverse_density_ratio</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.DensityPointSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.samplers.PointSampler" title="batchgenerator.core.samplers.PointSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.samplers.PointSampler</span></code></a></p>
+<p>samples points based on the density map of the points within a polygon</p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.DensityPointSampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">polygon</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">ratio</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.DensityPointSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.LabelSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">LabelSampler</code><a class="headerlink" href="#batchgenerator.core.samplers.LabelSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.LabelSampler.sample">
+<em class="property">abstract </em><code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_annotation</span></em>, <em class="sig-param"><span class="n">annotation</span></em>, <em class="sig-param"><span class="n">center_x</span></em>, <em class="sig-param"><span class="n">center_y</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">pixel_spacing</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.LabelSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.LabelSamplerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">LabelSamplerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.LabelSamplerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.PatchSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">PatchSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataset</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PatchSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.PatchSampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_path</span></em>, <em class="sig-param"><span class="n">center_x</span></em>, <em class="sig-param"><span class="n">center_y</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">pixel_spacing</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PatchSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.PatchSamplerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">PatchSamplerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PatchSamplerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.PointSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">PointSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PointSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.PointSampler.sample">
+<em class="property">abstract </em><code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">polygon</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">ratio</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PointSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.PointSampler.set_seed">
+<code class="sig-name descname">set_seed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PointSampler.set_seed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.PointSamplerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">PointSamplerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.PointSamplerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.RandomPointSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">RandomPointSampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">strict_point_sampling</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">123</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.RandomPointSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.samplers.PointSampler" title="batchgenerator.core.samplers.PointSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.samplers.PointSampler</span></code></a></p>
+<p>samples points randomly within a polygon with a max limit of 1000 otherwise it will return the centroid</p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.RandomPointSampler.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.RandomPointSampler.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.RandomPointSampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">polygon</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">ratio</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.RandomPointSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.Sampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">Sampler</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">input_shapes=(256</em>, <em class="sig-param">256</em>, <em class="sig-param">3)</em>, <em class="sig-param">spacings=0.5</em>, <em class="sig-param">patch_sampler_loader=&lt;batchgenerator.core.samplers.PatchSamplerLoader object&gt;</em>, <em class="sig-param">label_sampler_loader=&lt;batchgenerator.core.samplers.LabelSamplerLoader object&gt;</em>, <em class="sig-param">point_sampler_loader=&lt;batchgenerator.core.samplers.PointSamplerLoader object&gt;</em>, <em class="sig-param">sample_callbacks=None</em>, <em class="sig-param">seed=123</em>, <em class="sig-param">logging=&lt;batchgenerator.utils.log.Logger object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.Sampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.Sampler.reset">
+<code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.Sampler.reset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.Sampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_annotation_index</span></em>, <em class="sig-param"><span class="n">annotation_index</span></em>, <em class="sig-param"><span class="n">i</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.Sampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.SamplerLoader">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">SamplerLoader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">_class</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.SamplerLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.SegmentationLabelSampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">SegmentationLabelSampler</code><a class="headerlink" href="#batchgenerator.core.samplers.SegmentationLabelSampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.samplers.LabelSampler" title="batchgenerator.core.samplers.LabelSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.samplers.LabelSampler</span></code></a></p>
+<dl class="py method">
+<dt id="batchgenerator.core.samplers.SegmentationLabelSampler.sample">
+<code class="sig-name descname">sample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_annotation</span></em>, <em class="sig-param"><span class="n">annotation</span></em>, <em class="sig-param"><span class="n">center_x</span></em>, <em class="sig-param"><span class="n">center_y</span></em>, <em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em>, <em class="sig-param"><span class="n">pixel_spacing</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.SegmentationLabelSampler.sample" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="batchgenerator.core.samplers.WSISampler">
+<em class="property">class </em><code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">WSISampler</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">input_shapes=(256</em>, <em class="sig-param">256</em>, <em class="sig-param">3)</em>, <em class="sig-param">spacings=0.5</em>, <em class="sig-param">patch_sampler_loader=&lt;batchgenerator.core.samplers.PatchSamplerLoader object&gt;</em>, <em class="sig-param">label_sampler_loader=&lt;batchgenerator.core.samplers.LabelSamplerLoader object&gt;</em>, <em class="sig-param">point_sampler_loader=&lt;batchgenerator.core.samplers.PointSamplerLoader object&gt;</em>, <em class="sig-param">sample_callbacks=None</em>, <em class="sig-param">seed=123</em>, <em class="sig-param">logging=&lt;batchgenerator.utils.log.Logger object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.WSISampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#batchgenerator.core.samplers.Sampler" title="batchgenerator.core.samplers.Sampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">batchgenerator.core.samplers.Sampler</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="batchgenerator.core.samplers.load_label_sampler_loader">
+<code class="sig-prename descclassname">batchgenerator.core.samplers.</code><code class="sig-name descname">load_label_sampler_loader</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label_sampler_type</span><span class="o">=</span><span class="default_value">'segmentation'</span></em><span class="sig-paren">)</span><a class="headerlink" href="#batchgenerator.core.samplers.load_label_sampler_loader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-batchgenerator.core">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-batchgenerator.core" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">batchgenerator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Mart van Rijthoven.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/batchgenerator.core.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
