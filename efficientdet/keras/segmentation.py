@@ -17,7 +17,7 @@ from absl import app
 from absl import logging
 import tensorflow as tf
 import sys
-sys.path.insert(0,'/home/rubenh/SURF-segmentation/TRAINING')
+sys.path.insert(0,'/home/rubenh/SURF-segmentation/deeplab')
 sys.path.insert(0,'/home/rubenh/SURF-segmentation/efficientdet')
 from data_utils import SurfSampler, PreProcess
 import numpy as np
