@@ -258,11 +258,11 @@ def default_detection_configs():
   # Optimizer name
   h.optimizer = 'sgd'  # can be 'adam' or 'sgd'.
   # The initial learning rate
-  h.learning_rate = 0.001  # 
+  h.learning_rate = 0.01  # 
   # The initial warming up learning rate
-  h.lr_warmup_init = 0.01  #
+  h.lr_warmup_init = 0.1  #
   # The amount of epochs to warmup for
-  h.lr_warmup_epoch = 50.0 # How many epochs to warm up for
+  h.lr_warmup_epoch = 1.0 # How many epochs to warm up for
   # The first drop epoch for the Stepwise learning rate schedule
   h.first_lr_drop_epoch = 30.0
   # The second drop epoch for the Stepwise learning rate schedule

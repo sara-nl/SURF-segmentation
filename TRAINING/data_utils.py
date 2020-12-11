@@ -69,7 +69,8 @@ class PreProcess():
             img = tf.image.random_contrast(img, lower=0.5, upper=1.5)
         else:
             # img = tf.clip_by_value(img, 0, 2)
-            img = tf.math.divide(image, 255)
+            # img = tf.math.divide(image, 255)
+            img = image
             img = tf.math.subtract(tf.math.multiply(2.0, img), 1.0)
 
         mask = tf.clip_by_value(tf.cast(mask,tf.int32), 0, 1)
@@ -146,10 +147,11 @@ class SurfSampler(tf.keras.utils.Sequence):
         # Get list of paths
         slides = sorted(glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}')))
         labels = sorted(glob(os.path.join(opts.label_path,f'*.{opts.label_format}')))
-
+        
         # Match labels to slides (all slides must have labels)
         self.train_paths = shuffle([(difflib.get_close_matches(label.split('/')[-1].split('.')[-2],slides,n=1,cutoff=0.1)[0],label) for label in labels])
-
+        
+        
         # Custom path removal for Camelyon 17
         if opts.slide_path.find('CAMELYON17') > 0:
             _del = []
@@ -158,6 +160,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                     _del.append(data)
 
             self.train_paths = [data for data in self.train_paths if data not in _del]
+        
         
         if hvd.rank() == 0 : print(f"\nFound {len(self.train_paths)} slides")
         
@@ -173,7 +176,7 @@ class SurfSampler(tf.keras.utils.Sequence):
             val_split = min(len(self.train_paths)-1,val_split)
             self.valid_paths = self.train_paths[val_split:]
             self.train_paths = self.train_paths[:val_split]
-            
+        
         # Get test data
         if opts.test_path:
             self.test_paths = glob(os.path.join(opts.test_path,f'*.{opts.slide_format}'))

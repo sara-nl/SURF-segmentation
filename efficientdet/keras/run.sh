@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH -N 1
-#SBATCH -t 1:00:00
-#SBATCH -p gpu_titanrtx_short
-#SBATCH -o R-pp.out
-#SBATCH -e R-pp.err
+#SBATCH -N 6
+#SBATCH -t 48:00:00
+#SBATCH -p gpu_titanrtx
+#SBATCH -o R-6nodes.out
+#SBATCH -e R-6nodes.err
 #SBATCH -x r34n6
 ##r34n6 is broken
 
@@ -62,7 +62,7 @@ hosts="${hosts%?}"
 echo "HOSTS: $hosts"
 
 
-horovodrun -np 1 \
+horovodrun -np 6 \
 --autotune \
 --autotune-log-file autotune.csv \
 --mpi-args="--map-by ppr:1:node" \
@@ -72,8 +72,8 @@ python -u /home/rubenh/SURF-segmentation/efficientdet/keras/segmentation.py \
 --optimizer SGD \
 --lr_decay_method cosine \
 --name efficientdet-d0 \
---log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/delete2048 \
---steps_per_epoch 50 \
+--log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/6nodesconv \
+--steps_per_epoch 1500 \
 --num_epochs 500
 
 exit
