@@ -29,7 +29,7 @@ module load CMake/3.11.4-GCCcore-8.3.0
 ## Dependencies
 We will create a virtual environment with Openslide (https://openslide.org/api/python/) and libvips (https://libvips.github.io/libvips/install.html), for opening and sampling from whole-slide-images.
 
-- Pick a name for the virtual environment, and make the virtualenvironment folder using `virtualenv`:
+- Pick a name for the virtual environment, and make the virtual environment folder using `virtualenv`:
 
 ```
 VENV_NAME=openslide
