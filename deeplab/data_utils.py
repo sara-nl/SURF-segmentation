@@ -149,8 +149,8 @@ class SurfSampler(tf.keras.utils.Sequence):
         labels = sorted(glob(os.path.join(opts.label_path,f'*.{opts.label_format}')))
         
         # Match labels to slides (all slides must have labels)
-        self.train_paths = shuffle([(difflib.get_close_matches(label.split('/')[-1].split('.')[-2],slides,n=1,cutoff=0.1)[0],label) for label in labels])
-        
+        # self.train_paths = shuffle([(difflib.get_close_matches(label.split('/')[-1].split('.')[-2],slides,n=1,cutoff=0.1)[0],label) for label in labels])
+        self.train_paths = [(difflib.get_close_matches(label.split('/')[-1].split('.')[-2],slides,n=1,cutoff=0.1)[0],label) for label in labels]
         
         # Custom path removal for Camelyon 17
         if opts.slide_path.find('CAMELYON17') > 0:
@@ -192,23 +192,14 @@ class SurfSampler(tf.keras.utils.Sequence):
                 print(f"and {len(self.test_paths)} test slides\n")
         
         self.opts           = opts    
-        self.batch_size     = opts.batch_size
         self.contours_train = []
         self.contours_valid = []
         self.contours_test  = []
         self.contours_tumor = []
         self.pixelpoints    = []
         self.save_data      = []
-        self.level_used     = opts.bb_downsample
-        self.mag_factor     = pow(2, self.level_used)
-        self.patch_size     = opts.image_size
-        self.tumor_ratio    = opts.batch_tumor_ratio
-        self.log_image_path = opts.log_dir
-        self.slide_format   = opts.slide_format
-        self.evaluate       = opts.evaluate
+        self.mag_factor     = pow(2, self.opts.bb_downsample)
         self.cnt            = 0
-        self.verbose        = opts.verbose
-        self.steps_per_epoch= opts.steps_per_epoch
         self.wsi_idx        = 0
     
         self.train_paths = self.train_paths * hvd.size()
@@ -240,13 +231,13 @@ class SurfSampler(tf.keras.utils.Sequence):
         
     def __len__(self):
         # if self.train:
-        #     return math.ceil(len(self.train_paths) / self.batch_size)
-        # elif (self.train == False and self.evaluate == False):
-        #     return math.ceil(len(self.valid_paths) / self.batch_size)
+        #     return math.ceil(len(self.train_paths) / self.opts.batch_size)
+        # elif (self.train == False and self.opts.evaluate == False):
+        #     return math.ceil(len(self.valid_paths) / self.opts.batch_size)
         # else:
-        #     return math.ceil(len(self.test_paths) / self.batch_size)
+        #     return math.ceil(len(self.test_paths) / self.opts.batch_size)
 
-        return self.steps_per_epoch
+        return self.opts.steps_per_epoch
         
     
     def get_bb(self):
@@ -266,7 +257,7 @@ class SurfSampler(tf.keras.utils.Sequence):
         for i, contour in enumerate(contours):
             # sometimes the bounding boxes annotate a very small area not in the ROI
             if contour.shape[0] < 10:
-                if hvd.rank() ==0  and self.verbose == 'debug': print(f"Deleted too small contour from {self.cur_wsi_path}")
+                if hvd.rank() ==0  and self.opts.verbose == 'debug': print(f"Deleted too small contour from {self.cur_wsi_path}")
                 del contours[i]
                 _offset += 1
                 i = i - _offset        
@@ -285,17 +276,19 @@ class SurfSampler(tf.keras.utils.Sequence):
     def trainer(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image):
                     
         tumor_count = 0
-        tumor_patches = round(self.batch_size * self.tumor_ratio)
+        tumor_patches = round(self.opts.batch_size * self.opts.batch_tumor_ratio)
         # tbc = self.tumorcnt
         bc  = self.cnt
 
-        for i in range(int(self.batch_size)): 
+        for i in range(int(self.opts.batch_size)): 
             patch = []
             k=0
             while not len(patch):
                 try:
                     if tumor_count < tumor_patches:
-                        bc = self.contours_tumor[self.cnt]
+                        self.contours_tumor = self.contours_tumor
+                        # bc = self.contours_tumor[self.cnt]
+                        bc = self.contours_tumor[-1]
                         tumor_count += 1
                     else:
                         bc = self.contours[self.cnt]
@@ -327,10 +320,11 @@ class SurfSampler(tf.keras.utils.Sequence):
                 x_topleft = pixelcoords[1] 
                 y_topleft = pixelcoords[0] 
                 
+                
                 # if trying to fetch outside of image, retry
                 try:
-                    patch = img_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-                    patch = np.ndarray((self.patch_size, self.patch_size, image.get('bands')), buffer=patch,
+                    patch = img_reg.fetch(x_topleft, y_topleft, self.opts.image_size, self.opts.image_size)
+                    patch = np.ndarray((self.opts.image_size, self.opts.image_size, image.get('bands')), buffer=patch,
                                        dtype=np.uint8)[..., :3]
                     _std = ImageStat.Stat(Image.fromarray(patch)).stddev
 
@@ -338,30 +332,30 @@ class SurfSampler(tf.keras.utils.Sequence):
                     # discard based on stddev
                     if k < 10: 
                         if (sum(_std[:3]) / len(_std[:3])) < 15:
-                            if self.verbose == 'debug':
+                            if self.opts.verbose == 'debug':
                                 print("Discard based on stddev")
                                 patch = []
                     
                     msk_downsample = 1
-                    mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size//msk_downsample, self.patch_size//msk_downsample)
-                    mask  = np.ndarray((self.patch_size//msk_downsample,self.patch_size//msk_downsample,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+                    mask  = mask_reg.fetch(x_topleft, y_topleft, self.opts.image_size//msk_downsample, self.opts.image_size//msk_downsample)
+                    mask  = np.ndarray((self.opts.image_size//msk_downsample,self.opts.image_size//msk_downsample,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
                 
                 except Exception as e:
                     print("Exception in extracting patch: ", e)
-                    patch = np.random.normal(size=(self.patch_size,self.patch_size,3))
-                    mask  = np.random.normal(size=(self.patch_size,self.patch_size,1))
+                    patch = np.random.normal(size=(self.opts.image_size,self.opts.image_size,3))
+                    mask  = np.random.normal(size=(self.opts.image_size,self.opts.image_size,1))
                 
 
 
             numpy_batch_patch.append(patch)
             numpy_batch_mask.append(mask)
-            x,y,imsize = x_topleft, y_topleft, self.patch_size
+            x,y,imsize = x_topleft, y_topleft, self.opts.image_size
             coords = [y,x]
             try:
                 # Draw the rectangles of sampled images on downsampled rgb
                 save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
                 save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                        (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                                                        (int((x_topleft + self.opts.image_size) // self.mag_factor), int((y_topleft + self.opts.image_size) // self.mag_factor)),
                                                         (255,255,255), -1)
             except:
                 pass
@@ -380,9 +374,9 @@ class SurfSampler(tf.keras.utils.Sequence):
             # Delete row from pixelpoints
             self.pixelpoints = np.delete(self.pixelpoints,del_row,axis=0)
         
-        print(f"\n\nTrain sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
+        print(f"\n\nTrain sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.opts.batch_size} iter to go.\n\n")
         # If past all patches of contour, get next contour
-        if len(self.pixelpoints) <= self.batch_size:
+        if len(self.pixelpoints) <= self.opts.batch_size:
         
         # if 1: # for debugging
             self.cnt +=1
@@ -398,9 +392,9 @@ class SurfSampler(tf.keras.utils.Sequence):
                 self.contours_tumor = []
 
         try:
-            Image.fromarray(save_image[..., :3]).save(os.path.join(self.log_image_path,
+            Image.fromarray(save_image[..., :3]).save(os.path.join(self.opts.log_dir,
                                                                    self.cur_wsi_path[0].split('/')[-1].replace(
-                                                                       self.slide_format, 'png')))
+                                                                       self.opts.slide_format, 'png')))
         except:
             pass
 
@@ -410,12 +404,12 @@ class SurfSampler(tf.keras.utils.Sequence):
     def tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image):
         
         tumor_count = 0
-        tumor_patches = round(self.batch_size * self.tumor_ratio)
-        for i in range(int(self.batch_size)):
+        tumor_patches = round(self.opts.batch_size * 1)#self.opts.batch_tumor_ratio)
+        for i in range(int(self.opts.batch_size)):
             patch = []
             while not len(patch):
                 try:
-                    if self.mode == 'validation' and not self.opts.evaluate:
+                    if self.mode == 'validation':# and not self.opts.evaluate:
                         if tumor_count < tumor_patches:
                             bc = self.contours_tumor[self.cnt]
                             tumor_count += 1
@@ -457,28 +451,27 @@ class SurfSampler(tf.keras.utils.Sequence):
                 x_topleft = pixelcoords[1]
                 y_topleft = pixelcoords[0]
                 
-                
                 try:
-                    patch = img_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-                    patch = np.ndarray((self.patch_size,self.patch_size,image.get('bands')),buffer=patch, dtype=np.uint8)[...,:3]
+                    patch = img_reg.fetch(x_topleft, y_topleft, self.opts.image_size, self.opts.image_size)
+                    patch = np.ndarray((self.opts.image_size,self.opts.image_size,image.get('bands')),buffer=patch, dtype=np.uint8)[...,:3]
                     msk_downsample = 1
                     if not self.mode == 'test':
-                        # mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size, self.patch_size)
-                        mask  = mask_reg.fetch(x_topleft, y_topleft, self.patch_size//msk_downsample, self.patch_size//msk_downsample)
-                        # mask  = np.ndarray((self.patch_size,self.patch_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
-                        mask  = np.ndarray((self.patch_size//msk_downsample,self.patch_size//msk_downsample,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+                        # mask  = mask_reg.fetch(x_topleft, y_topleft, self.opts.image_size, self.opts.image_size)
+                        mask  = mask_reg.fetch(x_topleft, y_topleft, self.opts.image_size//msk_downsample, self.opts.image_size//msk_downsample)
+                        # mask  = np.ndarray((self.opts.image_size,self.opts.image_size,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
+                        mask  = np.ndarray((self.opts.image_size//msk_downsample,self.opts.image_size//msk_downsample,mask_image.get('bands')),buffer=mask, dtype=np.uint8)
                     else:
                         mask=[]
                 except Exception as e:
                     print("Exception in extracting patch: ", e)
-                    patch = np.random.normal(size=(self.patch_size,self.patch_size,3))
+                    patch = np.random.normal(size=(self.opts.image_size,self.opts.image_size,3))
                     if not self.mode == 'test':
-                        mask = np.random.normal(size=(self.patch_size,self.patch_size,1))
+                        mask = np.random.normal(size=(self.opts.image_size,self.opts.image_size,1))
                     else:
                         mask = []
                     continue
                     
-            # if hvd.rank() ==0 : print(f"\n\nTest Sample {self.patch_size} x {self.patch_size} from ROI = {h}" + f" by {w} in {time.time() -t1} seconds\n\n")
+            # if hvd.rank() ==0 : print(f"\n\nTest Sample {self.opts.image_size} x {self.opts.image_size} from ROI = {h}" + f" by {w} in {time.time() -t1} seconds\n\n")
             numpy_batch_patch.append(patch)            
             numpy_batch_mask.append(mask)
 
@@ -486,15 +479,14 @@ class SurfSampler(tf.keras.utils.Sequence):
                 # Draw the rectangles of sampled images on downsampled rgb
                 save_image = cv2.drawContours(save_image, self.contours, -1, (0,255,0), 1)
                 save_image = cv2.rectangle(save_image, (int(x_topleft // self.mag_factor) , int(y_topleft // self.mag_factor)),
-                                                        (int((x_topleft + self.patch_size) // self.mag_factor), int((y_topleft + self.patch_size) // self.mag_factor)),
+                                                        (int((x_topleft + self.opts.image_size) // self.mag_factor), int((y_topleft + self.opts.image_size) // self.mag_factor)),
                                                         (255,255,255), -1)
             except:
                 pass
 
-            x,y,imsize = x_topleft, y_topleft, self.patch_size
+            x,y,imsize = x_topleft, y_topleft, self.opts.image_size
             # Get coordinates so all patch coordinates are dropped from pixelpoints
             coords = [y,x]
-            
             self.save_data = [{     'patch'      : patch,
                                     'image'      : save_image,
                                     'file_name'  : self.cur_wsi_path[0],
@@ -508,10 +500,10 @@ class SurfSampler(tf.keras.utils.Sequence):
             # Delete row from pixelpoints
             self.pixelpoints = np.delete(self.pixelpoints,del_row,axis=0)
         
-        print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(bc)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.batch_size} iter to go.\n\n")
+        print(f"\n\nTest sampling at ROI {self.cnt+1} / {len(self.contours)} of {self.cur_wsi_path} with ~ {len(self.pixelpoints) // self.opts.batch_size} iter to go.\n\n")
             
         # If past all patches of contour, get next contour
-        if len(self.pixelpoints) <= self.batch_size:
+        if len(self.pixelpoints) <= self.opts.batch_size:
         # if 1: # for debugging
             self.cnt +=1
             self.pixelpoints = []
@@ -528,10 +520,9 @@ class SurfSampler(tf.keras.utils.Sequence):
                 
 
         try:
-            Image.fromarray(save_image[...,:3]).save(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png')))
+            Image.fromarray(save_image[...,:3]).save(os.path.join(self.opts.log_dir,self.cur_wsi_path[0].split('/')[-1].replace(self.opts.slide_format,'png')))
         except:
             pass
-
 
         return np.array(numpy_batch_patch),np.array(numpy_batch_mask)
 
@@ -615,7 +606,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                     try:
                         if cnt > 5: wsi_idx += 1
                         self.cur_wsi_path = self.train_paths[wsi_idx]
-                        if hvd.rank() ==0  and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
+                        if hvd.rank() ==0  and self.opts.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
                         
                         self.wsi  = OpenSlide(self.cur_wsi_path[0])
                         
@@ -624,13 +615,13 @@ class SurfSampler(tf.keras.utils.Sequence):
                         else:
                             self.mask = OpenSlide(self.cur_wsi_path[1])
                         
-                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.opts.bb_downsample, self.wsi.level_dimensions[self.opts.bb_downsample])
                         self.rgb_image = np.array(self.rgb_image_pil)
                         
                         if self.opts.label_format.find('xml') > -1:
-                            self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
+                            self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.opts.bb_downsample])[...,None]
                         else:
-                            self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                            self.mask_pil = self.mask.read_region((0, 0), self.opts.bb_downsample, self.wsi.level_dimensions[self.opts.bb_downsample])
                             self.mask_image = np.array(self.mask_pil)
                             
                         self.contours_train = self.get_bb()
@@ -671,7 +662,7 @@ class SurfSampler(tf.keras.utils.Sequence):
                         
                         self.cur_wsi_path = self.valid_paths_new[0]
                             
-                        if hvd.rank() ==0  and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
+                        if hvd.rank() ==0  and self.opts.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
                         
                         self.wsi  = OpenSlide(self.cur_wsi_path[0])
                         if self.opts.label_format.find('xml') > -1:
@@ -679,12 +670,12 @@ class SurfSampler(tf.keras.utils.Sequence):
                         else:
                             self.mask = OpenSlide(self.cur_wsi_path[1])
                         
-                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.opts.bb_downsample, self.wsi.level_dimensions[self.opts.bb_downsample])
                         self.rgb_image = np.array(self.rgb_image_pil)
                         if self.opts.label_format.find('xml') > -1:
-                            self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.level_used])[...,None]
+                            self.mask_image = cv2.resize(self.mask,self.wsi.level_dimensions[self.opts.bb_downsample])[...,None]
                         else:
-                            self.mask_pil = self.mask.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                            self.mask_pil = self.mask.read_region((0, 0), self.opts.bb_downsample, self.wsi.level_dimensions[self.opts.bb_downsample])
                             self.mask_image = np.array(self.mask_pil)
                         
                         self.contours_valid = self.get_bb()
@@ -729,11 +720,11 @@ class SurfSampler(tf.keras.utils.Sequence):
                         if isinstance(self.cur_wsi_path[0],tuple):
                             self.cur_wsi_path = self.cur_wsi_path[0]
                             
-                        if hvd.rank() == 0 and self.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
+                        if hvd.rank() == 0 and self.opts.verbose == 'debug': print(f"Opening {self.cur_wsi_path}...")
                         
                         # OpenSlide and get contours of ROI
                         self.wsi  = OpenSlide(self.cur_wsi_path[0])
-                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.level_used, self.wsi.level_dimensions[self.level_used])
+                        self.rgb_image_pil = self.wsi.read_region((0, 0), self.opts.bb_downsample, self.wsi.level_dimensions[self.opts.bb_downsample])
                         self.rgb_image = np.array(self.rgb_image_pil)
                         self.contours_test = self.get_bb()
                         if not self.contours_test: self.test_paths.remove(self.cur_wsi_path)
@@ -763,28 +754,26 @@ class SurfSampler(tf.keras.utils.Sequence):
             
             numpy_batch_patch = []
             numpy_batch_mask  = []
-            if os.path.isfile(os.path.join(self.log_image_path,self.cur_wsi_path[0].split('/')[-1].replace(self.slide_format,'png'))):   
+
+            if os.path.isfile(os.path.join(self.opts.log_dir,self.cur_wsi_path[0].split('/')[-1].replace(self.opts.slide_format,'png'))):   
                 try:
-                    save_image = np.array(Image.open(os.path.join(self.log_image_path,
-                                                                  self.cur_wsi_path[0].split('/')[-1].replace(
-                                                                      self.slide_format, 'png'))))
+                    save_image = np.asarray(Image.open(os.path.join(self.opts.log_dir,self.cur_wsi_path[0].split('/')[-1].replace(self.opts.slide_format, 'png'))))
                 except:
                     try:
-                        save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
+                        save_image = np.array(self.rgb_image.copy()) * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
                     except:
-                        save_image = self.rgb_image.copy()[...,:3]
+                        save_image = np.array(self.rgb_image.copy()[...,:3])
             else:
                 try:
                     # copy image and mark tumor in black
-                    save_image = self.rgb_image.copy() * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
+                    save_image = np.array(self.rgb_image.copy()) * np.repeat((self.mask_image + 1)[...,0][...,np.newaxis],4,axis=-1)
                 except:
-                    save_image = self.rgb_image.copy()[...,:3]
+                    save_image = np.array(self.rgb_image.copy()[...,:3])
             
             if self.mode == 'test':
                     mask_reg = None
                     mask_image = None
         
-
         if self.mode == 'test' or self.mode == 'validation':
             patches, masks = SurfSampler.tester(self,image,mask_image,img_reg,mask_reg,numpy_batch_patch,numpy_batch_mask,save_image)
         else:
@@ -811,7 +800,8 @@ class SurfSampler(tf.keras.utils.Sequence):
         # dataset = dataset.map(lambda x,y: set_shapes(self,x,y),num_parallel_calls=tf.data.experimental.AUTOTUNE)
         # return dataset
         # print(f"Got item with shape {patches.shape},{masks.shape}")
-        return (patches / 255).astype('float32'), (masks / 255).astype('float32')
+
+        return (2.0*(patches / 255).astype('float32')-1.0), (masks / 255).astype('float32')
 
 
 

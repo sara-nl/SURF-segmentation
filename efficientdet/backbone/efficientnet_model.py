@@ -216,6 +216,7 @@ class SuperPixel(tf.keras.layers.Layer):
         momentum=global_params.batch_norm_momentum,
         epsilon=global_params.batch_norm_epsilon,
         name='tpu_batch_normalization')
+    
     self._relu_fn = global_params.relu_fn or tf.nn.swish
 
   def call(self, inputs, training):
@@ -238,7 +239,6 @@ class MBConvBlock(tf.keras.layers.Layer):
       name: layer name.
     """
     super().__init__(name=name)
-
     self._block_args = block_args
     self._global_params = global_params
     self._local_pooling = global_params.local_pooling
@@ -717,14 +717,14 @@ class Model(tf.keras.Model):
     reduction_idx = 0
     device = '/GPU:3'
     with tf.device(f"{device}"):
+
         # Calls Stem layers
         outputs = self._stem(inputs, training)
         logging.info('Built stem %s : %s', self._stem.name, outputs.shape)
         self.endpoints['stem'] = outputs
-    
-    # Calls blocks.
-    device = '/GPU:1'
-    with tf.device(f"{device}"):
+        
+        # Calls blocks.
+
         for idx, block in enumerate(self._blocks):
           is_reduction = False  # reduction flag for blocks after the stem layer
           # If the first block has super-pixel (space-to-depth) layer, then stem is
@@ -752,20 +752,21 @@ class Model(tf.keras.Model):
               self.endpoints['block_%s/%s' % (idx, k)] = v
               if is_reduction:
                 self.endpoints['reduction_%s/%s' % (reduction_idx, k)] = v
-        
+            
+    
+        self.endpoints['features'] = outputs
+    
+        if not features_only:
+          # Calls final layers and returns logits.
+          outputs = self._head(outputs, training, pooled_features_only)
+          self.endpoints.update(self._head.endpoints)
+         
 
-    self.endpoints['features'] = outputs
-
-    if not features_only:
-      # Calls final layers and returns logits.
-      outputs = self._head(outputs, training, pooled_features_only)
-      self.endpoints.update(self._head.endpoints)
-
-    return [outputs] + list(
-        filter(lambda endpoint: endpoint is not None, [
-            self.endpoints.get('reduction_1'),
-            self.endpoints.get('reduction_2'),
-            self.endpoints.get('reduction_3'),
-            self.endpoints.get('reduction_4'),
-            self.endpoints.get('reduction_5'),
-        ]))
+        return [outputs] + list(
+            filter(lambda endpoint: endpoint is not None, [
+                self.endpoints.get('reduction_1'),
+                self.endpoints.get('reduction_2'),
+                self.endpoints.get('reduction_3'),
+                self.endpoints.get('reduction_4'),
+                self.endpoints.get('reduction_5'),
+            ]))

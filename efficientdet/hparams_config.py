@@ -172,12 +172,12 @@ def default_detection_configs():
   # For WSI Sampler
   h.batch_size = 4
   # String format gets appended to paths, so glob wild cards possible, like /path/to/data/folder_*/ (if you want folder 1-4 for example)
-  h.slide_path = '/nfs/managed_datasets/CAMELYON17/training/center_*/' #'/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi' 
-  h.label_path = '/nfs/managed_datasets/CAMELYON17/training/' #'/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'
+  h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
+  h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/XML'
   # h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
   # h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
-  h.valid_slide_path = '/home/rubenh/SURF-segmentation/efficientdet/keras/testwsi'
-  h.valid_label_path = '/home/rubenh/SURF-segmentation/efficientdet/keras/testwsi'
+  h.valid_slide_path =  '/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'
+  h.valid_label_path =  '/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'
   
   ## IF TEST PATHS is None, VALID_PATHS are evaluated 
   h.test_path = None #'/nfs/managed_datasets/CAMELYON17/testing/patients'
@@ -185,13 +185,14 @@ def default_detection_configs():
   h.slide_format = 'tif'
   # The format of the Labels
   h.label_format = 'xml'
-  # 1- val_split will be used for validation
-  h.val_split = 0.0
+  # 1 - val_split will be used for training
+  h.val_split = 0.05
   # This will be the downsample level for constructing the contours (0 = 40x)
   h.bb_downsample = 7
   # int(batch_tumor_ratio * batch_size) will be sampled from tumor contours
   # This is to avoid an imbalanced dataset.
-  h.batch_tumor_ratio = 1 #hvd.rank() % 2 # odd workers have tumor, others dont
+
+  h.batch_tumor_ratio = (hvd.rank()+1) % 2 # odd workers have tumor, others dont
   # If only running evaluation
   h.evaluate = False
   # In this directory all the logging will be saved (checkpoints,summaries,images)
@@ -201,21 +202,22 @@ def default_detection_configs():
   # The total number of epochs the model will be trained
   h.num_epochs = 100
   # The steps per epoch, this will make sure (steps_per_epoch // number of WSI's) will be sampled per Whole Slide Image
+  # !! This is also true for evaluation
   h.steps_per_epoch = 500
   # Whether horovod should reduce in floating point 16 precision
   h.fp16_allreduce = True
-
-
-    
+  
   # model name.
   h.name = 'efficientdet-d0'
+  # path of pretrained checkpoint by model.load_weights(opts.pretrain_path,by_name=True,skip_mismatch=True)
+  h.pretrain_path = None #'efficientdet-d0.h5'
 
   # activation type: see activation_fn in utils.py.
   ""
   h.act_type = 'swish'
 
   # input preprocessing parameters
-  h.image_size = 1024  # An integer 
+  h.image_size = 1280  # An integer 
 
   
   h.target_size = None
@@ -248,7 +250,6 @@ def default_detection_configs():
   h.max_level = 7
   # Number of scales in the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.num_scales = 3
-  # ratio w/h: 2.0 means w=1.4, h=0.7. Can be computed with k-mean per dataset.
   h.aspect_ratios = [1.0, 2.0, 0.5]
   h.anchor_scale = 4.0
 
@@ -256,23 +257,23 @@ def default_detection_configs():
   # Momentum of optimizer
   h.momentum = 0.9
   # Optimizer name
-  h.optimizer = 'sgd'  # can be 'adam' or 'sgd'.
+  h.optimizer = 'adam'  # can be 'adam' or 'sgd'.
   # The initial learning rate
-  h.learning_rate = 0.01  # 
+  h.learning_rate = 1e-3  # 
   # The initial warming up learning rate
-  h.lr_warmup_init = 0.1  #
+  h.lr_warmup_init = 0.01
   # The amount of epochs to warmup for
   h.lr_warmup_epoch = 1.0 # How many epochs to warm up for
   # The first drop epoch for the Stepwise learning rate schedule
-  h.first_lr_drop_epoch = 30.0
+  h.first_lr_drop_epoch = 20.0
   # The second drop epoch for the Stepwise learning rate schedule
-  h.second_lr_drop_epoch = 60.0
+  h.second_lr_drop_epoch = 40.0
   # The fpower of the decay polynomial for the Polynomial learning rate schedule
   h.poly_lr_power = 0.9
   # If the gradients should be clipped
   h.clip_gradients_norm = 10000.0
-  
-  h.total_steps = 1 # will be overwritten by steps_per_epoch * num_epochs
+  # Amount of epochs in period cyclic learning rate self.decay_steps = tf.cast(total_steps - lr_warmup_step, tf.float32) 
+  h.total_steps = 6
   # The data format of the input data
   h.data_format = 'channels_last'
 
@@ -322,7 +323,7 @@ def default_detection_configs():
   h.survival_prob = None
   h.img_summary_steps = None
 
-  h.lr_decay_method = 'cosine' #'polynomial'
+  h.lr_decay_method ='stepwise' # cosine' #'polynomial' 'stepwise' 'cyclic'
   h.moving_average_decay = 0 #0.9998
   h.ckpt_var_scope = None  # ckpt variable scope.
   h.skip_mismatch = True
@@ -368,7 +369,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d1',
             backbone_name='efficientnet-b1',
-            image_size=2048,
+            image_size=640,
             fpn_num_filters=88,
             fpn_cell_repeats=4,
             box_class_repeats=3,
@@ -377,7 +378,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d2',
             backbone_name='efficientnet-b2',
-            image_size=2048,
+            image_size=768,
             fpn_num_filters=112,
             fpn_cell_repeats=5,
             box_class_repeats=3,
@@ -395,9 +396,9 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d4',
             backbone_name='efficientnet-b4',
-            image_size=2048,
+            image_size=1024,
             fpn_num_filters=224,
-            fpn_cell_repeats=3,
+            fpn_cell_repeats=7,
             box_class_repeats=4,
         ),
     'efficientdet-d5':

@@ -4,35 +4,14 @@
 #SBATCH -p gpu_titanrtx
 
 module purge
-module use ~/environment-modules-lisa
 module load 2020
-#module load TensorFlow/2.1.0-foss-2019b-Python-3.7.4-CUDA-10.1.243
-module load Python/3.7.4-GCCcore-8.3.0
-module load cuDNN/7.6.5.32-CUDA-10.1.243
+module load 2019
+module load TensorFlow/2.2.0-fosscuda-2019b-Python-3.6.6
 
 
-VIRTENV=tf2-2-0
-VIRTENV_ROOT=~/virtualenvs
-
-export PATH=/home/$USER/examode/lib_deps/bin:$PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib64:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/$USER/examode/lib_deps/lib:$LD_LIBRARY_PATH
-export CPATH=/home/$USER/examode/lib_deps/include:$CPATH
-
-source $VIRTENV_ROOT/$VIRTENV/bin/activate
 
 """
 TRAINING:
-
-python3 main.py \
---img_size 256 \
---batch_size 16 \
---epochs 5 \
---num_clusters 4 \
---dataset 17 \
---train_centers 1 \
---val_centers 1 \
---legacy_conversion
 
 
 python3 main.py \

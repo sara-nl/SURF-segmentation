@@ -49,7 +49,9 @@ def activation_fn(features: tf.Tensor, act_type: Text):
   elif act_type == 'hswish':
     return features * tf.nn.relu6(features + 3) / 6
   elif act_type == 'relu':
-    return tf.nn.relu(features)
+    device = '/GPU:1'       
+    with tf.device(f"{device}"):
+        return tf.nn.relu(features)
   elif act_type == 'relu6':
     return tf.nn.relu6(features)
   elif act_type == 'mish':
@@ -265,19 +267,19 @@ class SyncBatchNormalization(tf.keras.layers.BatchNormalization):
       return (worker_mean, worker_variance)
 
   def call(self, *args, **kwargs):
-    device = '/GPU:2'
-    with tf.device(f"{device}"):
-        outputs = super(SyncBatchNormalization, self).call(*args, **kwargs)
-    
-        try:
-          # A temporary hack for TF1 compatibility with Keras batch norm.
-          # Ops are added to tf.GraphKeys.UPDATE_OPS manually to mimic
-          # behavior of TF1 batch norm layer for use in control dependencies.
-          for u in self.updates:
-            tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, u)
-        except AttributeError:
-          pass
-        return outputs
+    # device = '/GPU:2'
+    # with tf.device(f"{device}"):
+
+    outputs = super(SyncBatchNormalization, self).call(*args, **kwargs)
+    try:
+      # A temporary hack for TF1 compatibility with Keras batch norm.
+      # Ops are added to tf.GraphKeys.UPDATE_OPS manually to mimic
+      # behavior of TF1 batch norm layer for use in control dependencies.
+      for u in self.updates:
+        tf.add_to_collection(tf.GraphKeys.UPDATE_OPS, u)
+    except AttributeError:
+      pass
+    return outputs
 
 
 class BatchNormalization(tf.keras.layers.BatchNormalization):
@@ -298,6 +300,7 @@ class BatchNormalization(tf.keras.layers.BatchNormalization):
 
 
 def batch_norm_class(is_training, strategy=None):
+  
   if is_training and strategy == 'tpu':
     return TpuBatchNormalization
   elif is_training and strategy == 'gpus':

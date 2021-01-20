@@ -28,6 +28,7 @@ import time
 from tqdm import tqdm
 from glob import glob
 import cv2
+from PIL import Image
 import horovod.tensorflow.keras as hvd
 import train_lib
 import os
@@ -42,7 +43,8 @@ from effdet_options import get_options
 import util_keras
 import tensorflow_addons as tfa
 
-
+tf.config.threading.set_inter_op_parallelism_threads(12)
+print("THREADS:",tf.config.threading.get_inter_op_parallelism_threads())
 
 # Horovod: pin GPU to be used to process local rank (one GPU per process)
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -203,14 +205,26 @@ def evaluate(model,config,test_sampler):
         for (patch,mask) in zip(patches,masks):
             patch = patch[None,...]
             mask = mask[None,...]
+
             # Predict patch
-            pred = model(patch)[0]
-            # pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
+            pred = model(patch,training=True)[0]
+            pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
             predictions = tf.cast(pred * 255, tf.uint8).numpy()
+            
+            
             # Make mask
             if test_sampler.mode == 'validation':
+                # Mask is one-hot from data sampler
+                mask = tf.expand_dims(tf.argmax(mask,axis=-1), axis=-1)
                 mask = tf.cast(255 * mask, tf.uint8).numpy()
-            
+                Image.fromarray(mask[0,...,0]).save(f"testmask_{patch_idx}.png")
+                ps =  patch + 1
+                ps = ps * 127.5
+                ps = ps[0].astype('uint8')
+                Image.fromarray(ps).save(f"testpatch_{patch_idx}.png")
+                Image.fromarray(predictions[0,...,0]).save(f"testpred_{patch_idx}.png")
+                
+            pdb.set_trace()
             # row    ,  columnn
             y_topleft,x_topleft = test_sampler.save_data[patch_idx]['coords']#[0]
             
@@ -223,12 +237,17 @@ def evaluate(model,config,test_sampler):
             mask_down = cv2.resize(predictions[0,...],dsize=(dsize,dsize))[...,None]
             
             # Resize a mask to sizes of downsampled rgb_image
-            save_mask = cv2.resize(save_mask,(test_sampler.save_data[patch_idx]['image'].shape[1],test_sampler.save_data[patch_idx]['image'].shape[0]))
+            try:
+                save_mask = cv2.resize(save_mask,(test_sampler.save_data[patch_idx]['image'].shape[1],test_sampler.save_data[patch_idx]['image'].shape[0]))
+            except:
+                print("error")
+                save_mask = cv2.resize(save_mask,(test_sampler.save_data[patch_idx]['image'].take(0).size[0],test_sampler.save_data[patch_idx]['image'].take(0).size[1]))
             
             try:
                 # Fill downsampled image with downsampled predictions
                 save_mask[y:y+len(mask_down),x:x+len(mask_down),:]=mask_down
             except:
+                print("error")
                 continue
             
         # If a WSI is completed save: 
@@ -253,8 +272,7 @@ def evaluate(model,config,test_sampler):
                 print(f" Worker {hvd.rank()}: Computing mIoU...")
                 mask = np.empty((1,config.image_size,config.image_size,1))
                 pred  = np.empty((1,config.image_size,config.image_size,1))
-                mIoU = tf.keras.metrics.MeanIoU(num_classes=1+config.seg_num_classes)
-                
+                mIoU = tf.keras.metrics.MeanIoU(num_classes=config.seg_num_classes)
                 for x in tqdm(_array): 
                     mask  = x[2]
                     pred  = x[3]
@@ -265,6 +283,8 @@ def evaluate(model,config,test_sampler):
                     mask = np.where(mask,1,0)
                     pred = np.where(pred,1,0)
                     # Update confusion matrix of mIoU see https://www.tensorflow.org/api_docs/python/tf/keras/metrics/MeanIoU#update_state
+                    print(f"Pred NonZero: {np.count_nonzero(pred) / (2048**2)}")
+                    print(f"Msk NonZero: {np.count_nonzero(mask) / (2048**2)}")
                     mIoU.update_state(mask,pred)
 
                 print(f" Worker {hvd.rank()}: mIoU of {wsi_name} is {mIoU.result().numpy()}")
@@ -295,6 +315,7 @@ def evaluate(model,config,test_sampler):
 
 
 
+
 def main(config):
 
     assert isinstance(config.image_size,int),"WARNING: Please make sure that the config.image_size is an integer"
@@ -309,40 +330,47 @@ def main(config):
     # Horovod: adjust learning rate based on number of GPUs.
     # scaled_lr = 0.001 * hvd.size()
     # optimizer = tf.optimizers.Adam(scaled_lr)
+
     # Horovod: add Horovod DistributedOptimizer.
     opt = hvd.DistributedOptimizer(optimizer,
-                                       compression=compression,
-                                        device_dense='/GPU:0',
-                                        device_sparse='/GPU:1')
-                                       # backward_passes_per_step=3)
-        
+                                       compression=compression),
+                                        # device_dense='/GPU:0',
+                                        # device_sparse='/GPU:1')#,
+                                        # average_aggregated_gradients=True,
+                                        # backward_passes_per_step=5)
+    opt = opt[0]
     model = efficientdet_keras.EfficientDetNet(config=config)
     if os.path.isfile(os.path.join(config.log_dir,'checkpoint')):
         print(f"Loading checkpoint from {os.path.join(config.log_dir,'checkpoint')} ...")
         model.compile(optimizer=opt,
                       # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
-                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
-                                                                  reduction=tf.keras.losses.Reduction.AUTO),
-                      # loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                        # loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
+                        #                                             reduction=tf.keras.losses.Reduction.AUTO),
+                        loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True,
+                                                                label_smoothing=0.2),
                       # Also include background in metrics
-                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1+config.seg_num_classes)],
+                      metrics=['categorical_accuracy'],#tf.keras.metrics.MeanIoU(config.seg_num_classes)],
                       experimental_run_tf_function=False,
                       run_eagerly=True)
         model.build((config.batch_size, config.image_size, config.image_size, 3))
         ckpt_path = tf.train.latest_checkpoint(config.log_dir)
         util_keras.restore_ckpt(model, ckpt_path, config.moving_average_decay)
     else:
-        model.build((config.batch_size, config.image_size, config.image_size, 3))
         model.compile(optimizer=opt,
                       # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
-                      loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
-                                                                 reduction=tf.keras.losses.Reduction.AUTO),
-                      # loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+                        # loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
+                        #                                            reduction=tf.keras.losses.Reduction.AUTO),
+                        loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True,
+                                                                label_smoothing=0.2),
                       # Also include background in metrics
-                      metrics=['accuracy',tf.keras.metrics.MeanIoU(1 + config.seg_num_classes)],
+                      metrics=['categorical_accuracy'],#tf.keras.metrics.MeanIoU(config.seg_num_classes)],
                       experimental_run_tf_function=False,
                       run_eagerly=True)
-   
+        model.build((config.batch_size, config.image_size, config.image_size, 3))
+
+        if config.pretrain_path:
+            # Loading weights from pretrained path
+            model.load_weights(config.pretrain_path,by_name=True,skip_mismatch=True)
         model.summary()
     
     callbacks = [
@@ -363,13 +391,13 @@ def main(config):
         # hvd.callbacks.LearningRateWarmupCallback(warmup_epochs=3, initial_lr=scaled_lr, verbose=1),
         
         
-        hvd.callbacks.LearningRateScheduleCallback(learning_rate,
+        hvd.callbacks.LearningRateScheduleCallback(1, # LR: 1 * learning_rate(epoch)
+                                                   learning_rate,
                                                    start_epoch=0,
                                                    end_epoch=config.num_epochs,
                                                    staircase=True,
                                                    momentum_correction=True,
-                                                   steps_per_epoch=config.steps_per_epoch // 2,
-                                                   initial_lr=1)
+                                                   steps_per_epoch=config.steps_per_epoch)
     ]
     # Horovod: write logs on worker 0.
     verbose = 1 if hvd.rank() == 0 else 0
@@ -389,7 +417,7 @@ def main(config):
             validation_freq=1,
             verbose=verbose)
             
-        print(f'Finished training\n')
+        print(f"Finished training\n")
             
         print("Starting Evaluation...")
         
@@ -403,7 +431,7 @@ if __name__ == '__main__':
   hvd.init()
   logging.set_verbosity(logging.WARNING)
 
-  config = hparams_config.get_efficientdet_config('efficientdet-d0')
+  config = hparams_config.get_efficientdet_config('efficientdet-d4')
   opts = get_options()
   # Override config with command line args
   config.update(opts.__dict__)

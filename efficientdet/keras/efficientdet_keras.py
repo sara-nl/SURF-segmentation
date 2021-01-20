@@ -760,50 +760,50 @@ class EfficientDetNet(tf.keras.Model):
                   data_format=config.data_format,
                   name='resample_p%d' % level,
               ))
-    self.fpn_cells = FPNCells(config)
-
-    # class/box output prediction network.
-    num_anchors = len(config.aspect_ratios) * config.num_scales
-    num_filters = config.fpn_num_filters
-    for head in config.heads:
-      if head == 'object_detection':
-        self.class_net = ClassNet(
-            num_classes=config.num_classes,
-            num_anchors=num_anchors,
-            num_filters=num_filters,
-            min_level=config.min_level,
-            max_level=config.max_level,
-            is_training_bn=config.is_training_bn,
-            act_type=config.act_type,
-            repeats=config.box_class_repeats,
-            separable_conv=config.separable_conv,
-            survival_prob=config.survival_prob,
-            strategy=config.strategy,
-            data_format=config.data_format)
-
-        self.box_net = BoxNet(
-            num_anchors=num_anchors,
-            num_filters=num_filters,
-            min_level=config.min_level,
-            max_level=config.max_level,
-            is_training_bn=config.is_training_bn,
-            act_type=config.act_type,
-            repeats=config.box_class_repeats,
-            separable_conv=config.separable_conv,
-            survival_prob=config.survival_prob,
-            strategy=config.strategy,
-            data_format=config.data_format)
-
-      if head == 'segmentation':
-        self.seg_head = SegmentationHead(
-            num_classes=config.seg_num_classes,
-            num_filters=num_filters,
-            min_level=config.min_level,
-            max_level=config.max_level,
-            is_training_bn=config.is_training_bn,
-            act_type=config.act_type,
-            strategy=config.strategy,
-            data_format=config.data_format)
+        self.fpn_cells = FPNCells(config)
+    
+        # class/box output prediction network.
+        num_anchors = len(config.aspect_ratios) * config.num_scales
+        num_filters = config.fpn_num_filters
+        for head in config.heads:
+          if head == 'object_detection':
+            self.class_net = ClassNet(
+                num_classes=config.num_classes,
+                num_anchors=num_anchors,
+                num_filters=num_filters,
+                min_level=config.min_level,
+                max_level=config.max_level,
+                is_training_bn=config.is_training_bn,
+                act_type=config.act_type,
+                repeats=config.box_class_repeats,
+                separable_conv=config.separable_conv,
+                survival_prob=config.survival_prob,
+                strategy=config.strategy,
+                data_format=config.data_format)
+    
+            self.box_net = BoxNet(
+                num_anchors=num_anchors,
+                num_filters=num_filters,
+                min_level=config.min_level,
+                max_level=config.max_level,
+                is_training_bn=config.is_training_bn,
+                act_type=config.act_type,
+                repeats=config.box_class_repeats,
+                separable_conv=config.separable_conv,
+                survival_prob=config.survival_prob,
+                strategy=config.strategy,
+                data_format=config.data_format)
+    
+          if head == 'segmentation':
+            self.seg_head = SegmentationHead(
+                num_classes=config.seg_num_classes,
+                num_filters=num_filters,
+                min_level=config.min_level,
+                max_level=config.max_level,
+                is_training_bn=config.is_training_bn,
+                act_type=config.act_type,
+                strategy=config.strategy,
+                data_format=config.data_format)
 
   def _init_set_name(self, name, zero_based=True):
     """A hack to allow empty model name for legacy checkpoint compitability."""

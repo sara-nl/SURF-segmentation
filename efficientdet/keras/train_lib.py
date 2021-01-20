@@ -38,7 +38,7 @@ def update_learning_rate_schedule_parameters(params):
   params.lr_warmup_step = int(params['lr_warmup_epoch']) #* steps_per_epoch)
   params.first_lr_drop_step = int(params['first_lr_drop_epoch']) #* steps_per_epoch)
   params.second_lr_drop_step = int(params['second_lr_drop_epoch']) #* steps_per_epoch)
-  params.total_steps = int(params['num_epochs']) #* steps_per_epoch
+  params.total_steps = int(params['total_steps']) #int(params['num_epochs']) #* steps_per_epoch
   
 
 
@@ -112,6 +112,8 @@ class CosineLrSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
           Decay steps: {self.decay_steps}")
 
   def __call__(self, step):
+    print("Called learning rate")
+    print(f"Step {step}")
     linear_warmup = (
         self.lr_warmup_init +
         (tf.cast(step, dtype=tf.float32) / self.lr_warmup_step *
@@ -145,7 +147,7 @@ class CyclicLrSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
         print(f"Initialized Cyclic LR Schedule:\n\
           Base LR: {self.base_lr},\n\
           Max LR: {self.max_lr},\n\
-          Step size: {self.step_size},\n\
+          Step size (Epochs): {self.step_size},\n\
           Gamma: {self.gamma}")
 
     def scale_fn(self, step):
@@ -294,16 +296,18 @@ class DisplayCallback(tf.keras.callbacks.Callback):
 
   
   def on_epoch_end(self, epoch, logs=None):
-    self.save_worker = random.choice(range(hvd.size()))
+    self.save_worker = 0 # random.choice(range(hvd.size()))
     if epoch % self.update_freq == 0:
+        self.train_data = self.train_sampler.__getitem__(epoch)
+        self.train_images = self.train_data[0]
+        self.train_masks  = self.train_data[1]
+        self.valid_images = self.valid_data[0]
+        self.valid_masks  = self.valid_data[1]
+        
+        self.train_masks = tf.expand_dims(tf.argmax(self.train_masks,axis=-1), axis=-1)
+        pred = self.train_model(self.train_images,training=True)[0]
+        pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
         if hvd.rank() == self.save_worker:
-            self.train_data = self.train_sampler.__getitem__(epoch)
-            self.train_images = self.train_data[0]
-            self.train_masks  = self.train_data[1]
-            self.train_masks = tf.expand_dims(tf.argmax(self.train_masks,axis=-1), axis=-1)
-            pred = self.train_model(self.train_images,training=True)[0]
-            pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
-            
             with self.file_writer.as_default():
                 tf.summary.scalar(f' Worker {hvd.rank()}:Learning Rate',self.train_model.optimizer._hyper['learning_rate'].numpy(), step=epoch)
                 tf.summary.image(f' Worker {hvd.rank()}:Train images', tf.cast(self.train_images*255,tf.uint8), step=epoch,max_outputs=10)
@@ -322,21 +326,21 @@ class DisplayCallback(tf.keras.callbacks.Callback):
   def draw_inference(self, epoch):
     # self.model.set_weights(self.train_model.get_weights())
     pred = self.inference()[0] # output is tuple so pred[0] = tf.Tensor((batchsize,imsize,imsize,num_classes)) (logits)
-    if hvd.rank() == self.save_worker:
-        pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
-        self.valid_masks = tf.expand_dims(tf.argmax(self.valid_masks,axis=-1), axis=-1)
-        self.mean_iou.update_state(self.valid_masks,pred)
-        self.auc.update_state(self.valid_masks,pred)
-        # length = valid_len[0]
-        # image = inference.visualize_image(
-        #     self.sample_image[0],
-        #     boxes[0].numpy()[:length],
-        #     classes[0].numpy().astype(np.int)[:length],
-        #     scores[0].numpy()[:length],
-        #     label_map=self.model.config.label_map,
-        #     min_score_thresh=self.min_score_thresh,
-        #     max_boxes_to_draw=self.max_boxes_to_draw)
+    pred = tf.expand_dims(tf.argmax(pred,axis=-1), axis=-1)
+    self.valid_masks = tf.expand_dims(tf.argmax(self.valid_masks,axis=-1), axis=-1)
+    self.mean_iou.update_state(self.valid_masks,pred)
+    self.auc.update_state(self.valid_masks,pred)
+    # length = valid_len[0]
+    # image = inference.visualize_image(
+    #     self.sample_image[0],
+    #     boxes[0].numpy()[:length],
+    #     classes[0].numpy().astype(np.int)[:length],
+    #     scores[0].numpy()[:length],
+    #     label_map=self.model.config.label_map,
+    #     min_score_thresh=self.min_score_thresh,
+    #     max_boxes_to_draw=self.max_boxes_to_draw)
     
+    if hvd.rank() == self.save_worker:
         with self.file_writer.as_default():
           tf.summary.image(f' Worker {hvd.rank()}:Valid images', tf.cast(self.valid_images*255,tf.uint8), step=epoch,max_outputs=10)
           tf.summary.image(f' Worker {hvd.rank()}:Valid masks',  tf.cast(self.valid_masks*255,tf.uint8), step=epoch,max_outputs=10)
@@ -353,9 +357,7 @@ def get_callbacks(params, train_sampler, valid_sampler, profile=False):
     callbacks = []
     if hvd.rank() == 0:
         tb_callback = tf.keras.callbacks.TensorBoard(
-            log_dir=params['log_dir'],
-            histogram_freq=5,
-            profile_batch=2 if profile else 0)  
+            log_dir=params['log_dir'],histogram_freq=5,profile_batch=2 if profile else 0)  
         
         ckpt_callback = tf.keras.callbacks.ModelCheckpoint(
             os.path.join(params['log_dir'], '{epoch}_ckpt'),

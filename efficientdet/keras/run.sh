@@ -1,15 +1,13 @@
 #!/bin/bash
 #SBATCH -N 6
-#SBATCH -t 48:00:00
+#SBATCH -t 12:00:00
 #SBATCH -p gpu_titanrtx
-#SBATCH -o R-6nodes.out
-#SBATCH -e R-6nodes.err
+#SBATCH -o R-cam16.out
+#SBATCH -e R-cam16.err
 #SBATCH -x r34n6
 ##r34n6 is broken
 
 
-VENV_NAME=openslide-py38
-cd /home/rubenh/SURF-segmentation/efficientdet/keras
 module purge
 module load 2019
 module load 2020
@@ -18,8 +16,10 @@ module load OpenMPI/4.0.3-GCC-9.3.0
 module load cuDNN/7.6.5.32-CUDA-10.1.243
 module load NCCL/2.5.6-CUDA-10.1.243
 module unload GCCcore
-module unload ncurses
+module unload ncurse
 module load CMake/3.11.4-GCCcore-8.3.0
+VENV_NAME=openslide-py38
+cd /home/rubenh/SURF-segmentation/efficientdet/keras
 source ~/virtualenvs/$VENV_NAME/bin/activate
 #pip install --force-reinstallll tensorflow==2.3.0
 #pip install tensorboard==2.3.0
@@ -36,8 +36,10 @@ export HOROVOD_CUDA_INCLUDE=$CUDA_HOME/include
 export HOROVOD_CUDA_LIB=$CUDA_HOME/lib64
 export HOROVOD_GPU_ALLREDUCE=NCCL
 export HOROVOD_WITHOUT_GLOO=1
-export HOROVOD_GPU_BROADCAST=NCCL
+export HOROVOD_WITHOUT_PYTORCH=1
+export HOROVOD_WITHOUT_MXNET=1
 export HOROVOD_WITH_TENSORFLOW=1
+export HOROVOD_GPU_BROADCAST=NCCL
 export PATH=/home/$USER/virtualenvs/$VENV_NAME/bin:$PATH
 export LD_LIBRARY_PATH=/home/$USER/virtualenvs/$VENV_NAME/lib64:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/home/$USER/virtualenvs/$VENV_NAME/lib:$LD_LIBRARY_PATH
@@ -62,18 +64,19 @@ hosts="${hosts%?}"
 echo "HOSTS: $hosts"
 
 
+
 horovodrun -np 6 \
 --autotune \
---autotune-log-file autotune.csv \
+--autotune-log-file autotunecam16.csv \
 --mpi-args="--map-by ppr:1:node" \
 --hosts $hosts \
 python -u /home/rubenh/SURF-segmentation/efficientdet/keras/segmentation.py \
 --batch_size 1 \
---optimizer SGD \
---lr_decay_method cosine \
---name efficientdet-d0 \
---log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/6nodesconv \
---steps_per_epoch 1500 \
+--optimizer Adam \
+--lr_decay_method cyclic \
+--name efficientdet-d4 \
+--log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/cam16 \
+--steps_per_epoch 100 \
 --num_epochs 500
 
 exit

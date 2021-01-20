@@ -49,17 +49,8 @@ export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 export TF_GPU_THREAD_MODE=gpu_private
+#hosts=`sh ~/hosts.sh`
 
-hosts=""
-for host in $(scontrol show hostnames);
-do
-	hosts="$hosts$host:4,"
-done
-hosts="${hosts%?}"
-echo "HOSTS: $hosts"
-#--mpi-args="--map-by ppr:4:node" \
-#--evaluate \
-#--model_dir /home/rubenh/SURF-deeplab/TRAINING/logs/256twonode/saved_model \
 
 horovodrun -np 1 \
 --mpi-args="--map-by ppr:4:node" \
@@ -69,7 +60,7 @@ python -u train.py \
 --batch_size 1 \
 --verbose debug \
 --fp16_allreduce \
---log_dir /home/rubenh/SURF-segmentation/TRAINING/logs/ \
+--log_dir /home/rubenh/SURF-segmentation/deeplab/logs/ \
 --log_every 1 \
 --min_lr 0.0 \
 --max_lr 0.001 \
