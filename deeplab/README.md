@@ -79,3 +79,7 @@ horovodrun -np 8 \
 --autotune \
 --autotune_log_file autotune.csv
 ```
+## CAMELYON16 Checkpoint
+
+- The following checkpoint(s) are available for DeepLabV3+:
+
