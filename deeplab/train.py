@@ -18,7 +18,8 @@ from options import get_options
 from utils import init, setup_logger, log_training_step, log_validation_step, cosine_decay_with_warmup, \
     get_model_and_optimizer, cyclic_learning_rate
 from utils import init, setup_logger, log_training_step, log_validation_step,cosine_decay_with_warmup, get_model_and_optimizer
-from data_utils import SurfSampler, PreProcess
+sys.path.insert(0,'/home/rubenh/SURF-segmentation')
+from surf_sampler import SurfSampler, PreProcess
 import time
 from tqdm import tqdm
 import random

@@ -143,7 +143,7 @@ class SurfSampler(tf.keras.utils.Sequence):
     def __init__(self, opts, mode='train'):
         super().__init__()
         self.mode = mode.lower()
-        
+
         # Get list of paths
         slides = sorted(glob(os.path.join(opts.slide_path,f'*.{opts.slide_format}')))
         labels = sorted(glob(os.path.join(opts.label_path,f'*.{opts.label_format}')))
@@ -177,6 +177,8 @@ class SurfSampler(tf.keras.utils.Sequence):
             self.valid_paths = self.train_paths[val_split:]
             self.train_paths = self.train_paths[:val_split]
         
+        assert (len(self.valid_paths),len(self.train_paths)) >= (1,1), "WARNING: Please check validation data"
+        
         # Get test data
         if opts.test_path:
             self.test_paths = glob(os.path.join(opts.test_path,f'*.{opts.slide_format}'))
@@ -201,8 +203,8 @@ class SurfSampler(tf.keras.utils.Sequence):
         self.mag_factor     = pow(2, self.opts.bb_downsample)
         self.cnt            = 0
         self.wsi_idx        = 0
-    
-        self.train_paths = self.train_paths * hvd.size()
+        
+        self.train_paths = self.train_paths * hvd.size() * 4
         assert hvd.size() <= len(self.train_paths), f"WARNING: {hvd.size()} workers will share {len(self.train_paths)} train images"
         trainims     = len(self.train_paths)
         train_per_worker     = trainims // hvd.size()
@@ -220,7 +222,7 @@ class SurfSampler(tf.keras.utils.Sequence):
              self.test_paths = self.test_paths[hvd.rank()*test_per_worker:(hvd.rank()+1)*test_per_worker]
              print(f"Worker {hvd.rank()}: AFTER len = {len(self.test_paths)}")
         else:
-            self.valid_paths = self.valid_paths * hvd.size()
+            self.valid_paths = self.valid_paths * hvd.size() * 4
             assert hvd.size() <= len(self.valid_paths), f"WARNING: {hvd.size()} workers will share {len(self.valid_paths)} {mode} images"
             validims    = len(self.valid_paths)
             valid_per_worker    = validims // hvd.size()

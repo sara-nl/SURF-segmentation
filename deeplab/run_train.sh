@@ -1,16 +1,15 @@
 #!/bin/bash
-#SBATCH -N 1
-#SBATCH -t 12:00:00
-#SBATCH -p gpu_titanrtx_shared
-#SBATCH -o R-1024tnode1dip_1024-test.out
-#SBATCH -e R-1024tnode1dip_1024-test.err
+#SBATCH -N 3
+#SBATCH -t 16:00:00
+#SBATCH -p gpu_titanrtx
+#SBATCH -o R-cam16.out
+#SBATCH -e R-cam16.err
 
 
 np=$(($SLURM_NNODES * 4))
 
 
 VENV_NAME=openslide-py38
-cd /home/rubenh/SURF-segmentation/efficientdet/keras
 module purge
 module load 2019
 module load 2020
@@ -49,10 +48,10 @@ export MPICC=mpicc
 export MPICXX=mpicpc
 export HOROVOD_MPICXX_SHOW="mpicxx --showme:link"
 export TF_GPU_THREAD_MODE=gpu_private
-#hosts=`sh ~/hosts.sh`
+hosts=`sh ~/hosts.sh`
 
 
-horovodrun -np 1 \
+horovodrun -np 12 \
 --mpi-args="--map-by ppr:4:node" \
 --hosts $hosts \
 python -u train.py \
@@ -64,10 +63,12 @@ python -u train.py \
 --log_every 1 \
 --min_lr 0.0 \
 --max_lr 0.001 \
---validate_every 3 \
+--validate_every 240 \
 --steps_per_epoch 50000 \
---slide_path '/nfs/managed_datasets/CAMELYON17/training/center_*/' \
---label_path '/nfs/managed_datasets/CAMELYON17/training/' \
+--slide_path '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor' \
+--label_path '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/XML' \
+--valid_slide_path '/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi' \
+--valid_label_path '/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi' \
 --bb_downsample 7 \
 --batch_tumor_ratio 1 \
 --optimizer Adam \

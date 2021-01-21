@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -N 6
+#SBATCH -N 4
 #SBATCH -t 12:00:00
 #SBATCH -p gpu_titanrtx
 #SBATCH -o R-cam16.out
@@ -65,7 +65,7 @@ echo "HOSTS: $hosts"
 
 
 
-horovodrun -np 6 \
+horovodrun -np 1 \
 --autotune \
 --autotune-log-file autotunecam16.csv \
 --mpi-args="--map-by ppr:1:node" \
@@ -73,10 +73,10 @@ horovodrun -np 6 \
 python -u /home/rubenh/SURF-segmentation/efficientdet/keras/segmentation.py \
 --batch_size 1 \
 --optimizer Adam \
---lr_decay_method cyclic \
---name efficientdet-d4 \
---log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/cam16 \
---steps_per_epoch 100 \
+--lr_decay_method cosine \
+--name efficientdet-d0 \
+--log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/cosine \
+--steps_per_epoch 5 \
 --num_epochs 500
 
 exit

@@ -246,7 +246,7 @@ def default_detection_configs():
   # model architecture
   # Minimum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.min_level = 1
-  # Minimum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
+  # Maximum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.max_level = 7
   # Number of scales in the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.num_scales = 3

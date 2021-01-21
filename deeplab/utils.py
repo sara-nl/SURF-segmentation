@@ -134,6 +134,10 @@ def get_model_and_optimizer(opts):
     """ Load the model and optimizer """
 
     if opts.evaluate:
+        assert opts.model_dir, "WARNING: Please provide --model_dir when --evaluate"
+    
+    if opts.model_dir:
+        print(f'Resuming model from {opts.model_dir}...')
         model = tf.keras.models.load_model(opts.model_dir)
     else:
         model = Deeplabv3(input_shape=(opts.image_size, opts.image_size, 3), classes=2, backbone='xception',opts=opts)

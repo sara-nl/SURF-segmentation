@@ -17,9 +17,9 @@ from absl import app
 from absl import logging
 import tensorflow as tf
 import sys
-sys.path.insert(0,'/home/rubenh/SURF-segmentation/deeplab')
+sys.path.insert(0,'/home/rubenh/SURF-segmentation')
 sys.path.insert(0,'/home/rubenh/SURF-segmentation/efficientdet')
-from data_utils import SurfSampler, PreProcess
+from surf_sampler import SurfSampler, PreProcess
 import numpy as np
 import hparams_config
 from keras import efficientdet_keras
@@ -43,8 +43,10 @@ from effdet_options import get_options
 import util_keras
 import tensorflow_addons as tfa
 
-tf.config.threading.set_inter_op_parallelism_threads(12)
-print("THREADS:",tf.config.threading.get_inter_op_parallelism_threads())
+tf.config.threading.set_inter_op_parallelism_threads(0)
+tf.config.threading.set_intra_op_parallelism_threads(0)
+print("INTER THREADS:",tf.config.threading.get_inter_op_parallelism_threads())
+print("INTRA THREADS:",tf.config.threading.get_intra_op_parallelism_threads())
 
 # Horovod: pin GPU to be used to process local rank (one GPU per process)
 gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -224,7 +226,6 @@ def evaluate(model,config,test_sampler):
                 Image.fromarray(ps).save(f"testpatch_{patch_idx}.png")
                 Image.fromarray(predictions[0,...,0]).save(f"testpred_{patch_idx}.png")
                 
-            pdb.set_trace()
             # row    ,  columnn
             y_topleft,x_topleft = test_sampler.save_data[patch_idx]['coords']#[0]
             
@@ -373,6 +374,7 @@ def main(config):
             model.load_weights(config.pretrain_path,by_name=True,skip_mismatch=True)
         model.summary()
     
+
     callbacks = [
         # Horovod: broadcast initial variable states from rank 0 to all other processes.
         # This is necessary to ensure consistent initialization of all workers when
@@ -431,7 +433,7 @@ if __name__ == '__main__':
   hvd.init()
   logging.set_verbosity(logging.WARNING)
 
-  config = hparams_config.get_efficientdet_config('efficientdet-d4')
+  config = hparams_config.get_efficientdet_config('efficientdet-d0')
   opts = get_options()
   # Override config with command line args
   config.update(opts.__dict__)
