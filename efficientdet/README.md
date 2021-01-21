@@ -161,7 +161,7 @@ horovodrun -np 4 \
 --hosts $hosts \
 python -u segmentation.py \
 --batch_size 2 \
---optimizer SGD \
+--optimizer Adam \
 --lr_decay_method cosine \
 --name efficientdet-d0 \
 --log_dir /home/rubenh/SURF-deeplab/efficientdet/keras/test \
@@ -185,7 +185,7 @@ horovodrun -np 4 \
 python -u segmentation.py \
 --batch_size 2 \
 --evaluate \
---optimizer SGD \
+--optimizer Adam \
 --lr_decay_method cosine \
 --name efficientdet-d0 \
 --log_dir /home/rubenh/SURF-deeplab/efficientdet/keras/test \
