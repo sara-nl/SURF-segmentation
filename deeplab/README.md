@@ -83,7 +83,7 @@ horovodrun -np 8 \
 
 - The following checkpoint(s) are available for DeepLabV3+:
 
-| 	Dataset 	  | 	 Folder 	    |   Patch Size   | Train Time(hrs) |     Iteratios (# images )  |    Validation mIoU  |
+| 	Dataset 	  | 	 Folder 	    |   Patch Size   | Train Time(hrs) |     Iterations (# images )  |    Validation mIoU  |
 | ----------------------- | ----------------------- | -------------- | --------------- | -------------------------- |-------------------- | 
 |  CAMELYON16             | deeplab-camelyon16      | 1024           | 12:40:30.002    | 50000            	    |       0.8899        |                                
 - Provide this checkpoint to `--model_dir` or load it directly using [`tf.keras.models.load_model`](https://www.tensorflow.org/api_docs/python/tf/keras/models/load_model)                         
