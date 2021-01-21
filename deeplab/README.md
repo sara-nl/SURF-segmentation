@@ -86,4 +86,4 @@ horovodrun -np 8 \
 | 	Dataset 	  | 	 Folder 	    |   Patch Size   | Train Time      |     Iteratios (# images )  |    Validation mIoU  |
 | ----------------------- | ----------------------- | -------------- | --------------- | -------------------------- |-------------------- | 
 |  CAMELYON16             | deeplab-camelyon16      | 1024           | 12:40:30.002    | 50000            	    |       0.8899        |                                
-- Provide this checkpoint to `--model_dir` or load it directly using \href{https://www.tensorflow.org/api_docs/python/tf/keras/models/load_model}[`tf.keras.models.load_model`]                         
+- Provide this checkpoint to `--model_dir` or load it directly using \href{https://www.tensorflow.org/api_docs/python/tf/keras/models/load_model}                    [`tf.keras.models.load_model`]     
