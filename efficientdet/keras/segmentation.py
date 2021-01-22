@@ -467,9 +467,11 @@ if __name__ == '__main__':
 
   
   opts = get_options()
-  config = hparams_config.get_efficientdet_config(opts.name)
   # Override config with command line args
   config.update(opts.__dict__)
+  
+  config = hparams_config.get_efficientdet_config(opts.name)
+
   
 
   main(config)
