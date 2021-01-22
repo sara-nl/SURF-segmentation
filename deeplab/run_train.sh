@@ -51,11 +51,11 @@ export TF_GPU_THREAD_MODE=gpu_private
 hosts=`sh ~/hosts.sh`
 
 
-horovodrun -np 12 \
+horovodrun -np 1 \
 --mpi-args="--map-by ppr:4:node" \
 --hosts $hosts \
 python -u train.py \
---image_size 1024 \
+--image_size 2048 \
 --batch_size 1 \
 --verbose debug \
 --fp16_allreduce \

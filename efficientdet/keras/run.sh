@@ -74,9 +74,9 @@ python -u /home/rubenh/SURF-segmentation/efficientdet/keras/segmentation.py \
 --batch_size 1 \
 --optimizer Adam \
 --lr_decay_method cosine \
---name efficientdet-d0 \
+--name efficientdet-d4 \
 --log_dir /home/rubenh/SURF-segmentation/efficientdet/keras/cosine \
---steps_per_epoch 5 \
+--steps_per_epoch 50 \
 --num_epochs 500
 
 exit

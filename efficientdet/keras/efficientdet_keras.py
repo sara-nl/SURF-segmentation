@@ -244,7 +244,6 @@ class ResampleFeatureMap(tf.keras.layers.Layer):
     self.conv_after_downsample = conv_after_downsample
     self.pooling_type = pooling_type or 'max'
     self.upsampling_type = upsampling_type or 'nearest'
-
     self.conv2d = tf.keras.layers.Conv2D(
         self.target_num_channels, (1, 1),
         padding='same',
@@ -631,11 +630,6 @@ class SegmentationHead(tf.keras.layers.Layer):
     # This is the last layer of the model
     x = self.head_transpose(x)  # 64x64 -> 128x128
     return x 
-    # if self.num_classes == 1:
-    #     x = tf.math.sigmoid(x)
-    #     return x
-    # elif self.num_classes > 1:
-    #     return tf.nn.softmax(x)
 
 
 class FPNCells(tf.keras.layers.Layer):

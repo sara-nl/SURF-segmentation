@@ -19,32 +19,31 @@ import tensorflow as tf
 import sys
 sys.path.insert(0,'/home/rubenh/SURF-segmentation')
 sys.path.insert(0,'/home/rubenh/SURF-segmentation/efficientdet')
-from surf_sampler import SurfSampler, PreProcess
+import cv2
+import csv as csvlib
+import difflib
+from effdet_options import get_options
 import numpy as np
+from glob import glob
+import horovod.tensorflow.keras as hvd
 import hparams_config
+import json
 from keras import efficientdet_keras
+from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
+import os
 import pdb
+from PIL import Image
+from scipy import ndimage
+from surf_sampler import SurfSampler, PreProcess
+import tensorflow_addons as tfa
+from tensorflow.python.framework.convert_to_constants import (convert_variables_to_constants_v2_as_graph,)
 import time
 from tqdm import tqdm
-from glob import glob
-import cv2
-from PIL import Image
-import horovod.tensorflow.keras as hvd
 import train_lib
-import os
-import csv as csvlib
-import pandas as pd
-from openslide import OpenSlide, ImageSlide, OpenSlideUnsupportedFormatError
-import difflib
-from scipy import ndimage
-import json
-from sklearn.cluster import DBSCAN
-from effdet_options import get_options
 import util_keras
-import tensorflow_addons as tfa
 
-tf.config.threading.set_inter_op_parallelism_threads(0)
-tf.config.threading.set_intra_op_parallelism_threads(0)
+tf.config.threading.set_inter_op_parallelism_threads(6)
+tf.config.threading.set_intra_op_parallelism_threads(2)
 print("INTER THREADS:",tf.config.threading.get_inter_op_parallelism_threads())
 print("INTRA THREADS:",tf.config.threading.get_intra_op_parallelism_threads())
 
@@ -59,7 +58,34 @@ if gpus:
 print(gpus)
 tf.debugging.set_log_device_placement(False)
 
+def get_flops(model,config):
+    """
+    Calculate FLOPS for tf.keras.Model or tf.keras.Sequential .
+    Ignore operations used in only training mode such as Initialization.
+    Use tf.profiler of tensorflow v1 api.
+    """
+    if not isinstance(model, (tf.keras.Sequential, tf.keras.Model)):
+        raise KeyError(
+            "model arguments must be tf.keras.Model or tf.keras.Sequential instance"
+        )
 
+
+    # convert tf.keras model into frozen graph to count FLOPS about operations used at inference
+    # FLOPS depends on batch size
+
+    inputs = tf.TensorSpec([config.batch_size,config.image_size,config.image_size,3], tf.float32)
+    
+    real_model = tf.function(model).get_concrete_function(inputs)
+    frozen_func, _ = convert_variables_to_constants_v2_as_graph(real_model)
+
+    # Calculate FLOPS with tf.profiler
+    run_meta = tf.compat.v1.RunMetadata()
+    opts = tf.compat.v1.profiler.ProfileOptionBuilder.float_operation()
+    flops = tf.compat.v1.profiler.profile(graph=frozen_func.graph, run_meta=run_meta, cmd="scope", options=opts)
+    # print(frozen_func.graph.get_operations())
+    # TODO: show each FLOPS
+
+    return flops.total_float_ops
 
 def get_metastase(wsi_name,data,test_sampler,config):
     """
@@ -343,6 +369,7 @@ def main(config):
     model = efficientdet_keras.EfficientDetNet(config=config)
     if os.path.isfile(os.path.join(config.log_dir,'checkpoint')):
         print(f"Loading checkpoint from {os.path.join(config.log_dir,'checkpoint')} ...")
+        model.build((config.batch_size, config.image_size, config.image_size, 3))
         model.compile(optimizer=opt,
                       # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
                         # loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
@@ -353,10 +380,11 @@ def main(config):
                       metrics=['categorical_accuracy'],#tf.keras.metrics.MeanIoU(config.seg_num_classes)],
                       experimental_run_tf_function=False,
                       run_eagerly=True)
-        model.build((config.batch_size, config.image_size, config.image_size, 3))
+        
         ckpt_path = tf.train.latest_checkpoint(config.log_dir)
         util_keras.restore_ckpt(model, ckpt_path, config.moving_average_decay)
     else:
+        model.build((config.batch_size, config.image_size, config.image_size, 3))
         model.compile(optimizer=opt,
                       # https://www.tensorflow.org/addons/api_docs/python/tfa/losses/SigmoidFocalCrossEntropy
                         # loss=tfa.losses.SigmoidFocalCrossEntropy(from_logits=True,
@@ -367,14 +395,18 @@ def main(config):
                       metrics=['categorical_accuracy'],#tf.keras.metrics.MeanIoU(config.seg_num_classes)],
                       experimental_run_tf_function=False,
                       run_eagerly=True)
-        model.build((config.batch_size, config.image_size, config.image_size, 3))
 
         if config.pretrain_path:
             # Loading weights from pretrained path
             model.load_weights(config.pretrain_path,by_name=True,skip_mismatch=True)
-        model.summary()
+    model.summary()
     
 
+    # Calculate FLOPS
+    # flops = get_flops(model, config)
+    # print(f"FLOPS: {flops / 10 ** 9:.03} G")    
+    pdb.set_trace()
+    
     callbacks = [
         # Horovod: broadcast initial variable states from rank 0 to all other processes.
         # This is necessary to ensure consistent initialization of all workers when
@@ -433,8 +465,9 @@ if __name__ == '__main__':
   hvd.init()
   logging.set_verbosity(logging.WARNING)
 
-  config = hparams_config.get_efficientdet_config('efficientdet-d0')
+  
   opts = get_options()
+  config = hparams_config.get_efficientdet_config(opts.name)
   # Override config with command line args
   config.update(opts.__dict__)
   

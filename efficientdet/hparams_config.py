@@ -172,8 +172,8 @@ def default_detection_configs():
   # For WSI Sampler
   h.batch_size = 4
   # String format gets appended to paths, so glob wild cards possible, like /path/to/data/folder_*/ (if you want folder 1-4 for example)
-  h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
-  h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/XML'
+  h.slide_path ='/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'# '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
+  h.label_path = '/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'#'/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/XML'
   # h.slide_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Train_Tumor'
   # h.label_path = '/nfs/managed_datasets/CAMELYON16/TrainingData/Ground_Truth/Mask'
   h.valid_slide_path =  '/home/rubenh/SURF-segmentation/efficientdet/keras/trainwsi'
@@ -217,7 +217,7 @@ def default_detection_configs():
   h.act_type = 'swish'
 
   # input preprocessing parameters
-  h.image_size = 1280  # An integer 
+  h.image_size = 2048  # An integer 
 
   
   h.target_size = None
@@ -245,7 +245,7 @@ def default_detection_configs():
 
   # model architecture
   # Minimum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
-  h.min_level = 1
+  h.min_level = 2
   # Maximum level of the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
   h.max_level = 7
   # Number of scales in the feature Pyramid Network (see https://arxiv.org/abs/1911.09070)
@@ -360,7 +360,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d0',
             backbone_name='efficientnet-b0',
-            image_size=2048,
+            # image_size=512,
             fpn_num_filters=64,
             fpn_cell_repeats=6,
             box_class_repeats=3,
@@ -369,7 +369,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d1',
             backbone_name='efficientnet-b1',
-            image_size=640,
+            # image_size=640,
             fpn_num_filters=88,
             fpn_cell_repeats=4,
             box_class_repeats=3,
@@ -378,7 +378,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d2',
             backbone_name='efficientnet-b2',
-            image_size=768,
+            # image_size=768,
             fpn_num_filters=112,
             fpn_cell_repeats=5,
             box_class_repeats=3,
@@ -387,7 +387,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d3',
             backbone_name='efficientnet-b3',
-            image_size=896,
+            # image_size=896,
             fpn_num_filters=160,
             fpn_cell_repeats=6,
             box_class_repeats=4,
@@ -396,16 +396,16 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d4',
             backbone_name='efficientnet-b4',
-            image_size=1024,
-            fpn_num_filters=224,
-            fpn_cell_repeats=7,
+            # image_size=1024,
+            fpn_num_filters=128,#224,
+            fpn_cell_repeats=3,#7,
             box_class_repeats=4,
         ),
     'efficientdet-d5':
         dict(
             name='efficientdet-d5',
             backbone_name='efficientnet-b5',
-            image_size=1280,
+            # image_size=1280,
             fpn_num_filters=288,
             fpn_cell_repeats=7,
             box_class_repeats=4,
@@ -414,7 +414,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d6',
             backbone_name='efficientnet-b6',
-            image_size=1280,
+            # image_size=1280,
             fpn_num_filters=384,
             fpn_cell_repeats=8,
             box_class_repeats=5,
@@ -424,7 +424,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d7',
             backbone_name='efficientnet-b6',
-            image_size=1536,
+            # image_size=1536,
             fpn_num_filters=384,
             fpn_cell_repeats=8,
             box_class_repeats=5,
@@ -435,7 +435,7 @@ efficientdet_model_param_dict = {
         dict(
             name='efficientdet-d7x',
             backbone_name='efficientnet-b7',
-            image_size=1536,
+            # image_size=1536,
             fpn_num_filters=384,
             fpn_cell_repeats=8,
             box_class_repeats=5,

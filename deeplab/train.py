@@ -1,28 +1,23 @@
 from __future__ import absolute_import, division, print_function
 import os
 import sys
-
 sys.path.insert(0, os.getcwd())
-import tensorflow as tf
-import horovod.tensorflow as hvd
-import pdb
-import time
-from PIL import Image
-from pprint import pprint
-import numpy as np
-import cv2
-import time
-from tqdm import tqdm
-import pdb
-from options import get_options
-from utils import init, setup_logger, log_training_step, log_validation_step, cosine_decay_with_warmup, \
-    get_model_and_optimizer, cyclic_learning_rate
-from utils import init, setup_logger, log_training_step, log_validation_step,cosine_decay_with_warmup, get_model_and_optimizer
 sys.path.insert(0,'/home/rubenh/SURF-segmentation')
-from surf_sampler import SurfSampler, PreProcess
+import cv2
+import horovod.tensorflow as hvd
+import numpy as np
+from options import get_options
+from PIL import Image
+import pdb
+from pprint import pprint
+import tensorflow as tf
 import time
 from tqdm import tqdm
 import random
+from surf_sampler import SurfSampler, PreProcess
+from utils import init, setup_logger, log_training_step, log_validation_step, cosine_decay_with_warmup, \
+    get_model_and_optimizer, cyclic_learning_rate
+
 
 
 
@@ -136,7 +131,6 @@ def train(opts, model, optimizer, file_writer, compression,train_sampler,valid_s
     # tf.profiler.experimental.start(opts.log_dir, tf.profiler.experimental.ProfilerOptions(host_tracer_level=3, python_tracer_level=0))
     # tf.profiler.experimental.start(opts.log_dir)
     ### 10 steps for measuring profile ###
-    # opts.steps_per_epoch=32
     for epoch in range(opts.epochs):
         for step in range(0, opts.steps_per_epoch, hvd.size() * opts.batch_size):
             # with tf.profiler.experimental.Trace('train', step_num=step, _r=1):
@@ -196,6 +190,7 @@ def test(opts, model, optimizer, file_writer, compression, sampler,preprocess):
     past_wsi = []
     _array = []
     save_mask = np.zeros((opts.image_size, opts.image_size))
+    
     while not done:
         if past_wsi:
             _len = len(past_wsi)
