@@ -465,12 +465,12 @@ if __name__ == '__main__':
   hvd.init()
   logging.set_verbosity(logging.WARNING)
 
-  
   opts = get_options()
-  # Override config with command line args
+  config = hparams_config.default_detection_configs()
   config.update(opts.__dict__)
-  
+  # Override config with command line args
   config = hparams_config.get_efficientdet_config(opts.name)
+
 
   
 
