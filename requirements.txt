@@ -62,6 +62,6 @@ torch==1.7.1
 tqdm==4.48.2
 typeguard==2.10.0
 typing-extensions==3.7.4.3
-urllib3==1.25.11
+urllib3==1.26.5
 Werkzeug==1.0.1
 wrapt==1.12.1
