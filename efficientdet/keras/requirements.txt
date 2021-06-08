@@ -31,7 +31,7 @@ opencv-python==4.4.0.42
 openslide-python==1.1.1
 opt-einsum==3.3.0
 pandas==1.1.3
-Pillow==7.2.0
+Pillow==8.2.0
 protobuf==3.13.0
 psutil==5.7.2
 pyasn1==0.4.8
