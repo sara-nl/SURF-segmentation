@@ -15,7 +15,7 @@ GPUtil==1.4.0
 grpcio==1.33.1
 gviz-api==1.9.0
 h5py==2.10.0
-horovod==0.21.0
+horovod==0.24.0
 humanize==2.6.0
 idna==2.10
 joblib==0.16.0
