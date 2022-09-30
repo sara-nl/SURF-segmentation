@@ -18,7 +18,7 @@ h5py==2.10.0
 horovod==0.20.3
 humanize==2.6.0
 idna==2.10
-joblib==0.16.0
+joblib==1.2.0
 Keras-Preprocessing==1.1.2
 kiwisolver==1.2.0
 llvmlite==0.34.0
